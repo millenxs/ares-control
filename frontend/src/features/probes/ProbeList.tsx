@@ -16,11 +16,12 @@ export function ProbeList({
     <Panel
       title="Sondas em Operação"
       subtitle="Selecione uma sonda para inspecionar sua malha e enviar comandos."
-      badge={<Badge tone="teal">{probes.length} ativa(s)</Badge>}
+      badge={<Badge tone="neutral">{probes.length} ativa(s)</Badge>}
     >
       {probes.length === 0 ? (
         <p className="empty-state">
-          Nenhuma sonda lançada ainda. Configure os limites acima para iniciar.
+          Nenhuma sonda lançada ainda. Configure os limites acima para iniciar o
+          pouso.
         </p>
       ) : (
         <ul className="probe-list" aria-label="Lista de sondas">
@@ -41,7 +42,7 @@ export function ProbeList({
                         {probe.id.slice(0, 8)}
                       </span>
                     </div>
-                    <Badge tone={isSelected ? "amber" : "neutral"}>
+                    <Badge tone={isSelected ? "mars" : "neutral"}>
                       {probe.direction}
                     </Badge>
                   </div>

@@ -23,7 +23,7 @@ export function Panel({ title, subtitle, badge, children }: PanelProps) {
 }
 
 interface BadgeProps {
-  tone?: "neutral" | "amber" | "teal";
+  tone?: "neutral" | "mars" | "amber";
   children: ReactNode;
 }
 

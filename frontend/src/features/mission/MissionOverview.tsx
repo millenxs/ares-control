@@ -1,5 +1,6 @@
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { Badge, Panel } from "../../shared/ui/Primitives";
+import { MarsCanvas3D } from "./MarsCanvas3D";
 import { PlateauMap } from "./PlateauMap";
 
 interface MissionOverviewProps {
@@ -21,54 +22,28 @@ export function MissionOverview({
   return (
     <Panel
       title="Observatório Cartográfico e Telemetria"
-      subtitle="Projeção tática sobre o hemisfério marciano e estado confirmado pela API."
+      subtitle="Superfície de Marte em 3D e estado confirmado pela API para a sonda ativa."
       badge={
         selectedProbe ? (
-          <Badge tone="teal">
+          <Badge tone="mars">
             Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
           </Badge>
         ) : (
-          <Badge tone="neutral">Órbita livre</Badge>
+          <Badge tone="neutral">Órbita de Marte</Badge>
         )
       }
     >
       {!selectedProbe ? (
         <div className="empty-observatory">
-          <div className="empty-mars-showcase" aria-hidden="true">
-            <div className="mars-atmosphere-glow" />
-            <div className="mars-sphere mars-sphere-idle" />
-            <svg className="empty-observatory-svg" viewBox="0 0 280 280">
-              <circle cx="140" cy="140" r="126" className="orbital-ring" />
-              <circle
-                cx="140"
-                cy="140"
-                r="96"
-                className="orbital-ring orbital-ring-dashed"
-              />
-              <circle cx="140" cy="140" r="56" className="orbital-ring" />
-              <line
-                x1="140"
-                y1="8"
-                x2="140"
-                y2="272"
-                className="orbital-axis"
-              />
-              <line
-                x1="8"
-                y1="140"
-                x2="272"
-                y2="140"
-                className="orbital-axis"
-              />
-              <circle cx="140" cy="140" r="5" className="empty-beacon" />
-            </svg>
+          <div className="empty-mars-stage" aria-hidden="true">
+            <MarsCanvas3D className="mars-canvas-empty" />
           </div>
           <h3 className="empty-observatory-title">
             Nenhum sinal de sonda na superfície
           </h3>
           <p className="empty-state">
-            Marte aguarda o primeiro pouso. Configure os limites máximos (X, Y)
-            e a direção inicial no card à esquerda para lançar uma sonda em (0,
+            Aguardando lançamento de sonda. Configure os limites máximos (X, Y)
+            e a direção inicial no card à esquerda para iniciar o pouso em (0,
             0).
           </p>
         </div>

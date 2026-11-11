@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { Button } from "../../shared/ui/Primitives";
+import { MarsCanvas3D } from "./MarsCanvas3D";
 
 interface PlateauMapProps {
   selectedProbe: Probe;
@@ -13,8 +14,6 @@ const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
   SOUTH: 180,
   WEST: 270,
 };
-
-const ORBITAL_DEGREE_TICKS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
 
 function buildAxisTicks(maxCoordinate: number): number[] {
   const totalPositions = maxCoordinate + 1;
@@ -38,11 +37,10 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   const rows = maxY + 1;
 
   const boardSize = 540;
-  const center = boardSize / 2;
-  const padLeft = 64;
+  const padLeft = 60;
   const padRight = 44;
-  const padTop = 48;
-  const padBottom = 60;
+  const padTop = 44;
+  const padBottom = 58;
 
   const usableWidth = boardSize - padLeft - padRight;
   const usableHeight = boardSize - padTop - padBottom;
@@ -85,11 +83,12 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
       <div className="plateau-stage-bar">
         <div className="plateau-stage-meta">
           <span className="plateau-stage-caption">
-            Origem (0, 0) no canto inferior esquerdo · Norte (↑) no topo
+            Malha Cartográfica · Origem (0, 0) no canto inferior esquerdo ·
+            Norte (↑) no topo
           </span>
           <span className="plateau-stage-bounds">
-            ({selectedProbe.x}, {selectedProbe.y}, {selectedProbe.direction}) em
-            [0..{maxX}, 0..{maxY}]
+            Posição ({selectedProbe.x}, {selectedProbe.y}, {selectedProbe.direction}) ·
+            Limites [0..{maxX}, 0..{maxY}]
           </span>
         </div>
 
@@ -105,9 +104,8 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
       <div
         className={`mars-arena ${is3DView ? "mars-arena-3d" : "mars-arena-2d"}`}
       >
-        <div className="mars-globe-anchor" aria-hidden="true">
-          <div className="mars-atmosphere-glow" />
-          <div className="mars-sphere" />
+        <div className="mars-backdrop-orbit" aria-hidden="true">
+          <MarsCanvas3D />
         </div>
 
         <div className="plateau-board-deck">
@@ -117,47 +115,6 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
             role="img"
             aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
           >
-            <g className="orbital-backdrop" aria-hidden="true">
-              <circle
-                cx={center}
-                cy={center}
-                r={248}
-                className="orbital-ring orbital-ring-outer"
-              />
-              <circle
-                cx={center}
-                cy={center}
-                r={216}
-                className="orbital-ring orbital-ring-dashed"
-              />
-              <circle cx={center} cy={center} r={176} className="orbital-ring" />
-              {ORBITAL_DEGREE_TICKS.map((deg) => (
-                <line
-                  key={`deg-${deg}`}
-                  x1={center}
-                  y1={22}
-                  x2={center}
-                  y2={32}
-                  transform={`rotate(${deg} ${center} ${center})`}
-                  className="orbital-degree-tick"
-                />
-              ))}
-              <line
-                x1={center}
-                y1={16}
-                x2={center}
-                y2={boardSize - 16}
-                className="orbital-axis"
-              />
-              <line
-                x1={16}
-                y1={center}
-                x2={boardSize - 16}
-                y2={center}
-                className="orbital-axis"
-              />
-            </g>
-
             <rect
               x={originX}
               y={originY}
@@ -242,7 +199,7 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
               return (
                 <text
                   key={`ylabel-${yValue}`}
-                  x={originX - 14}
+                  x={originX - 12}
                   y={cy + 4}
                   textAnchor="end"
                   className="axis-tick"

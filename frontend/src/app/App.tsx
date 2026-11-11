@@ -22,16 +22,16 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
         <div className="brand-block">
           <div className="brand-title-row">
             <h1 className="app-title">Ares Control</h1>
-            <Badge tone="amber">Missão Marte</Badge>
+            <Badge tone="mars">Marte · Órbita</Badge>
           </div>
           <p className="app-subtitle">
-            Mesa tática de lançamento, comando e cartografia orbital de sondas
-            em Marte.
+            Central de comando e cartografia espacial para controle de sondas na
+            superfície de Marte.
           </p>
         </div>
 
         <div className="header-actions">
-          <Badge tone="teal">{mission.probes.length} sonda(s) na malha</Badge>
+          <Badge tone="neutral">{mission.probes.length} sonda(s) ativas</Badge>
           <Button
             variant="secondary"
             onClick={() => void mission.reloadProbes()}
@@ -93,7 +93,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
 
           <Panel
             title="Protocolo de Navegação"
-            subtitle="Regras de movimento confirmadas pela estação central."
+            subtitle="Regras físicas de exploração da superfície marciana."
           >
             <dl className="protocol-list">
               <div className="protocol-row">
@@ -102,15 +102,15 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
               </div>
               <div className="protocol-row">
                 <dt>Rotação L / R</dt>
-                <dd>Gira 90° sem mudar de célula</dd>
+                <dd>Gira 90° sem sair da célula</dd>
               </div>
               <div className="protocol-row">
                 <dt>Avanço M</dt>
-                <dd>Move 1 unidade na direção atual</dd>
+                <dd>Avança 1 posição na direção atual</dd>
               </div>
               <div className="protocol-row">
                 <dt>Segurança de borda</dt>
-                <dd>Sequência inválida é rejeitada por inteiro</dd>
+                <dd>Comando fora da malha rejeita a sequência</dd>
               </div>
             </dl>
           </Panel>
