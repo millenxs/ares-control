@@ -429,7 +429,7 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 7. Sondas secundárias com número da sonda (#X), seta direcional e ID no hover */}
+              {/* 7. Sondas secundárias na mesma malha (somente referência visual; clique passa para a célula) */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
                 const pDeg = DIRECTION_TARGET_ANGLE[p.direction];
@@ -442,10 +442,9 @@ export function PlateauMap({
                     key={p.id}
                     transform={`translate(${c.cx}, ${c.cy})`}
                     className="secondary-probe-group"
-                    onClick={() => onSelectProbe?.(p.id)}
-                    style={{ cursor: "pointer" }}
+                    style={{ pointerEvents: "none" }}
                   >
-                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction} (Clique para selecionar)`}</title>
+                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction}`}</title>
                     <circle r={pRadius} className="secondary-probe-core" />
                     <g transform={`rotate(${pDeg})`}>
                       <polygon

@@ -37,7 +37,6 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
       <main className="observatory-grid-layout">
         <aside className="pod-column pod-left">
           <LaunchProbeForm
-            selectedProbe={mission.selectedProbe}
             isSubmitting={mission.isLaunching}
             errorMessage={mission.launchError}
             onLaunch={mission.launchProbe}

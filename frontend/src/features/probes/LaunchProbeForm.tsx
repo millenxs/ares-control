@@ -1,5 +1,5 @@
-import { type FormEvent, useEffect, useState } from "react";
-import type { Direction, LaunchProbeInput, Probe } from "../../shared/api/probesApi";
+import { type FormEvent, useState } from "react";
+import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
 
 const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = [
   { value: "NORTH", key: "N", label: "NORTH" },
@@ -9,14 +9,12 @@ const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = 
 ];
 
 interface LaunchProbeFormProps {
-  selectedProbe: Probe | null;
   isSubmitting: boolean;
   errorMessage: string | null;
   onLaunch: (input: LaunchProbeInput) => Promise<void>;
 }
 
 export function LaunchProbeForm({
-  selectedProbe,
   isSubmitting,
   errorMessage,
   onLaunch,
@@ -25,13 +23,6 @@ export function LaunchProbeForm({
   const [maxY, setMaxY] = useState("5");
   const [direction, setDirection] = useState<Direction>("NORTH");
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (selectedProbe) {
-      setMaxX(String(selectedProbe.plateau.max_x));
-      setMaxY(String(selectedProbe.plateau.max_y));
-    }
-  }, [selectedProbe]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
