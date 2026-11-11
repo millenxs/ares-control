@@ -50,8 +50,21 @@ export interface ProbesApiClient {
   executeCommands(probeId: string, commands: string): Promise<Probe>;
 }
 
-const DEFAULT_API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+function resolveDefaultApiBaseUrl(): string {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    return "https://ares-control.vercel.app";
+  }
+  return "http://localhost:8000";
+}
+
+const DEFAULT_API_BASE_URL = resolveDefaultApiBaseUrl();
 
 async function parseResponse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null);
