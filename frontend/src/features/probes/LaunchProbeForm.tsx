@@ -1,6 +1,5 @@
 import { type FormEvent, useState } from "react";
 import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
-import { Badge, Button, Panel } from "../../shared/ui/Primitives";
 
 const DIRECTIONS: readonly { value: Direction; label: string }[] = [
   { value: "NORTH", label: "NORTH (Norte)" },
@@ -23,6 +22,7 @@ export function LaunchProbeForm({
   const [maxX, setMaxX] = useState("5");
   const [maxY, setMaxY] = useState("5");
   const [direction, setDirection] = useState<Direction>("NORTH");
+  const [safetyLock, setSafetyLock] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -51,35 +51,92 @@ export function LaunchProbeForm({
   const displayedError = validationError ?? errorMessage;
 
   return (
-    <Panel
-      title="Lançamento de Sonda"
-      subtitle="Configure a malha disponível e insira uma nova sonda em (0, 0)."
-      badge={<Badge tone="amber">PAYLOAD • PRONTO</Badge>}
-    >
-      <div className="card-instrument-box" aria-hidden="true">
-        <div className="instrument-row">
-          <span className="instrument-label">ARES EXPLORER V</span>
-          <span className="instrument-val-green">100% OK</span>
+    <div className="sci-card" aria-label="Lançamento de Sonda">
+      {/* Top Header estilo Image 1 */}
+      <div className="sci-card-header">
+        <div className="sci-pill-badge badge-amber-payload">
+          <span className="dot-teal" />
+          <span>PAYLOAD</span>
+          <span className="sep">•</span>
+          <span>PRONTO</span>
         </div>
-        <div className="instrument-progress-bar">
-          <div className="instrument-progress-fill" style={{ width: "98.4%" }} />
+        <div className="sci-icon-btn" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          </svg>
         </div>
-        <div className="instrument-grid">
-          <div className="instrument-pill">
-            <span className="pill-key">COORDENADA</span>
-            <span className="pill-val">(0, 0)</span>
+      </div>
+
+      <h2 className="sci-card-title">LANÇAMENTO DE SONDA</h2>
+
+      {/* Visor de Telemetria de Carga e Propulsão estilo Image 1 */}
+      <div className="telemetry-box" aria-hidden="true">
+        <div className="telemetry-box-header">
+          <span>ARES EXPLORER V</span>
+          <span className="green-val">100% OK</span>
+        </div>
+        <div className="telemetry-progress-line">
+          <div className="progress-label-row">
+            <span>CARGA RTG</span>
+            <span className="bold-val">98.4%</span>
           </div>
-          <div className="instrument-pill">
-            <span className="pill-key">PROPULSÃO</span>
-            <span className="pill-val">ARMADO</span>
+          <div className="progress-track">
+            <div className="progress-bar-fill progress-blue" style={{ width: "98.4%" }} />
+          </div>
+        </div>
+
+        <div className="status-duo-grid">
+          <div className="status-chip">
+            <span className="chip-label">DESACOPLAMENTO</span>
+            <span className="chip-value-green">ARMADO</span>
+          </div>
+          <div className="status-chip">
+            <span className="chip-label">RETROFOGUETES</span>
+            <span className="chip-value-green">PRESSURIZ.</span>
           </div>
         </div>
       </div>
 
-      <form className="stack-form" onSubmit={handleSubmit} noValidate>
+      {/* Janela de Ejeção e Delta-V estilo Image 1 */}
+      <div className="ejection-window-box" aria-hidden="true">
+        <div className="ejection-stat">
+          <span className="ejection-label">JANELA DE EJEÇÃO</span>
+          <span className="ejection-timer">00:04:35</span>
+        </div>
+        <div className="ejection-stat text-right">
+          <span className="ejection-label">DELTA-V</span>
+          <span className="delta-val">1.420 <small>m/s</small></span>
+        </div>
+      </div>
+
+      {/* Trava de Segurança Toggle estilo Image 1 */}
+      <div className="safety-lock-bar">
+        <div className="lock-label-group">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span>TRAVA DE SEGURANÇA</span>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={safetyLock}
+          onClick={() => setSafetyLock((v) => !v)}
+          className={`toggle-switch ${safetyLock ? "toggle-on" : "toggle-off"}`}
+        >
+          <span className="toggle-thumb" />
+        </button>
+      </div>
+
+      {/* Formulário Operacional de Lançamento */}
+      <form className="launch-operational-form" onSubmit={handleSubmit} noValidate>
         <div className="field-row">
-          <label className="field">
-            <span className="field-label">Limite X máximo</span>
+          <label className="field-mini">
+            <span className="field-mini-label">Limite X máximo</span>
             <input
               type="number"
               min={0}
@@ -91,8 +148,8 @@ export function LaunchProbeForm({
             />
           </label>
 
-          <label className="field">
-            <span className="field-label">Limite Y máximo</span>
+          <label className="field-mini">
+            <span className="field-mini-label">Limite Y máximo</span>
             <input
               type="number"
               min={0}
@@ -105,8 +162,8 @@ export function LaunchProbeForm({
           </label>
         </div>
 
-        <label className="field">
-          <span className="field-label">Direção inicial</span>
+        <label className="field-mini">
+          <span className="field-mini-label">Direção inicial</span>
           <select
             value={direction}
             onChange={(event) => setDirection(event.target.value as Direction)}
@@ -126,15 +183,19 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        <Button
+        {/* Botão de Lançamento estilo botão claro com ícone de foguete */}
+        <button
           type="submit"
-          variant="primary"
-          className="btn-launch"
+          className="btn-launch-rocket"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Lançando sonda..." : "Lançar sonda em (0, 0)"}
-        </Button>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+          </svg>
+          <span>{isSubmitting ? "LANÇANDO..." : "Lançar sonda em (0, 0)"}</span>
+        </button>
       </form>
-    </Panel>
+    </div>
   );
 }

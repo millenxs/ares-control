@@ -1,5 +1,4 @@
 import type { Direction, Probe } from "../../shared/api/probesApi";
-import { Badge, Panel } from "../../shared/ui/Primitives";
 import { MarsCanvas3D } from "./MarsCanvas3D";
 import { PlateauMap } from "./PlateauMap";
 
@@ -20,78 +19,67 @@ export function MissionOverview({
   probes,
 }: MissionOverviewProps) {
   return (
-    <Panel
-      title="Observatório Cartográfico e Telemetria"
-      subtitle="Superfície de Marte em 3D e estado confirmado pela API para a sonda ativa."
-      variant="transparent"
-      badge={
-        selectedProbe ? (
-          <Badge tone="mars">
-            Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
-          </Badge>
-        ) : (
-          <Badge tone="dark">Órbita de Marte</Badge>
-        )
-      }
+    <section
+      role="region"
+      aria-label="Observatório Cartográfico e Telemetria"
+      className="observatory-stage-region"
     >
+      <div className="observatory-top-tag" aria-hidden="true">
+        . Authentic Photograph .
+      </div>
+
       {!selectedProbe ? (
-        <div className="empty-observatory">
-          <div className="empty-mars-stage" aria-hidden="true">
-            <div className="orbit-pill-tag">• ARES ORBITER // 3.4 km/s</div>
-            <MarsCanvas3D className="mars-canvas-empty" />
-            <div className="orbit-target-beacon">
-              <span className="beacon-ring" />
-              <span className="beacon-label">VALLES MARINERIS</span>
-            </div>
+        <div className="observatory-orbit-view">
+          <div className="orbit-pill-tag">• ARES ORBITER // 3.4 km/s</div>
+
+          <div className="mars-orbit-canvas-wrapper" aria-hidden="true">
+            <MarsCanvas3D />
           </div>
-          <h3 className="empty-observatory-title">
-            Nenhum sinal de sonda na superfície
-          </h3>
-          <p className="empty-state">
-            Aguardando lançamento de sonda. Configure os limites máximos (X, Y)
-            e a direção inicial no card à direita para iniciar o pouso em (0,
-            0).
-          </p>
+
+          <div className="orbit-target-beacon">
+            <span className="beacon-ring" />
+            <span className="beacon-label">VALLES MARINERIS</span>
+          </div>
+
+          <div className="orbit-idle-caption">
+            <h3 className="orbit-idle-title">Nenhum sinal de sonda na superfície</h3>
+            <p className="orbit-idle-desc">
+              Utilize o painel à direita para configurar a malha e efetuar o
+              pouso nas coordenadas (0, 0).
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="mission-overview">
-          <dl
-            className="telemetry-grid"
+        <div className="observatory-active-view">
+          <div
+            className="observatory-telemetry-hud"
             aria-label="Telemetria da sonda selecionada"
           >
-            <div className="telemetry-card">
-              <dt>Coordenadas (X, Y)</dt>
-              <dd className="telemetry-value-mono">
-                ({selectedProbe.x}, {selectedProbe.y})
-              </dd>
+            <div className="hud-pill">
+              <span className="hud-key">POSIÇÃO</span>
+              <span className="hud-val hud-mono">({selectedProbe.x}, {selectedProbe.y})</span>
             </div>
-            <div className="telemetry-card">
-              <dt>Orientação Atual</dt>
-              <dd className="telemetry-value-accent">
+            <div className="hud-pill">
+              <span className="hud-key">DIREÇÃO</span>
+              <span className="hud-val hud-accent">
                 {DIRECTION_LABELS[selectedProbe.direction]}
-              </dd>
+              </span>
             </div>
-            <div className="telemetry-card">
-              <dt>Limites da Malha</dt>
-              <dd className="telemetry-value-mono">
-                0..{selectedProbe.plateau.max_x} × 0..
-                {selectedProbe.plateau.max_y}
-              </dd>
+            <div className="hud-pill">
+              <span className="hud-key">DIMENSÃO</span>
+              <span className="hud-val hud-mono">
+                Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
+              </span>
             </div>
-            <div className="telemetry-card">
-              <dt>Identificador da Sonda</dt>
-              <dd
-                className="telemetry-value-mono telemetry-id"
-                title={selectedProbe.id}
-              >
-                {selectedProbe.id}
-              </dd>
+            <div className="hud-pill hud-pill-id" title={selectedProbe.id}>
+              <span className="hud-key">ID</span>
+              <span className="hud-val hud-id">{selectedProbe.id.slice(0, 8)}</span>
             </div>
-          </dl>
+          </div>
 
           <PlateauMap selectedProbe={selectedProbe} probes={probes} />
         </div>
       )}
-    </Panel>
+    </section>
   );
 }
