@@ -35,20 +35,28 @@ export function ProbeList({
                   onClick={() => onSelectProbe(probe.id)}
                 >
                   <div className="probe-item-header">
-                    <span className="probe-name">
-                      Sonda #{index + 1} · {probe.id.slice(0, 8)}
-                    </span>
+                    <div className="probe-title-group">
+                      <span className="probe-name">Sonda #{index + 1}</span>
+                      <span className="probe-short-id">
+                        {probe.id.slice(0, 8)}
+                      </span>
+                    </div>
                     <Badge tone={isSelected ? "amber" : "neutral"}>
                       {probe.direction}
                     </Badge>
                   </div>
                   <div className="probe-item-meta">
                     <span>
-                      Posição: ({probe.x}, {probe.y})
+                      Posição:{" "}
+                      <strong className="mono-inline">
+                        ({probe.x}, {probe.y})
+                      </strong>
                     </span>
                     <span>
-                      Malha: (0, 0) até ({probe.plateau.max_x},{" "}
-                      {probe.plateau.max_y})
+                      Malha:{" "}
+                      <strong className="mono-inline">
+                        0..{probe.plateau.max_x} × 0..{probe.plateau.max_y}
+                      </strong>
                     </span>
                   </div>
                 </button>
