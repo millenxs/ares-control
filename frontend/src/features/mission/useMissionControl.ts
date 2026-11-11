@@ -6,6 +6,7 @@ import {
   type Probe,
   type ProbesApiClient,
 } from "../../shared/api/probesApi";
+import { formatHumanDomainError } from "./errorFormatter";
 import {
   type PreviewResult,
   simulateNavigationPreview,
@@ -18,20 +19,9 @@ export interface CommandHistoryEntry {
   commands: string;
   from: { x: number; y: number; direction: string };
   to: { x: number; y: number; direction: string };
-}
-
-function humanizeApiError(error: unknown): string {
-  if (error instanceof ApiClientError) {
-    const index = error.details.index;
-    if (typeof index === "number") {
-      return `${error.message} (índice do comando: ${index})`;
-    }
-    return error.message;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "Não foi possível concluir a operação na estação central.";
+  status: "success" | "rejected";
+  errorHttpCode?: number;
+  errorCode?: string;
 }
 
 export interface MissionControlState {
@@ -87,7 +77,6 @@ export function useMissionControl(
         }
         return loaded[0]?.id ?? null;
       });
-      // Inicializar trilhas para novas sondas
       setProbeTrails((prev) => {
         const next = { ...prev };
         for (const p of loaded) {
@@ -98,7 +87,13 @@ export function useMissionControl(
         return next;
       });
     } catch (error) {
-      setInitialError(humanizeApiError(error));
+      if (error instanceof ApiClientError) {
+        setInitialError(formatHumanDomainError(error.code, error.details, null, error.message));
+      } else if (error instanceof Error) {
+        setInitialError(error.message);
+      } else {
+        setInitialError("Não foi possível conectar com o centro de controle.");
+      }
     } finally {
       setIsLoadingInitial(false);
     }
@@ -123,7 +118,13 @@ export function useMissionControl(
           [created.id]: [{ x: created.x, y: created.y }],
         }));
       } catch (error) {
-        setLaunchError(humanizeApiError(error));
+        if (error instanceof ApiClientError) {
+          setLaunchError(formatHumanDomainError(error.code, error.details, null, error.message));
+        } else if (error instanceof Error) {
+          setLaunchError(error.message);
+        } else {
+          setLaunchError("Falha ao lançar a sonda.");
+        }
       } finally {
         setIsLaunching(false);
       }
@@ -136,15 +137,15 @@ export function useMissionControl(
       setIsExecuting(true);
       setCommandError(null);
       setCommandErrorIndex(null);
-      try {
-        const currentProbe = probes.find((p) => p.id === probeId);
-        const fromState = currentProbe
-          ? { x: currentProbe.x, y: currentProbe.y, direction: currentProbe.direction }
-          : { x: 0, y: 0, direction: "NORTH" };
+      const currentProbe = probes.find((p) => p.id === probeId);
+      const fromState = currentProbe
+        ? { x: currentProbe.x, y: currentProbe.y, direction: currentProbe.direction }
+        : { x: 0, y: 0, direction: "NORTH" };
 
+      try {
         const updated = await apiClient.executeCommands(probeId, commands);
 
-        // Simula o trajeto exato passo a passo com a função única de navegação
+        // Trajeto exato percorrido (sem cortes diagonais)
         const pathSimulation = simulateNavigationPreview(
           { x: fromState.x, y: fromState.y },
           fromState.direction as Direction,
@@ -155,7 +156,7 @@ export function useMissionControl(
           .filter((st) => st.command === "M")
           .map((st) => ({ x: st.x, y: st.y }));
 
-        // Atualiza o estado atômico confirmado da API
+        // Atualização atômica após resposta 200 OK da API
         setProbes((current) =>
           current.map((probe) => (probe.id === updated.id ? updated : probe)),
         );
@@ -180,6 +181,7 @@ export function useMissionControl(
             commands,
             from: fromState,
             to: { x: updated.x, y: updated.y, direction: updated.direction },
+            status: "success",
           },
           ...prev.slice(0, 19),
         ]);
@@ -187,9 +189,37 @@ export function useMissionControl(
         setPreviewCommands("");
         return true;
       } catch (error) {
-        setCommandError(humanizeApiError(error));
-        if (error instanceof ApiClientError && typeof error.details.index === "number") {
-          setCommandErrorIndex(error.details.index);
+        if (error instanceof ApiClientError) {
+          const formatted = formatHumanDomainError(
+            error.code,
+            error.details,
+            fromState,
+            error.message,
+          );
+          setCommandError(formatted);
+          const errIndex =
+            typeof error.details.index === "number" ? error.details.index : null;
+          setCommandErrorIndex(errIndex);
+
+          // Registra a tentativa recusada no histórico sem alterar a posição da sonda
+          setCommandHistory((prev) => [
+            {
+              id: String(Date.now()),
+              probeId,
+              timestamp: new Date().toLocaleTimeString("pt-BR"),
+              commands,
+              from: fromState,
+              to: fromState,
+              status: "rejected",
+              errorHttpCode: error.status,
+              errorCode: error.code,
+            },
+            ...prev.slice(0, 19),
+          ]);
+        } else if (error instanceof Error) {
+          setCommandError(error.message);
+        } else {
+          setCommandError("Falha na comunicação com o servidor.");
         }
         return false;
       } finally {

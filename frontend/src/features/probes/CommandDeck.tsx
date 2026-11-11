@@ -80,19 +80,21 @@ export function CommandDeck({
   const maxX = selectedProbe ? selectedProbe.plateau.max_x : 5;
   const maxY = selectedProbe ? selectedProbe.plateau.max_y : 5;
   const hasMoved = probeX > 0 || probeY > 0;
+  const shortId = selectedProbe ? selectedProbe.id.slice(0, 6).toLowerCase() : "";
 
   const displayError = errorMessage;
+  const isPreviewInvalid = Boolean(previewResult && !previewResult.isValid);
   const filteredHistory = commandHistory.filter(
     (h) => h.probeId === selectedProbe?.id,
   );
 
   return (
     <div className="sci-card" aria-label="Comandos da Sonda">
-      {/* Header do Card */}
+      {/* Header do Card com Alvo Explícito */}
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-probe-nav">
           <span className="dot-green" />
-          <span>PROBE NAV</span>
+          <span>ALVO: {selectedProbe ? `${shortId}` : "NENHUMA"}</span>
           <span className="sep">•</span>
           <span>ESTAÇÃO CENTRAL</span>
         </div>
@@ -156,7 +158,7 @@ export function CommandDeck({
               onChange={(e) => handleInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={disabled}
-              className={`buffer-input ${displayError ? "input-has-error" : ""}`}
+              className={`buffer-input ${displayError || isPreviewInvalid ? "input-has-error" : ""}`}
               aria-label="Sequência de comandos"
               maxLength={64}
             />
@@ -190,21 +192,27 @@ export function CommandDeck({
               }}
               disabled={disabled}
             >
-              Exemplo de percurso
+              Exemplo: {probeDir === "NORTH" ? "MRM" : "RMRM"}
             </button>
           </div>
 
           {/* Fichas visuais com destaque do comando culpado em caso de erro */}
           <div className="token-chips-tray" aria-hidden="true">
             {commandTokens.map((token, idx) => {
-              const isOffending =
-                (errorIndex !== null && errorIndex === idx) ||
-                (previewResult && !previewResult.isValid && previewResult.errorIndex === idx);
+              const activeErrorIdx =
+                errorIndex !== null
+                  ? errorIndex
+                  : previewResult && !previewResult.isValid
+                    ? previewResult.errorIndex
+                    : null;
+
+              const isOffending = activeErrorIdx !== null && activeErrorIdx === idx;
+              const isPastOffending = activeErrorIdx !== null && idx > activeErrorIdx;
 
               return (
                 <span
                   key={`${idx}-${token}`}
-                  className={`token-chip ${isOffending ? "token-chip-offending" : ""}`}
+                  className={`token-chip ${isOffending ? "token-chip-offending" : ""} ${isPastOffending ? "token-chip-dimmed" : ""}`}
                   title={`Passo ${idx}: ${token}`}
                 >
                   {token}
@@ -257,7 +265,7 @@ export function CommandDeck({
           </div>
         </div>
 
-        {/* Alerta de erro da API com índice do comando */}
+        {/* Alerta de erro da API com mensagem detalhada e atômica */}
         {displayError ? (
           <div className="alert alert-danger" role="alert">
             <span>{displayError}</span>
@@ -284,41 +292,45 @@ export function CommandDeck({
             </div>
             {probeX === 0 && probeDir === "WEST" && (
               <div className="danger-fix-row">
-                <span>Dica: a sonda está em X=0 virada para Oeste (← parede).</span>
+                <span>Dica: em X=0 voltada para Oeste (← parede).</span>
                 <button
                   type="button"
                   className="btn-fix-suggestion"
                   onClick={() => handleInputChange("RMRM")}
                 >
-                  Usar sequência segura: RMRM ➔
+                  Usar rota segura: RMRM ➔
                 </button>
               </div>
             )}
             {probeY === 0 && probeDir === "SOUTH" && (
               <div className="danger-fix-row">
-                <span>Dica: a sonda está em Y=0 virada para Sul (↓ parede).</span>
+                <span>Dica: em Y=0 voltada para Sul (↓ parede).</span>
                 <button
                   type="button"
                   className="btn-fix-suggestion"
                   onClick={() => handleInputChange("LMRM")}
                 >
-                  Usar sequência segura: LMRM ➔
+                  Usar rota segura: LMRM ➔
                 </button>
               </div>
             )}
           </div>
         ) : null}
 
-        {/* Botão Transmitir Comandos sem repetições */}
+        {/* Botão de Transmissão: permite enviar mesmo com erro prévio para demonstrar recusa da API */}
         <button
           type="submit"
-          className="btn-exec-api"
+          className={`btn-exec-api ${isPreviewInvalid ? "btn-exec-warning" : ""}`}
           disabled={disabled || isBufferEmpty}
           aria-label="Transmitir comandos"
         >
           <span className="pulse-white-dot" />
           <span className="btn-exec-title">
-            {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
+            {isExecuting
+              ? "TRANSMITINDO..."
+              : isPreviewInvalid
+                ? "ENVIAR MESMO ASSIM (TESTAR API)"
+                : "TRANSMITIR COMANDOS"}
           </span>
           <span className="btn-exec-arrow">➤</span>
         </button>
@@ -333,16 +345,24 @@ export function CommandDeck({
             onClick={() => setShowHistory((v) => !v)}
           >
             <span>
-              Histórico da Sonda ({filteredHistory.length})
+              Histórico da Sonda {shortId} ({filteredHistory.length})
             </span>
             <span>{showHistory ? "▲" : "▼"}</span>
           </button>
           {showHistory && (
             <ul className="history-list">
               {filteredHistory.map((item) => (
-                <li key={item.id} className="history-item">
+                <li
+                  key={item.id}
+                  className={`history-item ${item.status === "rejected" ? "history-rejected" : ""}`}
+                >
                   <div className="history-item-top">
                     <span className="history-cmd">{item.commands}</span>
+                    <span className="history-status-tag">
+                      {item.status === "rejected"
+                        ? `RECUSADO (HTTP ${item.errorHttpCode ?? 422})`
+                        : "CONFIRMADO (HTTP 200)"}
+                    </span>
                     <span className="history-time">{item.timestamp}</span>
                   </div>
                   <div className="history-item-coords">

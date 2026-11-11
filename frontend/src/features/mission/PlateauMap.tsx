@@ -57,7 +57,7 @@ export function PlateauMap({
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
-  // Ângulo acumulado contínuo para evitar giro reverso de 270° ao rotacionar de WEST para NORTH
+  // Ângulo acumulado contínuo para rotação suave sem giro reverso de 270°
   const [accumulatedAngle, setAccumulatedAngle] = useState(
     DIRECTION_TARGET_ANGLE[selectedProbe.direction],
   );
@@ -75,15 +75,15 @@ export function PlateauMap({
   const cols = maxX + 1;
   const rows = maxY + 1;
 
-  const boardSize = 480;
-  const padLeft = 46;
-  const padRight = 32;
-  const padTop = 32;
-  const padBottom = 44;
+  const boardSize = 500;
+  const padLeft = 48;
+  const padRight = 36;
+  const padTop = 36;
+  const padBottom = 48;
 
   const usableWidth = boardSize - padLeft - padRight;
   const usableHeight = boardSize - padTop - padBottom;
-  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 68);
+  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 72);
 
   const gridWidth = cellSize * cols;
   const gridHeight = cellSize * rows;
@@ -102,7 +102,7 @@ export function PlateauMap({
   }
 
   const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
-  const markerRadius = Math.max(Math.min(cellSize * 0.44, 26), 12);
+  const markerRadius = Math.max(Math.min(cellSize * 0.44, 26), 13);
 
   const otherVisibleProbes = probes.filter(
     (p) =>
@@ -112,12 +112,25 @@ export function PlateauMap({
       !(p.x === selectedProbe.x && p.y === selectedProbe.y),
   );
 
-  const colocatedCount = probes.filter(
+  const colocatedProbes = probes.filter(
     (p) => p.x === selectedProbe.x && p.y === selectedProbe.y,
-  ).length;
+  );
+  const colocatedCount = colocatedProbes.length;
+
+  function cycleColocatedProbe() {
+    if (colocatedCount <= 1 || !onSelectProbe) {
+      return;
+    }
+    const currentIdx = colocatedProbes.findIndex((p) => p.id === selectedProbe.id);
+    const nextProbe = colocatedProbes[(currentIdx + 1) % colocatedCount];
+    if (nextProbe) {
+      onSelectProbe(nextProbe.id);
+    }
+  }
 
   const showInternalCellNumbers = cols <= 6 && rows <= 6;
   const shortId = selectedProbe.id.slice(0, 6).toLowerCase();
+  const selectedIndex = probes.findIndex((p) => p.id === selectedProbe.id) + 1;
 
   return (
     <div className="planalto-hud-container">
@@ -195,7 +208,7 @@ export function PlateauMap({
               role="img"
               aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
             >
-              {/* Superfície do platô */}
+              {/* 1. Superfície do platô */}
               <rect
                 x={originX}
                 y={originY}
@@ -205,7 +218,7 @@ export function PlateauMap({
                 rx={4}
               />
 
-              {/* Grid Lines */}
+              {/* 2. Grid Lines */}
               {cols <= 25 &&
                 Array.from({ length: cols + 1 }, (_, cIdx) => {
                   const xPos = originX + cIdx * cellSize;
@@ -236,46 +249,7 @@ export function PlateauMap({
                   );
                 })}
 
-              {/* Coordenadas e áreas de hover em cada célula */}
-              {Array.from({ length: rows }, (_, rIdx) => {
-                const yCoord = maxY - rIdx;
-                return Array.from({ length: cols }, (_, cIdx) => {
-                  const xCoord = cIdx;
-                  const xPos = originX + cIdx * cellSize;
-                  const yPos = originY + rIdx * cellSize;
-                  const isActive =
-                    xCoord === selectedProbe.x && yCoord === selectedProbe.y;
-
-                  return (
-                    <g
-                      key={`cell-${xCoord}-${yCoord}`}
-                      onMouseEnter={() => setHoveredCell({ x: xCoord, y: yCoord })}
-                      onMouseLeave={() => setHoveredCell(null)}
-                      className="cell-hover-group"
-                    >
-                      <rect
-                        x={xPos}
-                        y={yPos}
-                        width={cellSize}
-                        height={cellSize}
-                        className="cell-hitbox"
-                      />
-                      {showInternalCellNumbers && !isActive && (
-                        <text
-                          x={xPos + cellSize / 2}
-                          y={yPos + cellSize / 2 + 3.5}
-                          textAnchor="middle"
-                          className="hud-cell-coords"
-                        >
-                          {xCoord},{yCoord}
-                        </text>
-                      )}
-                    </g>
-                  );
-                });
-              })}
-
-              {/* Rastro do percurso percorrido (visited trail em 90 graus) */}
+              {/* 3. Rastro do percurso percorrido (desenhado POR BAIXO das células e rótulos) */}
               {trail.length > 1 && (
                 <polyline
                   points={trail
@@ -295,14 +269,54 @@ export function PlateauMap({
                     key={`trail-dot-${tIdx}`}
                     cx={c.cx}
                     cy={c.cy}
-                    r={Math.max(cellSize * 0.12, 3)}
+                    r={Math.max(cellSize * 0.1, 2.5)}
                     style={{ opacity }}
                     className="probe-trail-dot"
                   />
                 );
               })}
 
-              {/* Pré-visualização fantasma do comando em Ciano / Neutro (Dry-run preview) */}
+              {/* 4. Coordenadas e áreas de hover em cada célula */}
+              {Array.from({ length: rows }, (_, rIdx) => {
+                const yCoord = maxY - rIdx;
+                return Array.from({ length: cols }, (_, cIdx) => {
+                  const xCoord = cIdx;
+                  const xPos = originX + cIdx * cellSize;
+                  const yPos = originY + rIdx * cellSize;
+                  const isActive =
+                    xCoord === selectedProbe.x && yCoord === selectedProbe.y;
+                  const hasTrailDot = trail.some((t) => t.x === xCoord && t.y === yCoord);
+
+                  return (
+                    <g
+                      key={`cell-${xCoord}-${yCoord}`}
+                      onMouseEnter={() => setHoveredCell({ x: xCoord, y: yCoord })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                      className="cell-hover-group"
+                    >
+                      <rect
+                        x={xPos}
+                        y={yPos}
+                        width={cellSize}
+                        height={cellSize}
+                        className="cell-hitbox"
+                      />
+                      {showInternalCellNumbers && !isActive && !hasTrailDot && (
+                        <text
+                          x={xPos + cellSize / 2}
+                          y={yPos + cellSize / 2 + 3.5}
+                          textAnchor="middle"
+                          className="hud-cell-coords"
+                        >
+                          {xCoord},{yCoord}
+                        </text>
+                      )}
+                    </g>
+                  );
+                });
+              })}
+
+              {/* 5. Pré-visualização fantasma do comando em Ciano / Neutro (Dry-run preview) */}
               {previewResult && (
                 <g className="preview-ghost-layer">
                   {/* Trajeto previsto em ciano */}
@@ -339,25 +353,27 @@ export function PlateauMap({
                     );
                   })()}
 
-                  {/* Alerta de colisão visual caso um comando saia da malha */}
+                  {/* Alerta de colisão visual preso na borda (sem cortar no viewBox) */}
                   {previewResult.failedStep && (() => {
                     const fromC = cellCenter(
                       previewResult.failedStep.fromX,
                       previewResult.failedStep.fromY,
                     );
-                    const invRow = maxY - previewResult.failedStep.targetY;
-                    const targetCx = originX + (previewResult.failedStep.targetX + 0.5) * cellSize;
-                    const targetCy = originY + (invRow + 0.5) * cellSize;
+                    // Prende o marcador de colisão na borda interna da malha
+                    const targetXClamped = Math.max(0, Math.min(maxX, previewResult.failedStep.targetX));
+                    const targetYClamped = Math.max(0, Math.min(maxY, previewResult.failedStep.targetY));
+                    const targetC = cellCenter(targetXClamped, targetYClamped);
+
                     return (
                       <g className="preview-crash-group">
                         <line
                           x1={fromC.cx}
                           y1={fromC.cy}
-                          x2={targetCx}
-                          y2={targetCy}
+                          x2={targetC.cx}
+                          y2={targetC.cy}
                           className="preview-crash-line"
                         />
-                        <g transform={`translate(${targetCx}, ${targetCy})`}>
+                        <g transform={`translate(${targetC.cx}, ${targetC.cy})`}>
                           <circle r={markerRadius * 0.85} className="crash-pulse-circle" />
                           <text y={4} textAnchor="middle" className="crash-x-icon">
                             ✖
@@ -369,7 +385,7 @@ export function PlateauMap({
                 </g>
               )}
 
-              {/* Ticks dos eixos numéricos nas bordas externas */}
+              {/* 6. Ticks dos eixos numéricos nas bordas externas */}
               {xTicks.map((xVal) => {
                 const c = cellCenter(xVal, 0);
                 return (
@@ -399,11 +415,11 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Sondas secundárias com seta direcional e ID no hover */}
+              {/* 7. Sondas secundárias com número da sonda (#X), seta direcional e ID no hover */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
                 const pDeg = DIRECTION_TARGET_ANGLE[p.direction];
-                const pRadius = Math.max(markerRadius * 0.6, 8);
+                const pRadius = Math.max(markerRadius * 0.65, 9);
                 const pIndex = probes.findIndex((item) => item.id === p.id) + 1;
                 const pShortId = p.id.slice(0, 6).toLowerCase();
 
@@ -415,19 +431,26 @@ export function PlateauMap({
                     onClick={() => onSelectProbe?.(p.id)}
                     style={{ cursor: "pointer" }}
                   >
-                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction}`}</title>
+                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction} (Clique para selecionar)`}</title>
                     <circle r={pRadius} className="secondary-probe-core" />
                     <g transform={`rotate(${pDeg})`}>
                       <polygon
-                        points={`0,${-pRadius * 0.72} ${pRadius * 0.45},${pRadius * 0.48} 0,${pRadius * 0.18} ${-pRadius * 0.45},${pRadius * 0.48}`}
+                        points={`0,${-pRadius * 0.75} ${pRadius * 0.45},${pRadius * 0.45} 0,${pRadius * 0.15} ${-pRadius * 0.45},${pRadius * 0.45}`}
                         className="secondary-probe-arrow"
                       />
                     </g>
+                    <text
+                      y={pRadius + 10}
+                      textAnchor="middle"
+                      className="probe-index-tag"
+                    >
+                      #{pIndex}
+                    </text>
                   </g>
                 );
               })}
 
-              {/* Célula Ativa e Ícone da Sonda com Rotação Contínua Acumulada */}
+              {/* 8. Célula Ativa e Ícone da Sonda com Seta Visível de Alto Contraste e Rotação Contínua */}
               <g
                 transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
                 data-testid="active-probe-marker"
@@ -435,24 +458,34 @@ export function PlateauMap({
                 <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
                 <circle r={markerRadius} className="probe-body-core" />
                 <g
+                  transform={`rotate(${accumulatedAngle})`}
                   style={{
-                    transform: `rotate(${accumulatedAngle}deg)`,
-                    transformOrigin: "center",
                     transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                 >
                   <polygon
-                    points={`0,${-markerRadius * 0.76} ${markerRadius * 0.5},${markerRadius * 0.54} 0,${markerRadius * 0.22} ${-markerRadius * 0.5},${markerRadius * 0.54}`}
-                    className="probe-heading-pointer"
+                    points={`0,${-markerRadius * 0.78} ${markerRadius * 0.52},${markerRadius * 0.5} 0,${markerRadius * 0.22} ${-markerRadius * 0.52},${markerRadius * 0.5}`}
+                    className="probe-heading-pointer-bright"
                   />
                 </g>
+                <text
+                  y={markerRadius + 11}
+                  textAnchor="middle"
+                  className="active-probe-index-tag"
+                >
+                  #{selectedIndex}
+                </text>
               </g>
 
+              {/* Badge de Sondas Empilhadas com Tooltip e Clique para Alternar */}
               {colocatedCount > 1 ? (
                 <g
                   transform={`translate(${activeCell.cx + markerRadius * 0.85}, ${activeCell.cy - markerRadius * 0.85})`}
+                  onClick={cycleColocatedProbe}
+                  style={{ cursor: "pointer" }}
                 >
-                  <circle r={8} className="colocated-badge-circle" />
+                  <title>{`${colocatedCount} sondas nesta posição — clique para alternar seleção`}</title>
+                  <circle r={9} className="colocated-badge-circle" />
                   <text y={3} textAnchor="middle" className="colocated-badge-txt">
                     {colocatedCount}
                   </text>
@@ -467,7 +500,7 @@ export function PlateauMap({
               ORIGEM: (0, 0) · ATUAL: ({selectedProbe.x}, {selectedProbe.y})
             </span>
             <span className="hud-probe-id">
-              PROBE: {shortId}
+              SONDA #{selectedIndex} · {shortId}
             </span>
           </div>
         </div>
