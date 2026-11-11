@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+*.egg-info
+build
+dist
+.vite
+*.tsbuildinfo
+frontend/node_modules
+frontend/dist
+docs
+.env
