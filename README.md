@@ -36,6 +36,7 @@ O **Ares Control** resolve o desafio técnico da Sonda em Marte expondo três op
 - **Interface de Observatório Cartográfico:**
   - Configuração dos limites máximos `(X, Y)` e bússola digital para escolha da direção inicial (`NORTH`, `EAST`, `SOUTH`, `WEST`).
   - Visualização da malha em SVG com origem `(0, 0)` no canto inferior esquerdo e Norte apontando para o topo, sobreposta ao globo 3D de Marte (com alternância entre perspectiva `3D` e `2D`).
+  - **Buffer de Instruções triplo:** permite montar a sequência `M`, `L`, `R` digitando no campo, usando as teclas rápidas (`[L] ESQ`, `[M] MOVER`, `[R] DIR`) ou clicando diretamente em uma célula de destino na malha SVG.
   - **Rastro ortogonal** das células visitadas por cada sonda e **pré-visualização (dry-run)** da trajetória prevista ou do ponto de colisão na borda enquanto os comandos são digitados.
   - Histórico de transmissões por sonda e suporte a múltiplas sondas operando em malhas independentes.
 
@@ -51,7 +52,7 @@ O **Ares Control** resolve o desafio técnico da Sonda em Marte expondo três op
 | **Testes e Qualidade Backend** | Pytest + HTTPX + Ruff | 75 testes automatizados (domínio, aplicação e HTTP) |
 | **Runtime Frontend** | Node.js | `24.22.2` LTS (`.nvmrc`, faixa `>=24.22.2 <25` em `package.json`) |
 | **Interface Gráfica** | React 19 + TypeScript + Vite + Three.js | Lockfile reproduzível em `frontend/package-lock.json` |
-| **Testes Frontend** | Vitest + Testing Library + jsdom | 11 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
+| **Testes Frontend** | Vitest + Testing Library + jsdom | 13 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
 
 ---
 
@@ -193,7 +194,7 @@ Dentro da pasta `frontend`:
 ```bash
 cd frontend
 
-# Executar os 11 testes automatizados
+# Executar os 13 testes automatizados
 npm test
 
 # Validar tipagem TypeScript e gerar build de produção
