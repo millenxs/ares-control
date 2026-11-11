@@ -153,6 +153,15 @@ export function CommandDeck({
             <span><strong>R:</strong> girar 90° dir</span>
             <span className="sep">•</span>
             <span><strong>M:</strong> avançar 1 casa</span>
+            <span className="sep">•</span>
+            <button
+              type="button"
+              className="quick-example-link"
+              onClick={() => handleInputChange("MRM")}
+              disabled={disabled}
+            >
+              Exemplo: MRM
+            </button>
           </div>
 
           {/* Teclas rápidas táteis */}

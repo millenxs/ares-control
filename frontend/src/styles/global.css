@@ -712,6 +712,22 @@ input:focus-visible {
   color: #334155;
 }
 
+.quick-example-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0284c7;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.quick-example-link:hover:not(:disabled) {
+  color: #0369a1;
+}
+
 .quick-command-buttons {
   display: flex;
   gap: 8px;
