@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { Direction, Probe } from "../../shared/api/probesApi";
+import { Button } from "../../shared/ui/Primitives";
 
 interface PlateauMapProps {
   selectedProbe: Probe;
@@ -11,6 +13,8 @@ const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
   SOUTH: 180,
   WEST: 270,
 };
+
+const ORBITAL_DEGREE_TICKS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
 
 function buildAxisTicks(maxCoordinate: number): number[] {
   const totalPositions = maxCoordinate + 1;
@@ -27,19 +31,22 @@ function buildAxisTicks(maxCoordinate: number): number[] {
 }
 
 export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
+  const [is3DView, setIs3DView] = useState(true);
+
   const { max_x: maxX, max_y: maxY } = selectedProbe.plateau;
   const cols = maxX + 1;
   const rows = maxY + 1;
 
-  const boardSize = 520;
-  const padLeft = 56;
-  const padRight = 36;
-  const padTop = 40;
-  const padBottom = 54;
+  const boardSize = 540;
+  const center = boardSize / 2;
+  const padLeft = 64;
+  const padRight = 44;
+  const padTop = 48;
+  const padBottom = 60;
 
   const usableWidth = boardSize - padLeft - padRight;
   const usableHeight = boardSize - padTop - padBottom;
-  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 76);
+  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 74);
 
   const gridWidth = cellSize * cols;
   const gridHeight = cellSize * rows;
@@ -76,198 +83,253 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   return (
     <div className="plateau-stage">
       <div className="plateau-stage-bar">
-        <span className="plateau-stage-caption">
-          Cartografia de Superfície · Origem (0, 0) no canto inferior esquerdo ·
-          Norte (↑) no topo
-        </span>
-        <span className="plateau-stage-bounds">
-          ({selectedProbe.x}, {selectedProbe.y}, {selectedProbe.direction}) em
-          [0..{maxX}, 0..{maxY}]
-        </span>
+        <div className="plateau-stage-meta">
+          <span className="plateau-stage-caption">
+            Origem (0, 0) no canto inferior esquerdo · Norte (↑) no topo
+          </span>
+          <span className="plateau-stage-bounds">
+            ({selectedProbe.x}, {selectedProbe.y}, {selectedProbe.direction}) em
+            [0..{maxX}, 0..{maxY}]
+          </span>
+        </div>
+
+        <Button
+          variant="secondary"
+          aria-pressed={is3DView}
+          onClick={() => setIs3DView((current) => !current)}
+        >
+          {is3DView ? "Perspectiva: 3D" : "Perspectiva: 2D"}
+        </Button>
       </div>
 
-      <svg
-        className="plateau-svg"
-        viewBox={`0 0 ${boardSize} ${boardSize}`}
-        role="img"
-        aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
+      <div
+        className={`mars-arena ${is3DView ? "mars-arena-3d" : "mars-arena-2d"}`}
       >
-        <g className="orbital-backdrop" aria-hidden="true">
-          <circle
-            cx={boardSize / 2}
-            cy={boardSize / 2}
-            r={230}
-            className="orbital-ring"
-          />
-          <circle
-            cx={boardSize / 2}
-            cy={boardSize / 2}
-            r={165}
-            className="orbital-ring orbital-ring-dashed"
-          />
-          <line
-            x1={boardSize / 2}
-            y1={12}
-            x2={boardSize / 2}
-            y2={boardSize - 12}
-            className="orbital-axis"
-          />
-          <line
-            x1={12}
-            y1={boardSize / 2}
-            x2={boardSize - 12}
-            y2={boardSize / 2}
-            className="orbital-axis"
-          />
-        </g>
+        <div className="mars-globe-anchor" aria-hidden="true">
+          <div className="mars-atmosphere-glow" />
+          <div className="mars-sphere" />
+        </div>
 
-        <rect
-          x={originX}
-          y={originY}
-          width={gridWidth}
-          height={gridHeight}
-          className="plateau-surface"
-          rx={4}
-        />
-
-        {cols <= 20 &&
-          Array.from({ length: cols + 1 }, (_, colIndex) => {
-            const xPos = originX + colIndex * cellSize;
-            return (
-              <line
-                key={`v-${colIndex}`}
-                x1={xPos}
-                y1={originY}
-                x2={xPos}
-                y2={originY + gridHeight}
-                className="grid-line"
-              />
-            );
-          })}
-
-        {rows <= 20 &&
-          Array.from({ length: rows + 1 }, (_, rowIndex) => {
-            const yPos = originY + rowIndex * cellSize;
-            return (
-              <line
-                key={`h-${rowIndex}`}
-                x1={originX}
-                y1={yPos}
-                x2={originX + gridWidth}
-                y2={yPos}
-                className="grid-line"
-              />
-            );
-          })}
-
-        <rect
-          x={activeCell.cx - cellSize / 2}
-          y={activeCell.cy - cellSize / 2}
-          width={cellSize}
-          height={cellSize}
-          className="active-cell"
-        />
-
-        {xTicks.map((xValue) => {
-          const { cx } = cellCenter(xValue, 0);
-          return (
-            <text
-              key={`xlabel-${xValue}`}
-              x={cx}
-              y={originY + gridHeight + 22}
-              textAnchor="middle"
-              className="axis-tick"
-            >
-              {xValue}
-            </text>
-          );
-        })}
-
-        {yTicks.map((yValue) => {
-          const { cy } = cellCenter(0, yValue);
-          return (
-            <text
-              key={`ylabel-${yValue}`}
-              x={originX - 14}
-              y={cy + 4}
-              textAnchor="end"
-              className="axis-tick"
-            >
-              {yValue}
-            </text>
-          );
-        })}
-
-        <text
-          x={originX + gridWidth / 2}
-          y={boardSize - 10}
-          textAnchor="middle"
-          className="axis-title"
-        >
-          Eixo X (0 → {maxX})
-        </text>
-
-        <text
-          x={16}
-          y={originY + gridHeight / 2}
-          textAnchor="middle"
-          transform={`rotate(-90 16 ${originY + gridHeight / 2})`}
-          className="axis-title"
-        >
-          Eixo Y (0 → {maxY})
-        </text>
-
-        <text
-          x={originX + gridWidth}
-          y={originY - 10}
-          textAnchor="end"
-          className="corner-coordinate"
-        >
-          ({maxX}, {maxY})
-        </text>
-
-        {otherVisibleProbes.map((other) => {
-          const pos = cellCenter(other.x, other.y);
-          return (
-            <g
-              key={other.id}
-              transform={`translate(${pos.cx}, ${pos.cy})`}
-              className="secondary-probe-marker"
-            >
-              <circle r={Math.max(markerRadius * 0.45, 4)} />
-            </g>
-          );
-        })}
-
-        <g
-          transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
-          data-testid="active-probe-marker"
-        >
-          <circle r={markerRadius * 1.35} className="probe-pulse-ring" />
-          <circle r={markerRadius} className="probe-core" />
-          <g transform={`rotate(${rotationDeg})`}>
-            <polygon
-              points={`0,${-markerRadius * 0.78} ${markerRadius * 0.56},${markerRadius * 0.58} 0,${markerRadius * 0.25} ${-markerRadius * 0.56},${markerRadius * 0.58}`}
-              className="probe-heading-arrow"
-            />
-          </g>
-        </g>
-
-        {colocatedCount > 1 ? (
-          <g
-            transform={`translate(${activeCell.cx + markerRadius * 0.95}, ${activeCell.cy - markerRadius * 0.95})`}
+        <div className="plateau-board-deck">
+          <svg
+            className="plateau-svg"
+            viewBox={`0 0 ${boardSize} ${boardSize}`}
+            role="img"
+            aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
           >
-            <circle r={9} className="colocated-badge-bg" />
+            <g className="orbital-backdrop" aria-hidden="true">
+              <circle
+                cx={center}
+                cy={center}
+                r={248}
+                className="orbital-ring orbital-ring-outer"
+              />
+              <circle
+                cx={center}
+                cy={center}
+                r={216}
+                className="orbital-ring orbital-ring-dashed"
+              />
+              <circle cx={center} cy={center} r={176} className="orbital-ring" />
+              {ORBITAL_DEGREE_TICKS.map((deg) => (
+                <line
+                  key={`deg-${deg}`}
+                  x1={center}
+                  y1={22}
+                  x2={center}
+                  y2={32}
+                  transform={`rotate(${deg} ${center} ${center})`}
+                  className="orbital-degree-tick"
+                />
+              ))}
+              <line
+                x1={center}
+                y1={16}
+                x2={center}
+                y2={boardSize - 16}
+                className="orbital-axis"
+              />
+              <line
+                x1={16}
+                y1={center}
+                x2={boardSize - 16}
+                y2={center}
+                className="orbital-axis"
+              />
+            </g>
+
+            <rect
+              x={originX}
+              y={originY}
+              width={gridWidth}
+              height={gridHeight}
+              className="plateau-surface"
+              rx={6}
+            />
+
+            {cols <= 20 &&
+              Array.from({ length: cols + 1 }, (_, colIndex) => {
+                const xPos = originX + colIndex * cellSize;
+                return (
+                  <line
+                    key={`v-${colIndex}`}
+                    x1={xPos}
+                    y1={originY}
+                    x2={xPos}
+                    y2={originY + gridHeight}
+                    className="grid-line"
+                  />
+                );
+              })}
+
+            {rows <= 20 &&
+              Array.from({ length: rows + 1 }, (_, rowIndex) => {
+                const yPos = originY + rowIndex * cellSize;
+                return (
+                  <line
+                    key={`h-${rowIndex}`}
+                    x1={originX}
+                    y1={yPos}
+                    x2={originX + gridWidth}
+                    y2={yPos}
+                    className="grid-line"
+                  />
+                );
+              })}
+
+            <line
+              x1={activeCell.cx}
+              y1={originY}
+              x2={activeCell.cx}
+              y2={originY + gridHeight}
+              className="target-crosshair"
+              aria-hidden="true"
+            />
+            <line
+              x1={originX}
+              y1={activeCell.cy}
+              x2={originX + gridWidth}
+              y2={activeCell.cy}
+              className="target-crosshair"
+              aria-hidden="true"
+            />
+
+            <rect
+              x={activeCell.cx - cellSize / 2}
+              y={activeCell.cy - cellSize / 2}
+              width={cellSize}
+              height={cellSize}
+              className="active-cell"
+            />
+
+            {xTicks.map((xValue) => {
+              const { cx } = cellCenter(xValue, 0);
+              return (
+                <text
+                  key={`xlabel-${xValue}`}
+                  x={cx}
+                  y={originY + gridHeight + 22}
+                  textAnchor="middle"
+                  className="axis-tick"
+                >
+                  {xValue}
+                </text>
+              );
+            })}
+
+            {yTicks.map((yValue) => {
+              const { cy } = cellCenter(0, yValue);
+              return (
+                <text
+                  key={`ylabel-${yValue}`}
+                  x={originX - 14}
+                  y={cy + 4}
+                  textAnchor="end"
+                  className="axis-tick"
+                >
+                  {yValue}
+                </text>
+              );
+            })}
+
             <text
-              y={3.5}
+              x={originX + gridWidth / 2}
+              y={boardSize - 12}
               textAnchor="middle"
-              className="colocated-badge-text"
+              className="axis-title"
             >
-              {colocatedCount}
+              Eixo X (0 → {maxX})
             </text>
-          </g>
-        ) : null}
-      </svg>
+
+            <text
+              x={18}
+              y={originY + gridHeight / 2}
+              textAnchor="middle"
+              transform={`rotate(-90 18 ${originY + gridHeight / 2})`}
+              className="axis-title"
+            >
+              Eixo Y (0 → {maxY})
+            </text>
+
+            <text
+              x={originX + gridWidth}
+              y={originY - 12}
+              textAnchor="end"
+              className="corner-coordinate"
+            >
+              ({maxX}, {maxY})
+            </text>
+
+            {otherVisibleProbes.map((other) => {
+              const pos = cellCenter(other.x, other.y);
+              return (
+                <g
+                  key={other.id}
+                  transform={`translate(${pos.cx}, ${pos.cy})`}
+                  className="secondary-probe-marker"
+                >
+                  <circle r={Math.max(markerRadius * 0.45, 4)} />
+                </g>
+              );
+            })}
+
+            <g
+              transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
+              data-testid="active-probe-marker"
+            >
+              <g transform={`rotate(${rotationDeg})`}>
+                <polygon
+                  points={`0,0 ${-markerRadius * 1.1},${-markerRadius * 2.1} ${markerRadius * 1.1},${-markerRadius * 2.1}`}
+                  className="probe-sensor-cone"
+                />
+              </g>
+              <circle r={markerRadius * 1.38} className="probe-pulse-ring" />
+              <circle r={markerRadius} className="probe-core" />
+              <g transform={`rotate(${rotationDeg})`}>
+                <polygon
+                  points={`0,${-markerRadius * 0.78} ${markerRadius * 0.56},${markerRadius * 0.58} 0,${markerRadius * 0.25} ${-markerRadius * 0.56},${markerRadius * 0.58}`}
+                  className="probe-heading-arrow"
+                />
+              </g>
+            </g>
+
+            {colocatedCount > 1 ? (
+              <g
+                transform={`translate(${activeCell.cx + markerRadius * 0.95}, ${activeCell.cy - markerRadius * 0.95})`}
+              >
+                <circle r={9} className="colocated-badge-bg" />
+                <text
+                  y={3.5}
+                  textAnchor="middle"
+                  className="colocated-badge-text"
+                >
+                  {colocatedCount}
+                </text>
+              </g>
+            ) : null}
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

@@ -21,54 +21,55 @@ export function MissionOverview({
   return (
     <Panel
       title="Observatório Cartográfico e Telemetria"
-      subtitle="Estado confirmado pela API para a sonda ativa e representação espacial da malha."
+      subtitle="Projeção tática sobre o hemisfério marciano e estado confirmado pela API."
       badge={
         selectedProbe ? (
           <Badge tone="teal">
             Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
           </Badge>
         ) : (
-          <Badge tone="neutral">Sem sonda ativa</Badge>
+          <Badge tone="neutral">Órbita livre</Badge>
         )
       }
     >
       {!selectedProbe ? (
         <div className="empty-observatory">
-          <svg
-            className="empty-observatory-svg"
-            viewBox="0 0 240 240"
-            aria-hidden="true"
-          >
-            <circle cx="120" cy="120" r="96" className="orbital-ring" />
-            <circle
-              cx="120"
-              cy="120"
-              r="64"
-              className="orbital-ring orbital-ring-dashed"
-            />
-            <circle cx="120" cy="120" r="28" className="orbital-ring" />
-            <line
-              x1="120"
-              y1="12"
-              x2="120"
-              y2="228"
-              className="orbital-axis"
-            />
-            <line
-              x1="12"
-              y1="120"
-              x2="228"
-              y2="120"
-              className="orbital-axis"
-            />
-            <circle cx="120" cy="120" r="5" className="empty-beacon" />
-          </svg>
+          <div className="empty-mars-showcase" aria-hidden="true">
+            <div className="mars-atmosphere-glow" />
+            <div className="mars-sphere mars-sphere-idle" />
+            <svg className="empty-observatory-svg" viewBox="0 0 280 280">
+              <circle cx="140" cy="140" r="126" className="orbital-ring" />
+              <circle
+                cx="140"
+                cy="140"
+                r="96"
+                className="orbital-ring orbital-ring-dashed"
+              />
+              <circle cx="140" cy="140" r="56" className="orbital-ring" />
+              <line
+                x1="140"
+                y1="8"
+                x2="140"
+                y2="272"
+                className="orbital-axis"
+              />
+              <line
+                x1="8"
+                y1="140"
+                x2="272"
+                y2="140"
+                className="orbital-axis"
+              />
+              <circle cx="140" cy="140" r="5" className="empty-beacon" />
+            </svg>
+          </div>
           <h3 className="empty-observatory-title">
             Nenhum sinal de sonda na superfície
           </h3>
           <p className="empty-state">
-            Configure os limites máximos (X, Y) e a direção inicial no painel à
-            esquerda para lançar a primeira sonda em (0, 0).
+            Marte aguarda o primeiro pouso. Configure os limites máximos (X, Y)
+            e a direção inicial no card à esquerda para lançar uma sonda em (0,
+            0).
           </p>
         </div>
       ) : (

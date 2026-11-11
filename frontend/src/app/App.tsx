@@ -7,7 +7,7 @@ import {
   type ProbesApiClient,
   defaultProbesApiClient,
 } from "../shared/api/probesApi";
-import { Badge, Button } from "../shared/ui/Primitives";
+import { Badge, Button, Panel } from "../shared/ui/Primitives";
 
 interface AppProps {
   apiClient?: ProbesApiClient;
@@ -25,8 +25,8 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             <Badge tone="amber">Missão Marte</Badge>
           </div>
           <p className="app-subtitle">
-            Console cartográfico de lançamento, comando e telemetria de sondas
-            em superfície.
+            Mesa tática de lançamento, comando e cartografia orbital de sondas
+            em Marte.
           </p>
         </div>
 
@@ -56,8 +56,8 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
         </div>
       ) : null}
 
-      <main className="app-layout">
-        <div className="sidebar-column">
+      <main className="app-board-layout">
+        <aside className="wing-column">
           <LaunchProbeForm
             isSubmitting={mission.isLaunching}
             errorMessage={mission.launchError}
@@ -68,15 +68,9 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             selectedProbeId={mission.selectedProbeId}
             onSelectProbe={mission.selectProbe}
           />
-          <CommandDeck
-            selectedProbe={mission.selectedProbe}
-            isExecuting={mission.isExecuting}
-            errorMessage={mission.commandError}
-            onExecuteCommands={mission.executeCommands}
-          />
-        </div>
+        </aside>
 
-        <div className="main-column">
+        <div className="center-stage-column">
           {mission.isLoadingInitial ? (
             <div className="panel loading-panel" role="status">
               Sincronizando telemetria das sondas com a estação orbital...
@@ -88,6 +82,39 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             />
           )}
         </div>
+
+        <aside className="wing-column">
+          <CommandDeck
+            selectedProbe={mission.selectedProbe}
+            isExecuting={mission.isExecuting}
+            errorMessage={mission.commandError}
+            onExecuteCommands={mission.executeCommands}
+          />
+
+          <Panel
+            title="Protocolo de Navegação"
+            subtitle="Regras de movimento confirmadas pela estação central."
+          >
+            <dl className="protocol-list">
+              <div className="protocol-row">
+                <dt>Pouso inicial</dt>
+                <dd>Sempre na coordenada (0, 0)</dd>
+              </div>
+              <div className="protocol-row">
+                <dt>Rotação L / R</dt>
+                <dd>Gira 90° sem mudar de célula</dd>
+              </div>
+              <div className="protocol-row">
+                <dt>Avanço M</dt>
+                <dd>Move 1 unidade na direção atual</dd>
+              </div>
+              <div className="protocol-row">
+                <dt>Segurança de borda</dt>
+                <dd>Sequência inválida é rejeitada por inteiro</dd>
+              </div>
+            </dl>
+          </Panel>
+        </aside>
       </main>
     </div>
   );

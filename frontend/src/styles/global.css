@@ -13,8 +13,9 @@ body {
   overflow-x: clip;
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(circle at 82% 14%, var(--accent-teal-soft), transparent 36%),
-    radial-gradient(circle at 14% 88%, var(--accent-amber-soft), transparent 40%);
+    radial-gradient(circle at 50% 42%, var(--mars-atmosphere), transparent 44%),
+    radial-gradient(circle at 86% 12%, var(--accent-teal-soft), transparent 34%),
+    radial-gradient(circle at 12% 88%, var(--accent-amber-soft), transparent 36%);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -23,9 +24,9 @@ body {
 }
 
 .app-shell {
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
-  padding: var(--space-6);
+  padding: var(--space-5) var(--space-6);
 }
 
 .app-header {
@@ -34,8 +35,8 @@ body {
   align-items: flex-start;
   flex-wrap: wrap;
   gap: var(--space-4);
-  padding-bottom: var(--space-5);
-  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -63,7 +64,7 @@ body {
 
 .app-subtitle {
   margin: var(--space-1) 0 0;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-secondary);
 }
 
@@ -73,26 +74,28 @@ body {
   gap: var(--space-3);
 }
 
-.app-layout {
+.app-board-layout {
   display: grid;
-  grid-template-columns: minmax(0, 410px) minmax(0, 1fr);
-  gap: var(--space-6);
+  grid-template-columns: minmax(290px, 340px) minmax(0, 1fr) minmax(290px, 340px);
+  gap: var(--space-5);
   align-items: start;
 }
 
-.sidebar-column,
-.main-column {
+.wing-column,
+.center-stage-column {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
 }
 
 .panel {
+  position: relative;
   background-color: var(--bg-panel);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: var(--space-5);
+  box-shadow: inset 0 1px 0 var(--panel-highlight);
 }
 
 .panel-header {
@@ -106,21 +109,21 @@ body {
 .panel-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .panel-subtitle {
   margin: var(--space-1) 0 0;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   color: var(--text-secondary);
 }
 
 .stack-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .field-row {
@@ -136,7 +139,7 @@ body {
 }
 
 .field-label {
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -149,8 +152,8 @@ select {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.95rem;
+  padding: 0.58rem 0.72rem;
+  font-size: 0.94rem;
 }
 
 input:hover:not(:disabled),
@@ -168,9 +171,9 @@ button:focus-visible {
 .btn {
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  padding: 0.6rem 0.95rem;
+  padding: 0.58rem 0.9rem;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -183,7 +186,7 @@ button:focus-visible {
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .btn:disabled {
@@ -194,6 +197,7 @@ button:focus-visible {
 .btn-primary {
   background-color: var(--accent-amber);
   color: var(--text-on-amber);
+  box-shadow: 0 3px 0 var(--tile-edge);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -209,6 +213,12 @@ button:focus-visible {
 .btn-secondary:hover:not(:disabled) {
   background-color: var(--bg-hover);
   border-color: var(--border-strong);
+}
+
+.btn-tile {
+  flex: 1 1 calc(33.333% - var(--space-2));
+  font-family: var(--font-mono);
+  box-shadow: 0 3px 0 var(--tile-edge);
 }
 
 .btn-ghost {
@@ -265,6 +275,7 @@ button:focus-visible {
   padding: var(--space-3);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  box-shadow: 0 2px 0 var(--tile-edge);
   cursor: pointer;
 }
 
@@ -294,12 +305,12 @@ button:focus-visible {
 
 .probe-name {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .probe-short-id {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--text-muted);
 }
 
@@ -307,7 +318,7 @@ button:focus-visible {
   display: flex;
   justify-content: space-between;
   gap: var(--space-2);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
 }
 
@@ -323,15 +334,89 @@ button:focus-visible {
   gap: var(--space-2);
 }
 
+.token-strip {
+  background-color: var(--bg-well);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.token-strip-label {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.token-strip-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.token-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.token-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-raised);
+  border: 1px solid var(--border-amber);
+  color: var(--accent-amber);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.protocol-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.protocol-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.82rem;
+}
+
+.protocol-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.protocol-row dt {
+  color: var(--text-secondary);
+}
+
+.protocol-row dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
 .mission-overview {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .telemetry-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
 }
@@ -340,18 +425,18 @@ button:focus-visible {
   background-color: var(--bg-well);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3);
 }
 
 .telemetry-card dt {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   color: var(--text-secondary);
   margin-bottom: var(--space-1);
 }
 
 .telemetry-card dd {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 600;
   overflow-wrap: break-word;
 }
@@ -367,7 +452,7 @@ button:focus-visible {
 }
 
 .telemetry-id {
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }
 
@@ -383,8 +468,14 @@ button:focus-visible {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-3);
+}
+
+.plateau-stage-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   font-size: 0.82rem;
 }
 
@@ -398,6 +489,77 @@ button:focus-visible {
   color: var(--accent-teal);
 }
 
+.mars-arena {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 480px;
+  padding: var(--space-3) 0;
+  overflow: hidden;
+}
+
+.mars-globe-anchor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.mars-atmosphere-glow {
+  position: absolute;
+  width: 410px;
+  height: 410px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--mars-atmosphere) 0%,
+    transparent 70%
+  );
+}
+
+.mars-sphere {
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      var(--mars-highlight) 0%,
+      var(--mars-core) 38%,
+      var(--mars-mid) 68%,
+      var(--mars-shadow) 95%
+    );
+  box-shadow:
+    inset -28px -28px 48px var(--mars-shadow),
+    0 0 42px var(--mars-atmosphere);
+  opacity: 0.82;
+}
+
+.mars-sphere-idle {
+  width: 196px;
+  height: 196px;
+  opacity: 0.92;
+}
+
+.plateau-board-deck {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 540px;
+  transition: transform 240ms ease;
+}
+
+.mars-arena-3d .plateau-board-deck {
+  transform: perspective(1050px) rotateX(18deg);
+}
+
+.mars-arena-2d .plateau-board-deck {
+  transform: none;
+}
+
 .plateau-svg {
   display: block;
   width: 100%;
@@ -407,47 +569,68 @@ button:focus-visible {
 
 .orbital-ring {
   fill: none;
-  stroke: var(--border-subtle);
+  stroke: var(--border-strong);
   stroke-width: 1;
-  opacity: 0.65;
+  opacity: 0.72;
+}
+
+.orbital-ring-outer {
+  stroke: var(--border-amber);
+  opacity: 0.45;
 }
 
 .orbital-ring-dashed {
   stroke-dasharray: 4 6;
 }
 
+.orbital-degree-tick {
+  stroke: var(--border-amber);
+  stroke-width: 1.5;
+  opacity: 0.55;
+}
+
 .orbital-axis {
   stroke: var(--border-subtle);
   stroke-width: 1;
   stroke-dasharray: 2 6;
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .plateau-surface {
   fill: var(--bg-panel);
-  stroke: var(--border-strong);
+  fill-opacity: 0.78;
+  stroke: var(--border-amber);
   stroke-width: 1.5;
 }
 
 .grid-line {
-  stroke: var(--border-subtle);
+  stroke: var(--border-strong);
   stroke-width: 1;
+  opacity: 0.75;
+}
+
+.target-crosshair {
+  stroke: var(--border-teal);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.7;
 }
 
 .active-cell {
   fill: var(--accent-amber-soft);
   stroke: var(--border-amber);
-  stroke-width: 1.5;
+  stroke-width: 1.75;
 }
 
 .axis-tick {
-  fill: var(--text-secondary);
+  fill: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 11px;
+  font-weight: 600;
 }
 
 .axis-title {
-  fill: var(--text-muted);
+  fill: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
@@ -464,13 +647,17 @@ button:focus-visible {
   fill: var(--accent-teal);
   stroke: var(--bg-canvas);
   stroke-width: 1.5;
-  opacity: 0.85;
+  opacity: 0.9;
+}
+
+.probe-sensor-cone {
+  fill: var(--accent-amber-soft);
 }
 
 .probe-pulse-ring {
   fill: var(--accent-amber-soft);
   stroke: var(--border-amber);
-  stroke-width: 1;
+  stroke-width: 1.25;
 }
 
 .probe-core {
@@ -504,10 +691,21 @@ button:focus-visible {
   padding: var(--space-6) var(--space-4);
 }
 
-.empty-observatory-svg {
-  width: 180px;
-  height: 180px;
+.empty-mars-showcase {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 260px;
+  height: 260px;
   margin-bottom: var(--space-3);
+}
+
+.empty-observatory-svg {
+  position: relative;
+  z-index: 1;
+  width: 240px;
+  height: 240px;
 }
 
 .empty-beacon {
@@ -517,7 +715,7 @@ button:focus-visible {
 .empty-observatory-title {
   margin: 0 0 var(--space-2);
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--text-primary);
 }
 
@@ -549,11 +747,21 @@ button:focus-visible {
   color: var(--accent-danger-text);
 }
 
-@media (max-width: 920px) {
-  .app-layout {
+@media (max-width: 1220px) {
+  .app-board-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .center-stage-column {
+    order: -1;
+  }
+
+  .telemetry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
   .telemetry-grid {
     grid-template-columns: minmax(0, 1fr);
   }

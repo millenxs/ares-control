@@ -116,6 +116,16 @@ describe("Ares Control App", () => {
 
     const commandInput = screen.getByLabelText("Sequência de comandos");
     expect(commandInput).toHaveValue("MRM");
+    expect(screen.getByText("Fila de instruções (3)")).toBeInTheDocument();
+
+    const perspectiveButton = screen.getByRole("button", {
+      name: "Perspectiva: 3D",
+    });
+    expect(perspectiveButton).toHaveAttribute("aria-pressed", "true");
+    await user.click(perspectiveButton);
+    expect(
+      screen.getByRole("button", { name: "Perspectiva: 2D" }),
+    ).toHaveAttribute("aria-pressed", "false");
 
     await user.click(
       screen.getByRole("button", { name: "Transmitir comandos" }),

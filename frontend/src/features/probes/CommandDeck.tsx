@@ -33,6 +33,7 @@ export function CommandDeck({
   }
 
   const disabled = !selectedProbe || isExecuting;
+  const commandTokens = [...commands];
 
   return (
     <Panel
@@ -59,9 +60,14 @@ export function CommandDeck({
           />
         </label>
 
-        <div className="quick-commands" role="group" aria-label="Inserir comandos rápidos">
+        <div
+          className="quick-commands"
+          role="group"
+          aria-label="Inserir comandos rápidos"
+        >
           <Button
             variant="secondary"
+            className="btn-tile"
             disabled={disabled}
             onClick={() => appendCommand("L")}
           >
@@ -69,6 +75,7 @@ export function CommandDeck({
           </Button>
           <Button
             variant="secondary"
+            className="btn-tile"
             disabled={disabled}
             onClick={() => appendCommand("M")}
           >
@@ -76,6 +83,7 @@ export function CommandDeck({
           </Button>
           <Button
             variant="secondary"
+            className="btn-tile"
             disabled={disabled}
             onClick={() => appendCommand("R")}
           >
@@ -88,6 +96,25 @@ export function CommandDeck({
           >
             Limpar
           </Button>
+        </div>
+
+        <div className="token-strip" aria-live="polite">
+          <span className="token-strip-label">
+            Fila de instruções ({commandTokens.length})
+          </span>
+          {commandTokens.length === 0 ? (
+            <span className="token-strip-empty">
+              Use as peças acima ou digite a sequência.
+            </span>
+          ) : (
+            <div className="token-chip-list">
+              {commandTokens.map((token, idx) => (
+                <span key={`${idx}-${token}`} className="token-chip">
+                  {token}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {errorMessage ? (
