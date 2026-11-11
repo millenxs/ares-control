@@ -2,30 +2,80 @@ import { useState } from "react";
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { Button } from "../../shared/ui/Primitives";
 import { MarsCanvas3D } from "./MarsCanvas3D";
+import type { PreviewResult } from "./previewNavigation";
 
 interface PlateauMapProps {
   selectedProbe: Probe;
   probes: Probe[];
+  trail?: Array<{ x: number; y: number }>;
+  previewResult?: PreviewResult | null;
 }
 
-const DIRECTION_ARROWS: Record<Direction, string> = {
-  NORTH: "▲",
-  EAST: "►",
-  SOUTH: "▼",
-  WEST: "◄",
+const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
+  NORTH: 0,
+  EAST: 90,
+  SOUTH: 180,
+  WEST: 270,
 };
 
-export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
+function buildAxisTicks(maxCoordinate: number): number[] {
+  const totalPositions = maxCoordinate + 1;
+  if (totalPositions <= 7) {
+    return Array.from({ length: totalPositions }, (_, index) => index);
+  }
+  const step = Math.ceil(maxCoordinate / 5);
+  const ticks: number[] = [0];
+  for (let value = step; value < maxCoordinate; value += step) {
+    ticks.push(value);
+  }
+  if (!ticks.includes(maxCoordinate)) {
+    ticks.push(maxCoordinate);
+  }
+  return ticks;
+}
+
+export function PlateauMap({
+  selectedProbe,
+  probes,
+  trail = [],
+  previewResult,
+}: PlateauMapProps) {
   const [is3DView, setIs3DView] = useState(true);
+  const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
   const { max_x: maxX, max_y: maxY } = selectedProbe.plateau;
   const cols = maxX + 1;
   const rows = maxY + 1;
 
   const boardSize = 480;
-  const cellSize = Math.min(boardSize / Math.max(cols, rows), 72);
+  const padLeft = 40;
+  const padRight = 30;
+  const padTop = 32;
+  const padBottom = 44;
+
+  const usableWidth = boardSize - padLeft - padRight;
+  const usableHeight = boardSize - padTop - padBottom;
+  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 68);
+
   const gridWidth = cellSize * cols;
   const gridHeight = cellSize * rows;
+  const originX = padLeft + (usableWidth - gridWidth) / 2;
+  const originY = padTop + (usableHeight - gridHeight) / 2;
+
+  const xTicks = buildAxisTicks(maxX);
+  const yTicks = buildAxisTicks(maxY);
+
+  function cellCenter(x: number, y: number): { cx: number; cy: number } {
+    const invertedRow = maxY - y;
+    return {
+      cx: originX + (x + 0.5) * cellSize,
+      cy: originY + (invertedRow + 0.5) * cellSize,
+    };
+  }
+
+  const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
+  const rotationDeg = DIRECTION_ROTATION_DEG[selectedProbe.direction];
+  const markerRadius = Math.max(Math.min(cellSize * 0.44, 26), 12);
 
   const otherVisibleProbes = probes.filter(
     (p) =>
@@ -38,6 +88,8 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   const colocatedCount = probes.filter(
     (p) => p.x === selectedProbe.x && p.y === selectedProbe.y,
   ).length;
+
+  const showInternalCellNumbers = cols <= 6 && rows <= 6;
 
   return (
     <div className="planalto-hud-container">
@@ -52,6 +104,11 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
         <span className="malha-highlight">
           MALHA {maxX}x{maxY}
         </span>
+        {hoveredCell ? (
+          <span className="hover-readout-pill">
+            Cursor: ({hoveredCell.x}, {hoveredCell.y})
+          </span>
+        ) : null}
       </div>
 
       <div
@@ -109,125 +166,240 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
             ▼ SOUTH (Y: 0)
           </div>
 
-          {/* SVG com as células numeradas e o marcador ativo estilo Image 1 */}
+          {/* SVG da Malha Tática */}
           <div className="hud-grid-wrapper">
             <svg
               className="planalto-svg"
-              viewBox={`0 0 ${gridWidth} ${gridHeight}`}
+              viewBox={`0 0 ${boardSize} ${boardSize}`}
               role="img"
               aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
             >
-              {/* Células da malha (da linha maxY até 0) */}
+              {/* Superfície do platô */}
+              <rect
+                x={originX}
+                y={originY}
+                width={gridWidth}
+                height={gridHeight}
+                className="plateau-surface-clean"
+                rx={4}
+              />
+
+              {/* Grid Lines */}
+              {cols <= 25 &&
+                Array.from({ length: cols + 1 }, (_, cIdx) => {
+                  const xPos = originX + cIdx * cellSize;
+                  return (
+                    <line
+                      key={`vl-${cIdx}`}
+                      x1={xPos}
+                      y1={originY}
+                      x2={xPos}
+                      y2={originY + gridHeight}
+                      className="hud-grid-line"
+                    />
+                  );
+                })}
+
+              {rows <= 25 &&
+                Array.from({ length: rows + 1 }, (_, rIdx) => {
+                  const yPos = originY + rIdx * cellSize;
+                  return (
+                    <line
+                      key={`hl-${rIdx}`}
+                      x1={originX}
+                      y1={yPos}
+                      x2={originX + gridWidth}
+                      y2={yPos}
+                      className="hud-grid-line"
+                    />
+                  );
+                })}
+
+              {/* Coordenadas e áreas de hover em cada célula */}
               {Array.from({ length: rows }, (_, rIdx) => {
                 const yCoord = maxY - rIdx;
                 return Array.from({ length: cols }, (_, cIdx) => {
                   const xCoord = cIdx;
-                  const xPos = cIdx * cellSize;
-                  const yPos = rIdx * cellSize;
+                  const xPos = originX + cIdx * cellSize;
+                  const yPos = originY + rIdx * cellSize;
                   const isActive =
                     xCoord === selectedProbe.x && yCoord === selectedProbe.y;
 
-                  if (isActive) {
-                    return null;
-                  }
-
                   return (
-                    <g key={`cell-${xCoord}-${yCoord}`}>
+                    <g
+                      key={`cell-${xCoord}-${yCoord}`}
+                      onMouseEnter={() => setHoveredCell({ x: xCoord, y: yCoord })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                      className="cell-hover-group"
+                    >
                       <rect
-                        x={xPos + 2}
-                        y={yPos + 2}
-                        width={cellSize - 4}
-                        height={cellSize - 4}
-                        className="hud-cell-bg"
-                        rx={3}
+                        x={xPos}
+                        y={yPos}
+                        width={cellSize}
+                        height={cellSize}
+                        className="cell-hitbox"
                       />
-                      <text
-                        x={xPos + cellSize / 2}
-                        y={yPos + cellSize / 2 + 4}
-                        textAnchor="middle"
-                        className="hud-cell-coords"
-                      >
-                        {xCoord},{yCoord}
-                      </text>
+                      {showInternalCellNumbers && !isActive && (
+                        <text
+                          x={xPos + cellSize / 2}
+                          y={yPos + cellSize / 2 + 3.5}
+                          textAnchor="middle"
+                          className="hud-cell-coords"
+                        >
+                          {xCoord},{yCoord}
+                        </text>
+                      )}
                     </g>
                   );
                 });
               })}
 
-              {/* Sondas secundárias */}
+              {/* Rastro do percurso percorrido (visited trail) */}
+              {trail.length > 1 && (
+                <polyline
+                  points={trail
+                    .map((pt) => {
+                      const c = cellCenter(pt.x, pt.y);
+                      return `${c.cx},${c.cy}`;
+                    })
+                    .join(" ")}
+                  className="probe-trail-path"
+                />
+              )}
+              {trail.map((pt, tIdx) => {
+                const c = cellCenter(pt.x, pt.y);
+                const opacity = Math.max(0.2, (tIdx + 1) / trail.length);
+                return (
+                  <circle
+                    key={`trail-dot-${tIdx}`}
+                    cx={c.cx}
+                    cy={c.cy}
+                    r={Math.max(cellSize * 0.12, 3)}
+                    style={{ opacity }}
+                    className="probe-trail-dot"
+                  />
+                );
+              })}
+
+              {/* Pré-visualização fantasma do comando antes de transmitir (Dry-run preview) */}
+              {previewResult && previewResult.isValid && previewResult.steps.length > 0 && (
+                <g className="preview-ghost-layer">
+                  <polyline
+                    points={[
+                      `${activeCell.cx},${activeCell.cy}`,
+                      ...previewResult.steps.map((st) => {
+                        const c = cellCenter(st.x, st.y);
+                        return `${c.cx},${c.cy}`;
+                      }),
+                    ].join(" ")}
+                    className="preview-ghost-path"
+                  />
+                  {(() => {
+                    const finalC = cellCenter(
+                      previewResult.finalPosition.x,
+                      previewResult.finalPosition.y,
+                    );
+                    const finalDeg = DIRECTION_ROTATION_DEG[previewResult.finalDirection];
+                    return (
+                      <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
+                        <circle r={markerRadius * 0.9} className="ghost-probe-ring" />
+                        <g transform={`rotate(${finalDeg})`}>
+                          <polygon
+                            points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
+                            className="ghost-probe-arrow"
+                          />
+                        </g>
+                      </g>
+                    );
+                  })()}
+                </g>
+              )}
+
+              {/* Ticks dos eixos numéricos nas bordas externas */}
+              {xTicks.map((xVal) => {
+                const c = cellCenter(xVal, 0);
+                return (
+                  <text
+                    key={`xtick-${xVal}`}
+                    x={c.cx}
+                    y={originY + gridHeight + 16}
+                    textAnchor="middle"
+                    className="axis-tick-clean"
+                  >
+                    {xVal}
+                  </text>
+                );
+              })}
+              {yTicks.map((yVal) => {
+                const c = cellCenter(0, yVal);
+                return (
+                  <text
+                    key={`ytick-${yVal}`}
+                    x={originX - 10}
+                    y={c.cy + 4}
+                    textAnchor="end"
+                    className="axis-tick-clean"
+                  >
+                    {yVal}
+                  </text>
+                );
+              })}
+
+              {/* Sondas secundárias na mesma malha */}
               {otherVisibleProbes.map((p) => {
-                const xPos = p.x * cellSize + cellSize / 2;
-                const yPos = (maxY - p.y) * cellSize + cellSize / 2;
+                const c = cellCenter(p.x, p.y);
                 return (
                   <circle
                     key={p.id}
-                    cx={xPos}
-                    cy={yPos}
-                    r={Math.max(cellSize * 0.22, 6)}
+                    cx={c.cx}
+                    cy={c.cy}
+                    r={Math.max(markerRadius * 0.45, 5)}
                     className="secondary-probe-dot"
                   />
                 );
               })}
 
-              {/* Célula Ativa da Sonda em Destaque Neon estilo Image 1 */}
-              {(() => {
-                const activeXPos = selectedProbe.x * cellSize;
-                const activeYPos = (maxY - selectedProbe.y) * cellSize;
-                const arrow = DIRECTION_ARROWS[selectedProbe.direction];
-                const dirCode = selectedProbe.direction[0];
+              {/* Célula Ativa e Ícone da Sonda Ampliado com Rotação Suave */}
+              <g
+                transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
+                data-testid="active-probe-marker"
+              >
+                <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
+                <circle r={markerRadius} className="probe-body-core" />
+                <g
+                  style={{
+                    transform: `rotate(${rotationDeg}deg)`,
+                    transformOrigin: "center",
+                    transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                >
+                  <polygon
+                    points={`0,${-markerRadius * 0.76} ${markerRadius * 0.5},${markerRadius * 0.54} 0,${markerRadius * 0.22} ${-markerRadius * 0.5},${markerRadius * 0.54}`}
+                    className="probe-heading-pointer"
+                  />
+                </g>
+              </g>
 
-                return (
-                  <g
-                    transform={`translate(${activeXPos}, ${activeYPos})`}
-                    data-testid="active-probe-marker"
-                  >
-                    <rect
-                      x={2}
-                      y={2}
-                      width={cellSize - 4}
-                      height={cellSize - 4}
-                      className="hud-cell-active"
-                      rx={4}
-                    />
-                    <circle cx={4} cy={4} r={2} className="corner-pip" />
-                    <text
-                      x={cellSize / 2}
-                      y={cellSize / 2 - 3}
-                      textAnchor="middle"
-                      className="active-arrow-text"
-                    >
-                      {arrow}
-                    </text>
-                    <text
-                      x={cellSize / 2}
-                      y={cellSize / 2 + 13}
-                      textAnchor="middle"
-                      className="active-coord-text"
-                    >
-                      {selectedProbe.x},{selectedProbe.y}-{dirCode}
-                    </text>
-
-                    {colocatedCount > 1 ? (
-                      <g transform={`translate(${cellSize - 12}, 6)`}>
-                        <circle r={7} className="colocated-pip" />
-                        <text y={3} textAnchor="middle" className="colocated-txt">
-                          {colocatedCount}
-                        </text>
-                      </g>
-                    ) : null}
-                  </g>
-                );
-              })()}
+              {colocatedCount > 1 ? (
+                <g
+                  transform={`translate(${activeCell.cx + markerRadius * 0.85}, ${activeCell.cy - markerRadius * 0.85})`}
+                >
+                  <circle r={8} className="colocated-badge-circle" />
+                  <text y={3} textAnchor="middle" className="colocated-badge-txt">
+                    {colocatedCount}
+                  </text>
+                </g>
+              ) : null}
             </svg>
           </div>
 
           {/* Footer do HUD */}
           <div className="hud-box-footer">
             <span className="hud-origin-tag">
-              ORIGEM: POUSO CONCLUÍDO (0, 0)
+              ORIGEM: (0, 0) · ATUAL: ({selectedProbe.x}, {selectedProbe.y})
             </span>
             <span className="hud-probe-id">
-              PROBE: {selectedProbe.id.slice(0, 6).toUpperCase()} ACTIVE
+              PROBE: {selectedProbe.id.slice(0, 6).toUpperCase()}
             </span>
           </div>
         </div>

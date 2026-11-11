@@ -39,7 +39,7 @@ body {
 }
 
 /* ==========================================================================
-   Layout Principal: 3 Colunas Simétricas com Marte Central (Image 1)
+   Layout Principal: 3 Colunas com Centro Flexível e Fundo Espacial Puro
    ========================================================================== */
 .observatory-stage-frame {
   min-height: 100vh;
@@ -47,18 +47,18 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 24px 32px;
+  padding: 20px 28px;
   background-color: #000000;
   box-sizing: border-box;
 }
 
 .observatory-grid-layout {
   display: grid;
-  grid-template-columns: 360px minmax(480px, 1fr) 380px;
-  gap: 36px;
+  grid-template-columns: 340px minmax(0, 1fr) 350px;
+  gap: 28px;
   align-items: center;
   width: 100%;
-  max-width: 1680px;
+  max-width: 1620px;
 }
 
 .pod-column {
@@ -66,6 +66,7 @@ body {
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+  width: 100%;
   z-index: 5;
 }
 
@@ -80,6 +81,7 @@ body {
   align-items: center;
   justify-content: center;
   min-width: 0;
+  width: 100%;
   z-index: 2;
 }
 
@@ -103,6 +105,8 @@ body {
   flex-direction: column;
   gap: 14px;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .sci-card-probes {
@@ -124,7 +128,7 @@ body {
 
 .probes-card-title {
   font-family: "Chakra Petch", var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #090d16;
@@ -132,14 +136,14 @@ body {
 
 .grid-sync-tag {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: #64748b;
   font-weight: 600;
 }
 
 .empty-fleet {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #94a3b8;
 }
 
@@ -221,17 +225,17 @@ body {
 
 .compass-label {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: #475569;
 }
 
 .compass-active-tag {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #0ea5e9;
+  color: #0284c7;
   letter-spacing: 0.04em;
 }
 
@@ -280,7 +284,7 @@ body {
 
 .tile-sub {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.64rem;
   font-weight: 600;
   color: #64748b;
 }
@@ -300,7 +304,7 @@ body {
 }
 
 .stat-micro-lbl {
-  font-size: 0.64rem;
+  font-size: 0.66rem;
   font-family: var(--font-mono);
   color: #64748b;
   font-weight: 700;
@@ -335,9 +339,9 @@ body {
 
 .section-mini-heading {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #64748b;
+  color: #475569;
   letter-spacing: 0.05em;
 }
 
@@ -389,25 +393,33 @@ body {
   cursor: pointer;
 }
 
+/* Fix: minmax(0, 1fr) garante que nenhum input vaze do card */
 .field-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
+  width: 100%;
 }
 
 .field-mini {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+  width: 100%;
 }
 
 .field-mini-label {
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
   color: #475569;
+  letter-spacing: 0.04em;
 }
 
 input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   background-color: #f8fafc;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -416,7 +428,7 @@ input {
   font-variant-numeric: tabular-nums;
   padding: 0.58rem 0.75rem;
   font-size: 0.92rem;
-  transition: border-color 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 input:hover:not(:disabled) {
@@ -493,7 +505,7 @@ input:focus-visible {
   cursor: not-allowed;
 }
 
-/* Lista de Sondas em Card Separado estilo Image 1 */
+/* Lista de Sondas com Scroll Interno Limpo */
 .probe-list {
   list-style: none;
   margin: 0;
@@ -501,6 +513,17 @@ input:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.probe-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.probe-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
 }
 
 .probe-row-btn {
@@ -572,7 +595,7 @@ input:focus-visible {
 
 .pos-label {
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #94a3b8;
   letter-spacing: 0.06em;
@@ -580,7 +603,7 @@ input:focus-visible {
 
 .pos-status-green {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #10b981;
   letter-spacing: 0.04em;
@@ -601,7 +624,7 @@ input:focus-visible {
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -624,7 +647,7 @@ input:focus-visible {
 .buffer-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .buffer-header {
@@ -635,22 +658,17 @@ input:focus-visible {
 
 .buffer-title {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #475569;
+  color: #334155;
   letter-spacing: 0.05em;
-}
-
-.buffer-sub-legend {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: #94a3b8;
 }
 
 .buffer-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .buffer-input {
@@ -659,6 +677,11 @@ input:focus-visible {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+}
+
+.buffer-input.input-has-error {
+  border-color: #dc2626;
+  background-color: #fff1f2;
 }
 
 .ops-counter-pill {
@@ -674,9 +697,25 @@ input:focus-visible {
   color: #0284c7;
 }
 
+/* Helper text com a legenda dos comandos logo abaixo do input */
+.buffer-helper-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #64748b;
+  padding-left: 2px;
+}
+
+.buffer-helper-text strong {
+  color: #334155;
+}
+
 .quick-command-buttons {
   display: flex;
   gap: 8px;
+  margin-top: 4px;
 }
 
 .quick-btn {
@@ -705,6 +744,30 @@ input:focus-visible {
   border-color: #e2e8f0;
 }
 
+/* Indicador de Previsão de Trajetória (Dry-Run Preview) */
+.preview-indicator-box {
+  background-color: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: #9a3412;
+  font-weight: 600;
+}
+
+.preview-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ea580c;
+  box-shadow: 0 0 8px #ea580c;
+}
+
+/* Botão Laranja Transmitir Comandos estilo Image 1 */
 .btn-exec-api {
   width: 100%;
   padding: 0.95rem 1.25rem;
@@ -743,9 +806,67 @@ input:focus-visible {
 }
 
 .btn-exec-arrow {
-  font-size: 0.84rem;
+  font-size: 1.05rem;
   letter-spacing: 0.08em;
   opacity: 0.95;
+}
+
+/* Histórico de Comandos */
+.history-accordion {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+}
+
+.history-toggle-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.history-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.history-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.history-item-top {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  color: #0ea5e9;
+}
+
+.history-time {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.history-item-coords {
+  color: #475569;
+  margin-top: 2px;
 }
 
 /* ==========================================================================
@@ -758,15 +879,6 @@ input:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.observatory-top-tag {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 8px;
-  text-transform: uppercase;
 }
 
 .observatory-orbit-view,
@@ -918,6 +1030,14 @@ input:focus-visible {
   align-items: center;
   gap: 8px;
   backdrop-filter: blur(8px);
+}
+
+.hover-readout-pill {
+  background-color: #0284c7;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
 }
 
 .dot-cyan {
@@ -1089,11 +1209,25 @@ input:focus-visible {
   max-width: 100%;
 }
 
-.hud-cell-bg {
-  fill: rgba(6, 17, 30, 0.65);
+.plateau-surface-clean {
+  fill: rgba(6, 17, 30, 0.75);
+  stroke: #0891b2;
+  stroke-width: 1;
+}
+
+.hud-grid-line {
   stroke: rgba(14, 116, 144, 0.35);
   stroke-width: 1;
   stroke-dasharray: 2 3;
+}
+
+.cell-hitbox {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.cell-hover-group:hover .cell-hitbox {
+  fill: rgba(34, 211, 238, 0.12);
 }
 
 .hud-cell-coords {
@@ -1101,47 +1235,86 @@ input:focus-visible {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
+  pointer-events: none;
 }
 
-/* Célula Ativa com Destaque Neon estilo Image 1 */
-.hud-cell-active {
-  fill: rgba(16, 185, 129, 0.2);
-  stroke: #10b981;
+/* Rastro da Sonda (Trail) */
+.probe-trail-path {
+  fill: none;
+  stroke: rgba(14, 165, 233, 0.6);
   stroke-width: 2;
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.7));
+  stroke-dasharray: 3 3;
 }
 
-.corner-pip {
-  fill: #10b981;
+.probe-trail-dot {
+  fill: #0ea5e9;
+  filter: drop-shadow(0 0 4px #0ea5e9);
 }
 
-.active-arrow-text {
-  fill: #10b981;
-  font-size: 14px;
-  font-weight: 700;
+/* Preview Fantasma de Comandos (Dry-run) */
+.preview-ghost-path {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
 }
 
-.active-coord-text {
-  fill: #ffffff;
+.ghost-probe-ring {
+  fill: rgba(245, 158, 11, 0.2);
+  stroke: #f59e0b;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.ghost-probe-arrow {
+  fill: #f59e0b;
+}
+
+/* Ticks Limpos dos Eixos */
+.axis-tick-clean {
+  fill: #94a3b8;
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Célula Ativa com Destaque Neon e Sonda Ampliada */
+.probe-pulse-wave {
+  fill: rgba(16, 185, 129, 0.18);
+  stroke: #10b981;
+  stroke-width: 1.5;
+  animation: pulseWave 2s infinite ease-out;
+}
+
+@keyframes pulseWave {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.probe-body-core {
+  fill: #090d16;
+  stroke: #10b981;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8));
+}
+
+.probe-heading-pointer {
+  fill: #10b981;
 }
 
 .secondary-probe-dot {
-  fill: #94a3b8;
-  stroke: #040a12;
+  fill: #64748b;
+  stroke: #090d16;
   stroke-width: 1.5;
 }
 
-.colocated-pip {
+.colocated-badge-circle {
   fill: #ea580c;
   stroke: #ffffff;
   stroke-width: 1;
 }
 
-.colocated-txt {
+.colocated-badge-txt {
   fill: #ffffff;
   font-family: var(--font-mono);
   font-size: 9px;
@@ -1181,7 +1354,7 @@ input:focus-visible {
   border-radius: 6px;
 }
 
-/* Telemetria HUD Flutuante no Topo */
+/* Telemetria HUD Flutuante */
 .observatory-telemetry-hud {
   display: flex;
   flex-wrap: wrap;
@@ -1230,6 +1403,17 @@ input:focus-visible {
   color: #94a3b8;
 }
 
+/* Shake de Erro de Input */
+.input-shake {
+  animation: inputShake 380ms ease-in-out;
+}
+
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
 /* Alertas */
 .alert {
   padding: 0.75rem 1rem;
@@ -1255,7 +1439,7 @@ input:focus-visible {
 }
 
 /* Responsividade */
-@media (max-width: 1320px) {
+@media (max-width: 1240px) {
   .observatory-grid-layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1270,5 +1454,18 @@ input:focus-visible {
 
   .pod-right {
     order: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+  .probe-pulse-wave {
+    animation: none;
   }
 }

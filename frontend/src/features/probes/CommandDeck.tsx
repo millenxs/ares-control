@@ -1,37 +1,75 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useState } from "react";
 import type { Probe } from "../../shared/api/probesApi";
+import type { CommandHistoryEntry } from "../mission/useMissionControl";
+import type { PreviewResult } from "../mission/previewNavigation";
 
 interface CommandDeckProps {
   selectedProbe: Probe | null;
   isExecuting: boolean;
   errorMessage: string | null;
+  previewResult?: PreviewResult | null;
+  commandHistory?: CommandHistoryEntry[];
   onExecuteCommands: (probeId: string, commands: string) => Promise<boolean>;
+  onPreviewChange?: (commands: string) => void;
 }
 
 export function CommandDeck({
   selectedProbe,
   isExecuting,
   errorMessage,
+  previewResult,
+  commandHistory = [],
   onExecuteCommands,
+  onPreviewChange,
 }: CommandDeckProps) {
   const [commands, setCommands] = useState("");
+  const [hasInputShake, setHasInputShake] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  function triggerShake() {
+    setHasInputShake(true);
+    setTimeout(() => setHasInputShake(false), 500);
+  }
+
+  function handleInputChange(value: string) {
+    const sanitized = value.toUpperCase().replace(/[^LMR]/g, "");
+    setCommands(sanitized);
+    onPreviewChange?.(sanitized);
+  }
 
   function appendCommand(symbol: "L" | "R" | "M") {
-    setCommands((current) => `${current}${symbol}`);
+    const next = `${commands}${symbol}`;
+    setCommands(next);
+    onPreviewChange?.(next);
+  }
+
+  function clearCommands() {
+    setCommands("");
+    onPreviewChange?.("");
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Escape") {
+      clearCommands();
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedProbe) {
+    if (!selectedProbe || !commands.trim()) {
+      triggerShake();
       return;
     }
     const succeeded = await onExecuteCommands(selectedProbe.id, commands);
     if (succeeded) {
-      setCommands("");
+      clearCommands();
+    } else {
+      triggerShake();
     }
   }
 
   const disabled = !selectedProbe || isExecuting;
+  const isBufferEmpty = commands.trim().length === 0;
   const commandTokens = [...commands];
 
   const probeX = selectedProbe ? selectedProbe.x : 0;
@@ -40,15 +78,17 @@ export function CommandDeck({
   const maxX = selectedProbe ? selectedProbe.plateau.max_x : 5;
   const maxY = selectedProbe ? selectedProbe.plateau.max_y : 5;
 
+  const displayError = errorMessage;
+
   return (
     <div className="sci-card" aria-label="Comandos da Sonda">
-      {/* Top Header estilo Image 1 */}
+      {/* Header do Card */}
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-probe-nav">
           <span className="dot-green" />
-          <span>PROBE NAV API</span>
+          <span>PROBE NAV</span>
           <span className="sep">•</span>
-          <span>REST ENDPOINT</span>
+          <span>ESTAÇÃO CENTRAL</span>
         </div>
         <div className="sci-icon-btn" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -60,8 +100,12 @@ export function CommandDeck({
 
       <h2 className="sci-card-title">COMANDOS DA SONDA</h2>
 
-      {/* Caixa Preta de Posição em Tempo Real estilo Image 1 */}
-      <div className="realtime-pos-box" aria-label="Posição atual em tempo real">
+      {/* Caixa de Posição em Tempo Real (Fonte Principal de Posição) */}
+      <div
+        className="realtime-pos-box"
+        aria-label="Posição atual em tempo real"
+        aria-live="polite"
+      >
         <div className="pos-box-header">
           <span className="pos-label">POSIÇÃO ATUAL EM TEMPO REAL</span>
           <span className="pos-status-green">STATUS: POUSADO</span>
@@ -73,29 +117,28 @@ export function CommandDeck({
           <span className="bounds-info">
             LIMITES: {maxX}x{maxY} [0..{maxX}, 0..{maxY}]
           </span>
-          <span className="sensor-safe">SENSOR DE BORDA: SEGURO</span>
+          <span className="sensor-safe">SENSOR DE BORDA: ATIVO</span>
         </div>
       </div>
 
-      {/* Buffer de Instruções estilo Image 1 */}
+      {/* Buffer de Instruções */}
       <form onSubmit={handleSubmit} noValidate className="buffer-form">
         <div className="buffer-section">
           <div className="buffer-header">
             <span className="buffer-title">BUFFER DE INSTRUÇÕES</span>
-            <span className="buffer-sub-legend">
-              L: -90° | R: +90° | M: +1 CASA
-            </span>
           </div>
 
-          <div className="buffer-input-wrapper">
+          <div className={`buffer-input-wrapper ${hasInputShake ? "input-shake" : ""}`}>
             <input
               type="text"
               placeholder="Ex.: MMRMMRMRRM"
               value={commands}
-              onChange={(e) => setCommands(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               disabled={disabled}
-              className="buffer-input"
+              className={`buffer-input ${displayError ? "input-has-error" : ""}`}
               aria-label="Sequência de comandos"
+              maxLength={64}
             />
             <span className="ops-counter-pill">
               <span className="sr-only">Fila de instruções ({commandTokens.length})</span>
@@ -103,7 +146,21 @@ export function CommandDeck({
             </span>
           </div>
 
-          <div className="quick-command-buttons" role="group" aria-label="Inserir comandos rápidos">
+          {/* Legenda dos comandos movida para baixo do input como helper text */}
+          <div className="buffer-helper-text">
+            <span><strong>L:</strong> girar 90° esq</span>
+            <span className="sep">•</span>
+            <span><strong>R:</strong> girar 90° dir</span>
+            <span className="sep">•</span>
+            <span><strong>M:</strong> avançar 1 casa</span>
+          </div>
+
+          {/* Teclas rápidas táteis */}
+          <div
+            className="quick-command-buttons"
+            role="group"
+            aria-label="Inserir comandos rápidos"
+          >
             <button
               type="button"
               className="quick-btn"
@@ -134,34 +191,76 @@ export function CommandDeck({
             <button
               type="button"
               className="quick-btn clear-btn"
-              disabled={disabled || commands.length === 0}
-              onClick={() => setCommands("")}
+              disabled={disabled || isBufferEmpty}
+              onClick={clearCommands}
             >
               Limpar
             </button>
           </div>
         </div>
 
-        {errorMessage ? (
+        {/* Alerta de erro com mensagem humanizada */}
+        {displayError ? (
           <div className="alert alert-danger" role="alert">
-            {errorMessage}
+            <span>{displayError}</span>
           </div>
         ) : null}
 
-        {/* Botão Laranja Transmitir Comandos estilo Image 1 */}
+        {/* Preview da previsão do percurso (dry-run) */}
+        {previewResult && previewResult.isValid && previewResult.steps.length > 0 ? (
+          <div className="preview-indicator-box">
+            <span className="preview-dot" />
+            <span>
+              Previsão de destino: ({previewResult.finalPosition.x},{" "}
+              {previewResult.finalPosition.y}, {previewResult.finalDirection})
+            </span>
+          </div>
+        ) : null}
+
+        {/* Botão de Transmissão sem textos redundantes da API */}
         <button
           type="submit"
           className="btn-exec-api"
-          disabled={disabled}
+          disabled={disabled || isBufferEmpty}
           aria-label="Transmitir comandos"
         >
           <span className="pulse-white-dot" />
           <span className="btn-exec-title">
             {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
           </span>
-          <span className="btn-exec-arrow">DISPARAR ➤</span>
+          <span className="btn-exec-arrow">➤</span>
         </button>
       </form>
+
+      {/* Histórico de Comandos por Sonda */}
+      {commandHistory.length > 0 && (
+        <div className="history-accordion">
+          <button
+            type="button"
+            className="history-toggle-btn"
+            onClick={() => setShowHistory((v) => !v)}
+          >
+            <span>Histórico de transmissões ({commandHistory.length})</span>
+            <span>{showHistory ? "▲" : "▼"}</span>
+          </button>
+          {showHistory && (
+            <ul className="history-list">
+              {commandHistory.map((item) => (
+                <li key={item.id} className="history-item">
+                  <div className="history-item-top">
+                    <span className="history-cmd">{item.commands}</span>
+                    <span className="history-time">{item.timestamp}</span>
+                  </div>
+                  <div className="history-item-coords">
+                    ({item.from.x}, {item.from.y}, {item.from.direction}) ➔ (
+                    {item.to.x}, {item.to.y}, {item.to.direction})
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

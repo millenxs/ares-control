@@ -1,10 +1,13 @@
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { MarsCanvas3D } from "./MarsCanvas3D";
 import { PlateauMap } from "./PlateauMap";
+import type { PreviewResult } from "./previewNavigation";
 
 interface MissionOverviewProps {
   selectedProbe: Probe | null;
   probes: Probe[];
+  trail?: Array<{ x: number; y: number }>;
+  previewResult?: PreviewResult | null;
 }
 
 const DIRECTION_LABELS: Record<Direction, string> = {
@@ -17,6 +20,8 @@ const DIRECTION_LABELS: Record<Direction, string> = {
 export function MissionOverview({
   selectedProbe,
   probes,
+  trail,
+  previewResult,
 }: MissionOverviewProps) {
   return (
     <section
@@ -24,10 +29,6 @@ export function MissionOverview({
       aria-label="Observatório Cartográfico e Telemetria"
       className="observatory-stage-region"
     >
-      <div className="observatory-top-tag" aria-hidden="true">
-        . Authentic Photograph .
-      </div>
-
       {!selectedProbe ? (
         <div className="observatory-orbit-view">
           <div className="orbit-pill-tag">• ARES ORBITER // 3.4 km/s</div>
@@ -64,8 +65,8 @@ export function MissionOverview({
           <div className="orbit-idle-caption">
             <h3 className="orbit-idle-title">Nenhum sinal de sonda na superfície</h3>
             <p className="orbit-idle-desc">
-              Utilize o painel à esquerda para configurar a malha e efetuar o
-              pouso nas coordenadas (0, 0).
+              Utilize o painel à esquerda para configurar os limites da malha e efetuar o
+              pouso da sonda em (0, 0).
             </p>
           </div>
         </div>
@@ -97,7 +98,12 @@ export function MissionOverview({
             </div>
           </div>
 
-          <PlateauMap selectedProbe={selectedProbe} probes={probes} />
+          <PlateauMap
+            selectedProbe={selectedProbe}
+            probes={probes}
+            trail={trail}
+            previewResult={previewResult}
+          />
         </div>
       )}
     </section>
