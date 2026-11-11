@@ -1,5 +1,5 @@
+import { useEffect, useRef } from "react";
 import type { Probe } from "../../shared/api/probesApi";
-import { Badge, Panel } from "../../shared/ui/Primitives";
 
 interface ProbeListProps {
   probes: Probe[];
@@ -12,52 +12,57 @@ export function ProbeList({
   selectedProbeId,
   onSelectProbe,
 }: ProbeListProps) {
+  const selectedItemRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (typeof selectedItemRef.current?.scrollIntoView === "function") {
+      selectedItemRef.current.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }
+  }, [selectedProbeId]);
+
   return (
-    <Panel
-      title="Sondas em Operação"
-      subtitle="Selecione uma sonda para inspecionar sua malha e enviar comandos."
-      badge={<Badge tone="teal">{probes.length} ativa(s)</Badge>}
-    >
+    <div className="sci-card sci-card-probes" aria-label="Sondas em Operação">
+      <div className="probes-card-header">
+        <div className="probes-title-group">
+          <span className="dot-green" />
+          <span className="probes-card-title">
+            SONDAS ATIVAS ({probes.length})
+          </span>
+        </div>
+        <span className="grid-sync-tag">SINCRONIZADAS</span>
+      </div>
+
       {probes.length === 0 ? (
-        <p className="empty-state">
-          Nenhuma sonda lançada ainda. Configure os limites acima para iniciar.
+        <p className="empty-fleet">
+          Nenhuma sonda pousada na superfície.
         </p>
       ) : (
         <ul className="probe-list" aria-label="Lista de sondas">
           {probes.map((probe, index) => {
             const isSelected = probe.id === selectedProbeId;
+            const shortId = probe.id.slice(0, 6).toLowerCase();
             return (
               <li key={probe.id}>
                 <button
+                  ref={isSelected ? selectedItemRef : null}
                   type="button"
-                  className={`probe-item ${isSelected ? "probe-item-selected" : ""}`.trim()}
+                  className={`probe-row-btn ${isSelected ? "probe-row-selected" : ""}`.trim()}
                   aria-pressed={isSelected}
                   onClick={() => onSelectProbe(probe.id)}
                 >
-                  <div className="probe-item-header">
-                    <div className="probe-title-group">
-                      <span className="probe-name">Sonda #{index + 1}</span>
-                      <span className="probe-short-id">
-                        {probe.id.slice(0, 8)}
-                      </span>
-                    </div>
-                    <Badge tone={isSelected ? "amber" : "neutral"}>
-                      {probe.direction}
-                    </Badge>
+                  <div className="probe-row-top">
+                    <span className="probe-name">
+                      <span className="probe-bullet">•</span> Sonda #{index + 1} · {shortId}
+                    </span>
+                    <span className="probe-coord-badge">
+                      ({probe.x}, {probe.y}) {probe.direction}
+                    </span>
                   </div>
-                  <div className="probe-item-meta">
-                    <span>
-                      Posição:{" "}
-                      <strong className="mono-inline">
-                        ({probe.x}, {probe.y})
-                      </strong>
-                    </span>
-                    <span>
-                      Malha:{" "}
-                      <strong className="mono-inline">
-                        0..{probe.plateau.max_x} × 0..{probe.plateau.max_y}
-                      </strong>
-                    </span>
+                  <div className="probe-row-bottom">
+                    Limites: X 0–{probe.plateau.max_x} · Y 0–{probe.plateau.max_y}
                   </div>
                 </button>
               </li>
@@ -65,6 +70,6 @@ export function ProbeList({
           })}
         </ul>
       )}
-    </Panel>
+    </div>
   );
 }

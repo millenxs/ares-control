@@ -1,30 +1,39 @@
 :root {
   color-scheme: dark;
 
-  --bg-canvas: #060d18;
-  --bg-panel: #0c1729;
-  --bg-well: #081120;
-  --bg-raised: #13233d;
-  --bg-hover: #192d4d;
+  --space-black: #030305;
+  --space-black-deep: #000000;
+  --space-surface: #0a0a0d;
+  --space-stars: rgba(255, 255, 255, 0.08);
 
-  --border-subtle: #1c3152;
-  --border-strong: #2b4978;
-  --border-amber: #e69d3f;
-  --border-teal: #38c6b5;
+  --mars-rust: #c8431e;
+  --mars-crimson: #9e2a14;
+  --mars-amber: #e65c00;
+  --mars-ember: #ff6f26;
+  --mars-glow: rgba(217, 72, 30, 0.28);
+  --mars-glow-soft: rgba(230, 92, 0, 0.12);
 
-  --text-primary: #f5f1e6;
-  --text-secondary: #a2b6d1;
-  --text-muted: #6c83a3;
-  --text-on-amber: #07101e;
+  --card-bg: #ffffff;
+  --card-bg-subtle: #f8f9fa;
+  --card-bg-inset: #f1f3f5;
+  --card-bg-hover: #f1f4f8;
 
-  --accent-amber: #e69d3f;
-  --accent-amber-hover: #f0ad54;
-  --accent-amber-soft: rgba(230, 157, 63, 0.14);
-  --accent-teal: #38c6b5;
-  --accent-teal-soft: rgba(56, 198, 181, 0.14);
-  --accent-danger: #e25c5c;
-  --accent-danger-soft: rgba(226, 92, 92, 0.14);
-  --accent-danger-text: #ffc4c4;
+  --card-border: #e2e8f0;
+  --card-border-strong: #cbd5e1;
+  --card-border-mars: #f97316;
+
+  --text-dark-primary: #0f172a;
+  --text-dark-secondary: #475569;
+  --text-dark-muted: #64748b;
+  --text-on-mars: #ffffff;
+
+  --text-space-primary: #f8fafc;
+  --text-space-secondary: #cbd5e1;
+  --text-space-muted: #94a3b8;
+
+  --danger-surface: #fff1f2;
+  --danger-border: #fecdd3;
+  --danger-text: #be123c;
 
   --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;

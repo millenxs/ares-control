@@ -7,7 +7,7 @@ import {
   type ProbesApiClient,
   defaultProbesApiClient,
 } from "../shared/api/probesApi";
-import { Badge, Button } from "../shared/ui/Primitives";
+import { Button } from "../shared/ui/Primitives";
 
 interface AppProps {
   apiClient?: ProbesApiClient;
@@ -16,36 +16,14 @@ interface AppProps {
 export function App({ apiClient = defaultProbesApiClient }: AppProps) {
   const mission = useMissionControl(apiClient);
 
+  const activeTrail = mission.selectedProbeId
+    ? mission.probeTrails[mission.selectedProbeId] ?? []
+    : [];
+
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="brand-block">
-          <div className="brand-title-row">
-            <h1 className="app-title">Ares Control</h1>
-            <Badge tone="amber">Missão Marte</Badge>
-          </div>
-          <p className="app-subtitle">
-            Console cartográfico de lançamento, comando e telemetria de sondas
-            em superfície.
-          </p>
-        </div>
-
-        <div className="header-actions">
-          <Badge tone="teal">{mission.probes.length} sonda(s) na malha</Badge>
-          <Button
-            variant="secondary"
-            onClick={() => void mission.reloadProbes()}
-            disabled={mission.isLoadingInitial}
-          >
-            {mission.isLoadingInitial
-              ? "Sincronizando..."
-              : "Sincronizar estado"}
-          </Button>
-        </div>
-      </header>
-
+    <div className="observatory-stage-frame">
       {mission.initialError ? (
-        <div className="alert alert-danger" role="alert">
+        <div className="alert alert-danger global-alert" role="alert">
           <span>{mission.initialError}</span>
           <Button
             variant="secondary"
@@ -56,9 +34,10 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
         </div>
       ) : null}
 
-      <main className="app-layout">
-        <div className="sidebar-column">
+      <main className="observatory-grid-layout">
+        <aside className="pod-column pod-left">
           <LaunchProbeForm
+            selectedProbe={mission.selectedProbe}
             isSubmitting={mission.isLaunching}
             errorMessage={mission.launchError}
             onLaunch={mission.launchProbe}
@@ -68,26 +47,30 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             selectedProbeId={mission.selectedProbeId}
             onSelectProbe={mission.selectProbe}
           />
+        </aside>
+
+        <div className="pod-center-column">
+          <MissionOverview
+            selectedProbe={mission.selectedProbe}
+            probes={mission.probes}
+            trail={activeTrail}
+            previewResult={mission.previewResult}
+            onSelectProbe={mission.selectProbe}
+          />
+        </div>
+
+        <aside className="pod-column pod-right">
           <CommandDeck
             selectedProbe={mission.selectedProbe}
             isExecuting={mission.isExecuting}
             errorMessage={mission.commandError}
+            errorIndex={mission.commandErrorIndex}
+            previewResult={mission.previewResult}
+            commandHistory={mission.commandHistory}
             onExecuteCommands={mission.executeCommands}
+            onPreviewChange={mission.setPreviewCommands}
           />
-        </div>
-
-        <div className="main-column">
-          {mission.isLoadingInitial ? (
-            <div className="panel loading-panel" role="status">
-              Sincronizando telemetria das sondas com a estação orbital...
-            </div>
-          ) : (
-            <MissionOverview
-              selectedProbe={mission.selectedProbe}
-              probes={mission.probes}
-            />
-          )}
-        </div>
+        </aside>
       </main>
     </div>
   );
