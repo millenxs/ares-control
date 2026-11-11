@@ -19,16 +19,23 @@ const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
 };
 
 function buildAxisTicks(maxCoordinate: number): number[] {
-  const totalPositions = maxCoordinate + 1;
-  if (totalPositions <= 7) {
-    return Array.from({ length: totalPositions }, (_, index) => index);
+  if (maxCoordinate <= 7) {
+    return Array.from({ length: maxCoordinate + 1 }, (_, index) => index);
   }
-  const step = Math.ceil(maxCoordinate / 5);
-  const ticks: number[] = [0];
-  for (let value = step; value < maxCoordinate; value += step) {
+  let step = 5;
+  if (maxCoordinate <= 12) {
+    step = 2;
+  } else if (maxCoordinate <= 20) {
+    step = 5;
+  } else {
+    step = 10;
+  }
+
+  const ticks: number[] = [];
+  for (let value = 0; value <= maxCoordinate; value += step) {
     ticks.push(value);
   }
-  if (!ticks.includes(maxCoordinate)) {
+  if (ticks[ticks.length - 1] !== maxCoordinate) {
     ticks.push(maxCoordinate);
   }
   return ticks;
@@ -48,8 +55,8 @@ export function PlateauMap({
   const rows = maxY + 1;
 
   const boardSize = 480;
-  const padLeft = 40;
-  const padRight = 30;
+  const padLeft = 46;
+  const padRight = 32;
   const padTop = 32;
   const padBottom = 44;
 
@@ -152,18 +159,11 @@ export function PlateauMap({
             </div>
           </div>
 
-          {/* Abas Cardinais nas Bordas */}
-          <div className="hud-cardinal-tag tag-north">
-            ▲ NORTH (Y max: {maxY})
-          </div>
-          <div className="hud-cardinal-tag tag-west">
-            ◄ WEST (X: 0)
-          </div>
-          <div className="hud-cardinal-tag tag-east">
-            EAST (X: {maxX}) ►
-          </div>
-          <div className="hud-cardinal-tag tag-south">
-            ▼ SOUTH (Y: 0)
+          {/* Abas Cardinais discretas no topo e na base (sem sobrepor os números do eixo Y) */}
+          <div className="hud-cardinal-bar-top">
+            <span className="hud-cardinal-lbl">◄ OESTE (X: 0)</span>
+            <span className="hud-cardinal-badge">▲ NORTE (Y max: {maxY})</span>
+            <span className="hud-cardinal-lbl">LESTE (X: {maxX}) ►</span>
           </div>
 
           {/* SVG da Malha Tática */}
@@ -281,7 +281,7 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Pré-visualização fantasma do comando (Dry-run preview) */}
+              {/* Pré-visualização fantasma do comando antes de transmitir (Dry-run preview) */}
               {previewResult && (
                 <g className="preview-ghost-layer">
                   {/* Trajeto válido percorrido na previsão */}
@@ -426,7 +426,7 @@ export function PlateauMap({
             </svg>
           </div>
 
-          {/* Footer do HUD */}
+          {/* Footer do HUD limpo sem fundo de seleção */}
           <div className="hud-box-footer">
             <span className="hud-origin-tag">
               ORIGEM: (0, 0) · ATUAL: ({selectedProbe.x}, {selectedProbe.y})

@@ -24,9 +24,6 @@ export function LaunchProbeForm({
   const [maxX, setMaxX] = useState("5");
   const [maxY, setMaxY] = useState("5");
   const [direction, setDirection] = useState<Direction>("NORTH");
-  const [fallLock, setFallLock] = useState(true);
-  const [fixedOrigin, setFixedOrigin] = useState(true);
-  const [boundsRule, setBoundsRule] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -117,66 +114,31 @@ export function LaunchProbeForm({
             </span>
           </div>
           <div className="stat-col text-right">
-            <span className="stat-micro-lbl">VETOR TRAÇÃO</span>
+            <span className="stat-micro-lbl">DIMENSÃO DA MALHA</span>
             <span className="stat-micro-val">
-              {numX + 1}x{numY + 1} <span className="nom-txt">NOMINAL</span>
+              {numX} × {numY} <span className="nom-txt">({numX + 1}×{numY + 1} casas)</span>
             </span>
           </div>
         </div>
       </div>
 
-      {/* Matriz de Regras e Segurança estilo Image 1 */}
+      {/* Matriz de Regras e Segurança - Badges informativos somente leitura */}
       <form onSubmit={handleSubmit} noValidate className="matrix-form">
         <div className="rules-section">
-          <span className="section-mini-heading">MATRIZ DE REGRAS E SEGURANÇA</span>
-          <div className="rules-list">
-            <label className="rule-row">
-              <span className="rule-info">
-                <svg className="rule-icon check-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-                <span>TRAVA CONTRA QUEDA</span>
-              </span>
-              <input
-                type="checkbox"
-                checked={fallLock}
-                onChange={(e) => setFallLock(e.target.checked)}
-                className="system-checkbox"
-              />
-            </label>
-
-            <label className="rule-row">
-              <span className="rule-info">
-                <svg className="rule-icon pin-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>ORIGEM FIXA (0,0)</span>
-              </span>
-              <input
-                type="checkbox"
-                checked={fixedOrigin}
-                onChange={(e) => setFixedOrigin(e.target.checked)}
-                className="system-checkbox"
-              />
-            </label>
-
-            <label className="rule-row">
-              <span className="rule-info">
-                <svg className="rule-icon gear-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
-                <span>LIMITE X&lt;={maxX} / Y&lt;={maxY}</span>
-              </span>
-              <input
-                type="checkbox"
-                checked={boundsRule}
-                onChange={(e) => setBoundsRule(e.target.checked)}
-                className="system-checkbox"
-              />
-            </label>
+          <span className="section-mini-heading">INVARIANTES DO DOMÍNIO</span>
+          <div className="rules-badges-list">
+            <div className="rule-badge-item">
+              <span className="rule-icon check-green">✔</span>
+              <span className="rule-badge-text">Trava de borda ativa (queda impossível)</span>
+            </div>
+            <div className="rule-badge-item">
+              <span className="rule-icon pin-teal">✔</span>
+              <span className="rule-badge-text">Origem obrigatória fixa em (0, 0)</span>
+            </div>
+            <div className="rule-badge-item">
+              <span className="rule-icon gear-orange">✔</span>
+              <span className="rule-badge-text">Malha limitada ao platô [0..{maxX}, 0..{maxY}]</span>
+            </div>
           </div>
         </div>
 
@@ -210,7 +172,7 @@ export function LaunchProbeForm({
           </label>
         </div>
 
-        {/* Faixa Preta de Coordenadas em Tempo Real */}
+        {/* Faixa Preta de Coordenadas */}
         <div className="coord-black-strip" aria-hidden="true">
           <div className="coord-item">
             <span className="coord-k">COORD X</span>
@@ -244,7 +206,7 @@ export function LaunchProbeForm({
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
-          <span>{isSubmitting ? "Lançando sonda..." : "SINCRONIZAR COORDENADAS"}</span>
+          <span>{isSubmitting ? "Lançando sonda..." : "LANÇAR SONDA EM (0, 0)"}</span>
         </button>
       </form>
     </div>

@@ -42,12 +42,11 @@ export function ProbeList({
                   <span className="probe-left-info">
                     <span className="probe-bullet">•</span>
                     <span className="probe-name">
-                      Sonda #{index + 1} - {probe.id.slice(0, 6)}
-                      {probe.direction}
+                      Sonda #{index + 1} · {probe.id.slice(0, 6)} · {probe.direction}
                     </span>
                   </span>
                   <span className="probe-right-info">
-                    Pos: ({probe.x}, {probe.y}) | {probe.plateau.max_x}x
+                    Pos: ({probe.x}, {probe.y}) | {probe.plateau.max_x}×
                     {probe.plateau.max_y}
                   </span>
                 </button>

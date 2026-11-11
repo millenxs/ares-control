@@ -345,33 +345,30 @@ body {
   letter-spacing: 0.05em;
 }
 
-.rules-list {
+.rules-badges-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
-.rule-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 4px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #334155;
-  cursor: pointer;
-}
-
-.rule-info {
+.rule-badge-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #334155;
 }
 
 .rule-icon {
   width: 16px;
   height: 16px;
+  font-weight: 700;
 }
 
 .check-green {
@@ -1167,7 +1164,7 @@ input:focus-visible {
 }
 
 .view-perspective-3d .planalto-hud-box {
-  transform: perspective(1050px) rotateX(15deg);
+  transform: perspective(1200px) rotateX(6deg);
 }
 
 .view-perspective-2d .planalto-hud-box {
@@ -1195,51 +1192,27 @@ input:focus-visible {
   color: #10b981;
 }
 
-/* Abas Cardinais nas bordas do HUD */
-.hud-cardinal-tag {
-  position: absolute;
+/* Abas Cardinais no Topo do HUD (Sem sobrepor os ticks do eixo Y) */
+.hud-cardinal-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
+  padding: 0 4px;
+}
+
+.hud-cardinal-lbl {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.hud-cardinal-badge {
+  background-color: #0891b2;
+  color: #040a12;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 4px;
-  letter-spacing: 0.04em;
-  z-index: 7;
-}
-
-.tag-north {
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #0891b2;
-  color: #040a12;
-}
-
-.tag-south {
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #040a12;
-  border: 1px solid #0891b2;
-  color: #22d3ee;
-}
-
-.tag-west {
-  left: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #040a12;
-  border: 1px solid #0891b2;
-  color: #22d3ee;
-}
-
-.tag-east {
-  right: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: #040a12;
-  border: 1px solid #0891b2;
-  color: #22d3ee;
 }
 
 .hud-grid-wrapper {
@@ -1393,13 +1366,18 @@ input:focus-visible {
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  padding-top: 6px;
+  border-top: 1px solid rgba(14, 116, 144, 0.3);
+  background: transparent;
 }
 
 .hud-origin-tag {
-  color: #94a3b8;
+  color: #cbd5e1;
+  background: transparent;
+  user-select: none;
 }
 
 .hud-probe-id {
