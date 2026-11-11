@@ -1,3 +1,9 @@
+/**
+ * Traduz códigos e metadados estruturados da API (`code` e `details`) em mensagens
+ * claras para o operador, exibindo tanto a posição ordinal humana (1º, 2º...)
+ * quanto o índice base zero exigido pelo contrato técnico, além de explicitar
+ * que falhas preservam atomicamente o estado anterior da sonda.
+ */
 export function toOrdinal(n: number): string {
   return `${n + 1}º`;
 }

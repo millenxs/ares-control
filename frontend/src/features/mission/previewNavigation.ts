@@ -1,3 +1,9 @@
+/**
+ * Simulação local somente para feedback visual (dry-run do caminho previsto e
+ * reconstrução ortogonal dos pontos intermediários do rastro).
+ *
+ * A fonte de verdade para persistência continua sendo exclusivamente a API Python.
+ */
 import type { Direction, Plateau } from "../../shared/api/probesApi";
 
 export interface Position {

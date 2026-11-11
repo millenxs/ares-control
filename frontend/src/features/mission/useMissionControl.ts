@@ -46,6 +46,12 @@ export interface MissionControlState {
   setPreviewCommands: (commands: string) => void;
 }
 
+/**
+ * Hook central de orquestração da missão (módulo profundo): concentra a sincronização
+ * com a API REST, a seleção da sonda ativa, a construção do rastro ortogonal após
+ * confirmações 200 OK e a preservação atômica do estado quando a API rejeita (422)
+ * uma sequência inválida.
+ */
 export function useMissionControl(
   apiClient: ProbesApiClient,
 ): MissionControlState {

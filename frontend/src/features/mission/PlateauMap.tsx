@@ -19,6 +19,11 @@ const DIRECTION_TARGET_ANGLE: Record<Direction, number> = {
   WEST: 270,
 };
 
+/**
+ * Calcula o menor delta angular em [-180°, +180°] entre o ângulo acumulado atual
+ * e a nova direção cardinal. Isso evita que a transição CSS gire 270° para trás
+ * ao passar de WEST (270°) para NORTH (0°) com o comando R (+90°).
+ */
 function getShortestAngleDelta(currentAngle: number, targetDirection: Direction): number {
   const targetAngle = DIRECTION_TARGET_ANGLE[targetDirection];
   return (((targetAngle - (currentAngle % 360) + 540) % 360) - 180);
@@ -92,6 +97,11 @@ export function PlateauMap({
   const xTicks = buildAxisTicks(maxX);
   const yTicks = buildAxisTicks(maxY);
 
+  /**
+   * Converte coordenadas cartesianas do domínio (onde (0,0) fica no canto inferior
+   * esquerdo e Y cresce para o Norte/topo) para coordenadas do canvas SVG (onde Y=0
+   * fica no topo).
+   */
   function cellCenter(x: number, y: number): { cx: number; cy: number } {
     const invertedRow = maxY - y;
     return {
