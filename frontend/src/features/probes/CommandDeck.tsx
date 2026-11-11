@@ -56,9 +56,14 @@ export function CommandDeck({
     }
   }
 
+  const isPreviewInvalid = Boolean(previewResult && !previewResult.isValid);
+  const isBufferEmpty = commands.trim().length === 0;
+  const disabled = !selectedProbe || isExecuting;
+  const isSubmitDisabled = disabled || isBufferEmpty || isPreviewInvalid;
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedProbe || !commands.trim()) {
+    if (!selectedProbe || !commands.trim() || isPreviewInvalid) {
       triggerShake();
       return;
     }
@@ -70,8 +75,6 @@ export function CommandDeck({
     }
   }
 
-  const disabled = !selectedProbe || isExecuting;
-  const isBufferEmpty = commands.trim().length === 0;
   const commandTokens = [...commands];
 
   const probeX = selectedProbe ? selectedProbe.x : 0;
@@ -83,7 +86,6 @@ export function CommandDeck({
   const shortId = selectedProbe ? selectedProbe.id.slice(0, 6).toLowerCase() : "";
 
   const displayError = errorMessage;
-  const isPreviewInvalid = Boolean(previewResult && !previewResult.isValid);
   const filteredHistory = commandHistory.filter(
     (h) => h.probeId === selectedProbe?.id,
   );
@@ -317,20 +319,16 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Botão de Transmissão: permite enviar mesmo com erro prévio para demonstrar recusa da API */}
+        {/* Botão de Transmissão sempre limpo sem textos artificiais */}
         <button
           type="submit"
-          className={`btn-exec-api ${isPreviewInvalid ? "btn-exec-warning" : ""}`}
-          disabled={disabled || isBufferEmpty}
+          className="btn-exec-api"
+          disabled={isSubmitDisabled}
           aria-label="Transmitir comandos"
         >
           <span className="pulse-white-dot" />
           <span className="btn-exec-title">
-            {isExecuting
-              ? "TRANSMITINDO..."
-              : isPreviewInvalid
-                ? "ENVIAR MESMO ASSIM (TESTAR API)"
-                : "TRANSMITIR COMANDOS"}
+            {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
           </span>
           <span className="btn-exec-arrow">➤</span>
         </button>

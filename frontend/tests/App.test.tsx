@@ -178,13 +178,15 @@ describe("Ares Control App", () => {
 
     const commandInput = screen.getByLabelText("Sequência de comandos");
     await user.type(commandInput, "MM");
-    await user.click(
-      screen.getByRole("button", { name: "Transmitir comandos" }),
-    );
 
-    const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(
-      "Command at index 1 moves probe to (0, 3), outside plateau (2, 2). (índice do comando: 1)",
+    const transmitButton = screen.getByRole("button", {
+      name: "Transmitir comandos",
+    });
+    expect(transmitButton).toBeDisabled();
+
+    const statusNotice = await screen.findByRole("status");
+    expect(statusNotice).toHaveTextContent(
+      "O comando 'M' no índice 1 levaria a sonda a (0, 3), fora da malha [0..2, 0..2].",
     );
 
     expect(within(telemetry).getByText("(0, 1)")).toBeInTheDocument();
