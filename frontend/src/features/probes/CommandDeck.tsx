@@ -77,8 +77,12 @@ export function CommandDeck({
   const probeDir = selectedProbe ? selectedProbe.direction : "NORTH";
   const maxX = selectedProbe ? selectedProbe.plateau.max_x : 5;
   const maxY = selectedProbe ? selectedProbe.plateau.max_y : 5;
+  const hasMoved = probeX > 0 || probeY > 0;
 
   const displayError = errorMessage;
+  const filteredHistory = commandHistory.filter(
+    (h) => h.probeId === selectedProbe?.id,
+  );
 
   return (
     <div className="sci-card" aria-label="Comandos da Sonda">
@@ -86,9 +90,9 @@ export function CommandDeck({
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-probe-nav">
           <span className="dot-green" />
-          <span>PROBE NAV API</span>
+          <span>PROBE NAV</span>
           <span className="sep">•</span>
-          <span>REST ENDPOINT</span>
+          <span>ESTAÇÃO CENTRAL</span>
         </div>
         <div className="sci-icon-btn" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -108,7 +112,9 @@ export function CommandDeck({
       >
         <div className="pos-box-header">
           <span className="pos-label">POSIÇÃO ATUAL EM TEMPO REAL</span>
-          <span className="pos-status-green">STATUS: POUSADO</span>
+          <span className="pos-status-green">
+            {hasMoved ? "STATUS: EM OPERAÇÃO" : "STATUS: POUSADA (ORIGEM)"}
+          </span>
         </div>
         <div className="pos-coords-display">
           ({probeX}, {probeY}, {probeDir})
@@ -127,7 +133,7 @@ export function CommandDeck({
 
         <div className="pos-box-footer">
           <span className="bounds-info">
-            LIMITES: {maxX}x{maxY} [0..{maxX}, 0..{maxY}]
+            LIMITES: {maxX} × {maxY} ({maxX + 1}×{maxY + 1} casas)
           </span>
           <span className="sensor-safe">SENSOR DE BORDA: SEGURO</span>
         </div>
@@ -138,9 +144,6 @@ export function CommandDeck({
         <div className="buffer-section">
           <div className="buffer-header">
             <span className="buffer-title">BUFFER DE INSTRUÇÕES</span>
-            <span className="buffer-sub-legend">
-              L: -90° | R: +90° | M: +1 CASA
-            </span>
           </div>
 
           <div className={`buffer-input-wrapper ${hasInputShake ? "input-shake" : ""}`}>
@@ -161,7 +164,7 @@ export function CommandDeck({
             </span>
           </div>
 
-          {/* Helper text com a legenda dos comandos logo abaixo do input */}
+          {/* Helper text único com a legenda dos comandos logo abaixo do input */}
           <div className="buffer-helper-text">
             <span><strong>L:</strong> girar 90° esq</span>
             <span className="sep">•</span>
@@ -240,10 +243,10 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Preview da previsão do percurso (dry-run) */}
+        {/* Preview da previsão do percurso em Ciano / Neutro (Dry-run preview) */}
         {previewResult && previewResult.isValid && previewResult.steps.length > 0 ? (
-          <div className="preview-indicator-box">
-            <span className="preview-dot" />
+          <div className="preview-indicator-box-cyan">
+            <span className="preview-dot-cyan" />
             <span>
               Destino previsto: ({previewResult.finalPosition.x},{" "}
               {previewResult.finalPosition.y}, {previewResult.finalDirection})
@@ -285,7 +288,7 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Botão de Transmissão estilo Image 1 */}
+        {/* Botão Transmitir Comandos sem repetições */}
         <button
           type="submit"
           className="btn-exec-api"
@@ -296,24 +299,26 @@ export function CommandDeck({
           <span className="btn-exec-title">
             {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
           </span>
-          <span className="btn-exec-arrow">DISPARAR ➤</span>
+          <span className="btn-exec-arrow">➤</span>
         </button>
       </form>
 
-      {/* Histórico de Comandos por Sonda */}
-      {commandHistory.length > 0 && (
+      {/* Histórico de Comandos filtrado para a Sonda Ativa */}
+      {filteredHistory.length > 0 && (
         <div className="history-accordion">
           <button
             type="button"
             className="history-toggle-btn"
             onClick={() => setShowHistory((v) => !v)}
           >
-            <span>Histórico de transmissões ({commandHistory.length})</span>
+            <span>
+              Histórico da Sonda ({filteredHistory.length})
+            </span>
             <span>{showHistory ? "▲" : "▼"}</span>
           </button>
           {showHistory && (
             <ul className="history-list">
-              {commandHistory.map((item) => (
+              {filteredHistory.map((item) => (
                 <li key={item.id} className="history-item">
                   <div className="history-item-top">
                     <span className="history-cmd">{item.commands}</span>

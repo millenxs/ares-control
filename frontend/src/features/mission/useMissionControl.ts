@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ApiClientError,
+  type Direction,
   type LaunchProbeInput,
   type Probe,
   type ProbesApiClient,
@@ -12,6 +13,7 @@ import {
 
 export interface CommandHistoryEntry {
   id: string;
+  probeId: string;
   timestamp: string;
   commands: string;
   from: { x: number; y: number; direction: string };
@@ -138,27 +140,43 @@ export function useMissionControl(
 
         const updated = await apiClient.executeCommands(probeId, commands);
 
+        // Simula o trajeto exato passo a passo para o rastro seguir a malha (sem cortar diagonal)
+        const pathSimulation = simulateNavigationPreview(
+          { x: fromState.x, y: fromState.y },
+          fromState.direction as Direction,
+          currentProbe ? currentProbe.plateau : updated.plateau,
+          commands,
+        );
+        const intermediateSteps = pathSimulation.steps
+          .filter((st) => st.command === "M")
+          .map((st) => ({ x: st.x, y: st.y }));
+
         setProbes((current) =>
           current.map((probe) => (probe.id === updated.id ? updated : probe)),
         );
 
         setProbeTrails((prev) => {
-          const existing = prev[probeId] ?? [];
+          const existing = prev[probeId] ?? [{ x: fromState.x, y: fromState.y }];
           return {
             ...prev,
-            [probeId]: [...existing, { x: updated.x, y: updated.y }],
+            [probeId]: [
+              ...existing,
+              ...intermediateSteps,
+              { x: updated.x, y: updated.y },
+            ],
           };
         });
 
         setCommandHistory((prev) => [
           {
             id: String(Date.now()),
+            probeId,
             timestamp: new Date().toLocaleTimeString("pt-BR"),
             commands,
             from: fromState,
             to: { x: updated.x, y: updated.y, direction: updated.direction },
           },
-          ...prev.slice(0, 9),
+          ...prev.slice(0, 19),
         ]);
 
         setPreviewCommands("");

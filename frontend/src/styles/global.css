@@ -45,18 +45,19 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 20px 28px;
+  padding: 32px 28px 40px;
   background-color: #000000;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .observatory-grid-layout {
   display: grid;
   grid-template-columns: 340px minmax(0, 1fr) 350px;
   gap: 28px;
-  align-items: center;
+  align-items: start;
   width: 100%;
   max-width: 1620px;
 }
@@ -293,7 +294,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 4px;
+  gap: 16px;
+  padding-top: 6px;
   border-top: 1px solid #e2e8f0;
 }
 
@@ -768,10 +770,10 @@ input:focus-visible {
   border-color: #e2e8f0;
 }
 
-/* Indicador de Previsão de Trajetória (Dry-Run Preview) */
-.preview-indicator-box {
-  background-color: #fff7ed;
-  border: 1px solid #fdba74;
+/* Indicador de Previsão de Trajetória em Ciano / Neutro (Dry-Run Preview) */
+.preview-indicator-box-cyan {
+  background-color: #ecfeff;
+  border: 1px solid #a5f3fc;
   border-radius: 8px;
   padding: 8px 12px;
   display: flex;
@@ -779,16 +781,16 @@ input:focus-visible {
   gap: 8px;
   font-family: var(--font-mono);
   font-size: 0.76rem;
-  color: #9a3412;
+  color: #0e7490;
   font-weight: 600;
 }
 
-.preview-dot {
+.preview-dot-cyan {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #ea580c;
-  box-shadow: 0 0 8px #ea580c;
+  background-color: #06b6d4;
+  box-shadow: 0 0 8px #06b6d4;
 }
 
 .preview-danger-box {
@@ -1302,23 +1304,49 @@ input:focus-visible {
   filter: drop-shadow(0 0 4px #0ea5e9);
 }
 
-/* Preview Fantasma de Comandos (Dry-run) */
-.preview-ghost-path {
+/* Preview Fantasma de Comandos em Ciano (Dry-run) */
+.preview-ghost-path-cyan {
   fill: none;
-  stroke: #f59e0b;
+  stroke: #06b6d4;
   stroke-width: 2;
   stroke-dasharray: 4 4;
 }
 
-.ghost-probe-ring {
-  fill: rgba(245, 158, 11, 0.2);
-  stroke: #f59e0b;
+.ghost-probe-ring-cyan {
+  fill: rgba(6, 182, 212, 0.2);
+  stroke: #06b6d4;
   stroke-width: 1.5;
   stroke-dasharray: 3 3;
 }
 
-.ghost-probe-arrow {
-  fill: #f59e0b;
+.ghost-probe-arrow-cyan {
+  fill: #06b6d4;
+}
+
+/* Sondas Secundárias com Seta e Tooltip */
+.secondary-probe-group {
+  cursor: pointer;
+}
+
+.secondary-probe-core {
+  fill: #090d16;
+  stroke: #64748b;
+  stroke-width: 1.5;
+  transition: all 150ms ease;
+}
+
+.secondary-probe-group:hover .secondary-probe-core {
+  stroke: #0ea5e9;
+  filter: drop-shadow(0 0 6px #0ea5e9);
+}
+
+.secondary-probe-arrow {
+  fill: #94a3b8;
+  transition: fill 150ms ease;
+}
+
+.secondary-probe-group:hover .secondary-probe-arrow {
+  fill: #38bdf8;
 }
 
 /* Alerta de Colisão no Preview */

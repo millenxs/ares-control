@@ -9,6 +9,7 @@ interface PlateauMapProps {
   probes: Probe[];
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
+  onSelectProbe?: (probeId: string) => void;
 }
 
 const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
@@ -46,6 +47,7 @@ export function PlateauMap({
   probes,
   trail = [],
   previewResult,
+  onSelectProbe,
 }: PlateauMapProps) {
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
@@ -97,6 +99,7 @@ export function PlateauMap({
   ).length;
 
   const showInternalCellNumbers = cols <= 6 && rows <= 6;
+  const shortId = selectedProbe.id.slice(0, 6).toLowerCase();
 
   return (
     <div className="planalto-hud-container">
@@ -109,7 +112,7 @@ export function PlateauMap({
         </span>
         <span className="sep-line">|</span>
         <span className="malha-highlight">
-          MALHA {maxX}x{maxY}
+          MALHA {maxX} × {maxY}
         </span>
         {hoveredCell ? (
           <span className="hover-readout-pill">
@@ -151,15 +154,15 @@ export function PlateauMap({
           {/* Header do HUD */}
           <div className="hud-box-header">
             <span className="hud-title-grid">
-              PLANALTO MARCIANO // GRID {maxX}x{maxY}
+              PLANALTO MARCIANO // GRID {maxX} × {maxY}
             </span>
             <div className="hud-safe-tag">
               <span className="dot-green" />
-              <span>LIMITE SEGURO [0..{maxX}]</span>
+              <span>LIMITE SEGURO [0..{maxX}, 0..{maxY}]</span>
             </div>
           </div>
 
-          {/* Abas Cardinais discretas no topo e na base (sem sobrepor os números do eixo Y) */}
+          {/* Abas Cardinais no Topo */}
           <div className="hud-cardinal-bar-top">
             <span className="hud-cardinal-lbl">◄ OESTE (X: 0)</span>
             <span className="hud-cardinal-badge">▲ NORTE (Y max: {maxY})</span>
@@ -254,7 +257,7 @@ export function PlateauMap({
                 });
               })}
 
-              {/* Rastro do percurso percorrido (visited trail) */}
+              {/* Rastro do percurso percorrido (visited trail em 90 graus) */}
               {trail.length > 1 && (
                 <polyline
                   points={trail
@@ -281,10 +284,10 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Pré-visualização fantasma do comando antes de transmitir (Dry-run preview) */}
+              {/* Pré-visualização fantasma do comando em Ciano / Neutro (Dry-run preview) */}
               {previewResult && (
                 <g className="preview-ghost-layer">
-                  {/* Trajeto válido percorrido na previsão */}
+                  {/* Trajeto previsto em ciano */}
                   {previewResult.steps.length > 0 && (
                     <polyline
                       points={[
@@ -294,11 +297,11 @@ export function PlateauMap({
                           return `${c.cx},${c.cy}`;
                         }),
                       ].join(" ")}
-                      className="preview-ghost-path"
+                      className="preview-ghost-path-cyan"
                     />
                   )}
 
-                  {/* Sonda fantasma no destino previsto */}
+                  {/* Sonda fantasma no destino previsto em ciano */}
                   {previewResult.isValid && previewResult.steps.length > 0 && (() => {
                     const finalC = cellCenter(
                       previewResult.finalPosition.x,
@@ -307,11 +310,11 @@ export function PlateauMap({
                     const finalDeg = DIRECTION_ROTATION_DEG[previewResult.finalDirection];
                     return (
                       <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
-                        <circle r={markerRadius * 0.9} className="ghost-probe-ring" />
+                        <circle r={markerRadius * 0.9} className="ghost-probe-ring-cyan" />
                         <g transform={`rotate(${finalDeg})`}>
                           <polygon
                             points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
-                            className="ghost-probe-arrow"
+                            className="ghost-probe-arrow-cyan"
                           />
                         </g>
                       </g>
@@ -378,17 +381,31 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Sondas secundárias na mesma malha */}
+              {/* Sondas secundárias com seta direcional e ID no hover */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
+                const pDeg = DIRECTION_ROTATION_DEG[p.direction];
+                const pRadius = Math.max(markerRadius * 0.6, 8);
+                const pIndex = probes.findIndex((item) => item.id === p.id) + 1;
+                const pShortId = p.id.slice(0, 6).toLowerCase();
+
                 return (
-                  <circle
+                  <g
                     key={p.id}
-                    cx={c.cx}
-                    cy={c.cy}
-                    r={Math.max(markerRadius * 0.45, 5)}
-                    className="secondary-probe-dot"
-                  />
+                    transform={`translate(${c.cx}, ${c.cy})`}
+                    className="secondary-probe-group"
+                    onClick={() => onSelectProbe?.(p.id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction}`}</title>
+                    <circle r={pRadius} className="secondary-probe-core" />
+                    <g transform={`rotate(${pDeg})`}>
+                      <polygon
+                        points={`0,${-pRadius * 0.72} ${pRadius * 0.45},${pRadius * 0.48} 0,${pRadius * 0.18} ${-pRadius * 0.45},${pRadius * 0.48}`}
+                        className="secondary-probe-arrow"
+                      />
+                    </g>
+                  </g>
                 );
               })}
 
@@ -432,7 +449,7 @@ export function PlateauMap({
               ORIGEM: (0, 0) · ATUAL: ({selectedProbe.x}, {selectedProbe.y})
             </span>
             <span className="hud-probe-id">
-              PROBE: {selectedProbe.id.slice(0, 6).toUpperCase()}
+              PROBE: {shortId}
             </span>
           </div>
         </div>

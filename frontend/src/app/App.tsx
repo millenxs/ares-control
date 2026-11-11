@@ -57,6 +57,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             probes={mission.probes}
             trail={activeTrail}
             previewResult={mission.previewResult}
+            onSelectProbe={mission.selectProbe}
           />
         </div>
 

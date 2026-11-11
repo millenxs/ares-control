@@ -8,6 +8,7 @@ interface MissionOverviewProps {
   probes: Probe[];
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
+  onSelectProbe?: (probeId: string) => void;
 }
 
 const DIRECTION_LABELS: Record<Direction, string> = {
@@ -22,7 +23,10 @@ export function MissionOverview({
   probes,
   trail,
   previewResult,
+  onSelectProbe,
 }: MissionOverviewProps) {
+  const shortId = selectedProbe ? selectedProbe.id.slice(0, 6).toLowerCase() : "";
+
   return (
     <section
       role="region"
@@ -65,8 +69,8 @@ export function MissionOverview({
           <div className="orbit-idle-caption">
             <h3 className="orbit-idle-title">Nenhum sinal de sonda na superfície</h3>
             <p className="orbit-idle-desc">
-              Utilize o painel à esquerda para configurar os limites da malha e efetuar o
-              pouso da sonda em (0, 0).
+              Configure os limites máximos e a direção no painel à esquerda para pousar
+              a primeira sonda em (0, 0).
             </p>
           </div>
         </div>
@@ -94,7 +98,7 @@ export function MissionOverview({
             </div>
             <div className="hud-pill hud-pill-id" title={selectedProbe.id}>
               <span className="hud-key">ID</span>
-              <span className="hud-val hud-id">{selectedProbe.id.slice(0, 8)}</span>
+              <span className="hud-val hud-id">{shortId}</span>
             </div>
           </div>
 
@@ -103,6 +107,7 @@ export function MissionOverview({
             probes={probes}
             trail={trail}
             previewResult={previewResult}
+            onSelectProbe={onSelectProbe}
           />
         </div>
       )}
