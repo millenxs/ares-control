@@ -9,12 +9,14 @@ const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = 
 ];
 
 interface LaunchProbeFormProps {
+  isFirstLaunch?: boolean;
   isSubmitting: boolean;
   errorMessage: string | null;
   onLaunch: (input: LaunchProbeInput) => Promise<void>;
 }
 
 export function LaunchProbeForm({
+  isFirstLaunch = false,
   isSubmitting,
   errorMessage,
   onLaunch,
@@ -52,7 +54,10 @@ export function LaunchProbeForm({
   const numY = Number(maxY) || 0;
 
   return (
-    <div className="sci-card" aria-label="Telemetria & Matriz">
+    <div
+      className={`sci-card ${isFirstLaunch ? "sci-card-onboarding" : ""}`.trim()}
+      aria-label="Telemetria & Matriz"
+    >
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-dark-mod">
           <span className="dot-green" />
@@ -60,15 +65,33 @@ export function LaunchProbeForm({
           <span className="sep">•</span>
           <span>POUSO EM (0,0)</span>
         </div>
-        <div className="sci-icon-btn" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-          </svg>
-        </div>
+        {isFirstLaunch ? (
+          <span className="onboarding-step-pill">
+            <span className="onboarding-pulse-dot" />
+            COMECE AQUI
+          </span>
+        ) : (
+          <div className="sci-icon-btn" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+            </svg>
+          </div>
+        )}
       </div>
 
       <h2 className="sci-card-title">TELEMETRIA & MATRIZ</h2>
+
+      {isFirstLaunch ? (
+        <div className="onboarding-callout">
+          <span className="onboarding-pulse-dot" />
+          <span>
+            <strong>Passo 1:</strong> defina os limites da malha (ou mantenha
+            5×5) e clique em <strong>Lançar sonda em (0, 0)</strong> para abrir
+            o planalto marciano.
+          </span>
+        </div>
+      ) : null}
 
       <div className="compass-section">
         <div className="compass-header">
@@ -162,7 +185,7 @@ export function LaunchProbeForm({
 
         <button
           type="submit"
-          className="btn-sync-coords"
+          className={`btn-sync-coords ${isFirstLaunch ? "btn-sync-onboarding-pulse" : ""}`.trim()}
           disabled={isSubmitting}
           aria-label="Lançar sonda em (0, 0)"
         >
