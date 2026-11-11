@@ -67,6 +67,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             selectedProbe={mission.selectedProbe}
             isExecuting={mission.isExecuting}
             errorMessage={mission.commandError}
+            errorIndex={mission.commandErrorIndex}
             previewResult={mission.previewResult}
             commandHistory={mission.commandHistory}
             onExecuteCommands={mission.executeCommands}

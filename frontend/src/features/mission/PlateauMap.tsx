@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { Button } from "../../shared/ui/Primitives";
 import { MarsCanvas3D } from "./MarsCanvas3D";
@@ -12,12 +12,17 @@ interface PlateauMapProps {
   onSelectProbe?: (probeId: string) => void;
 }
 
-const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
+const DIRECTION_TARGET_ANGLE: Record<Direction, number> = {
   NORTH: 0,
   EAST: 90,
   SOUTH: 180,
   WEST: 270,
 };
+
+function getShortestAngleDelta(currentAngle: number, targetDirection: Direction): number {
+  const targetAngle = DIRECTION_TARGET_ANGLE[targetDirection];
+  return (((targetAngle - (currentAngle % 360) + 540) % 360) - 180);
+}
 
 function buildAxisTicks(maxCoordinate: number): number[] {
   if (maxCoordinate <= 7) {
@@ -52,6 +57,20 @@ export function PlateauMap({
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
+  // Ângulo acumulado contínuo para evitar giro reverso de 270° ao rotacionar de WEST para NORTH
+  const [accumulatedAngle, setAccumulatedAngle] = useState(
+    DIRECTION_TARGET_ANGLE[selectedProbe.direction],
+  );
+  const [lastDirection, setLastDirection] = useState(selectedProbe.direction);
+
+  useEffect(() => {
+    if (selectedProbe.direction !== lastDirection) {
+      const delta = getShortestAngleDelta(accumulatedAngle, selectedProbe.direction);
+      setAccumulatedAngle((prev) => prev + delta);
+      setLastDirection(selectedProbe.direction);
+    }
+  }, [selectedProbe.direction, lastDirection, accumulatedAngle]);
+
   const { max_x: maxX, max_y: maxY } = selectedProbe.plateau;
   const cols = maxX + 1;
   const rows = maxY + 1;
@@ -83,7 +102,6 @@ export function PlateauMap({
   }
 
   const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
-  const rotationDeg = DIRECTION_ROTATION_DEG[selectedProbe.direction];
   const markerRadius = Math.max(Math.min(cellSize * 0.44, 26), 12);
 
   const otherVisibleProbes = probes.filter(
@@ -307,7 +325,7 @@ export function PlateauMap({
                       previewResult.finalPosition.x,
                       previewResult.finalPosition.y,
                     );
-                    const finalDeg = DIRECTION_ROTATION_DEG[previewResult.finalDirection];
+                    const finalDeg = DIRECTION_TARGET_ANGLE[previewResult.finalDirection];
                     return (
                       <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
                         <circle r={markerRadius * 0.9} className="ghost-probe-ring-cyan" />
@@ -384,7 +402,7 @@ export function PlateauMap({
               {/* Sondas secundárias com seta direcional e ID no hover */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
-                const pDeg = DIRECTION_ROTATION_DEG[p.direction];
+                const pDeg = DIRECTION_TARGET_ANGLE[p.direction];
                 const pRadius = Math.max(markerRadius * 0.6, 8);
                 const pIndex = probes.findIndex((item) => item.id === p.id) + 1;
                 const pShortId = p.id.slice(0, 6).toLowerCase();
@@ -409,7 +427,7 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Célula Ativa e Ícone da Sonda Ampliado com Rotação Suave */}
+              {/* Célula Ativa e Ícone da Sonda com Rotação Contínua Acumulada */}
               <g
                 transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
                 data-testid="active-probe-marker"
@@ -418,9 +436,9 @@ export function PlateauMap({
                 <circle r={markerRadius} className="probe-body-core" />
                 <g
                   style={{
-                    transform: `rotate(${rotationDeg}deg)`,
+                    transform: `rotate(${accumulatedAngle}deg)`,
                     transformOrigin: "center",
-                    transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                 >
                   <polygon

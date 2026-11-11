@@ -7,6 +7,7 @@ interface CommandDeckProps {
   selectedProbe: Probe | null;
   isExecuting: boolean;
   errorMessage: string | null;
+  errorIndex?: number | null;
   previewResult?: PreviewResult | null;
   commandHistory?: CommandHistoryEntry[];
   onExecuteCommands: (probeId: string, commands: string) => Promise<boolean>;
@@ -17,6 +18,7 @@ export function CommandDeck({
   selectedProbe,
   isExecuting,
   errorMessage,
+  errorIndex = null,
   previewResult,
   commandHistory = [],
   onExecuteCommands,
@@ -190,6 +192,25 @@ export function CommandDeck({
             >
               Exemplo de percurso
             </button>
+          </div>
+
+          {/* Fichas visuais com destaque do comando culpado em caso de erro */}
+          <div className="token-chips-tray" aria-hidden="true">
+            {commandTokens.map((token, idx) => {
+              const isOffending =
+                (errorIndex !== null && errorIndex === idx) ||
+                (previewResult && !previewResult.isValid && previewResult.errorIndex === idx);
+
+              return (
+                <span
+                  key={`${idx}-${token}`}
+                  className={`token-chip ${isOffending ? "token-chip-offending" : ""}`}
+                  title={`Passo ${idx}: ${token}`}
+                >
+                  {token}
+                </span>
+              );
+            })}
           </div>
 
           {/* Teclas rápidas táteis */}

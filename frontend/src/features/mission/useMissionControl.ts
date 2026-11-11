@@ -48,6 +48,7 @@ export interface MissionControlState {
   launchError: string | null;
   isExecuting: boolean;
   commandError: string | null;
+  commandErrorIndex: number | null;
   reloadProbes: () => Promise<void>;
   selectProbe: (probeId: string) => void;
   launchProbe: (input: LaunchProbeInput) => Promise<void>;
@@ -69,6 +70,7 @@ export function useMissionControl(
   const [launchError, setLaunchError] = useState<string | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
   const [commandError, setCommandError] = useState<string | null>(null);
+  const [commandErrorIndex, setCommandErrorIndex] = useState<number | null>(null);
 
   const selectedProbe =
     probes.find((probe) => probe.id === selectedProbeId) ?? null;
@@ -111,6 +113,7 @@ export function useMissionControl(
       setIsLaunching(true);
       setLaunchError(null);
       setCommandError(null);
+      setCommandErrorIndex(null);
       try {
         const created = await apiClient.launchProbe(input);
         setProbes((current) => [...current, created]);
@@ -132,6 +135,7 @@ export function useMissionControl(
     async (probeId: string, commands: string): Promise<boolean> => {
       setIsExecuting(true);
       setCommandError(null);
+      setCommandErrorIndex(null);
       try {
         const currentProbe = probes.find((p) => p.id === probeId);
         const fromState = currentProbe
@@ -140,7 +144,7 @@ export function useMissionControl(
 
         const updated = await apiClient.executeCommands(probeId, commands);
 
-        // Simula o trajeto exato passo a passo para o rastro seguir a malha (sem cortar diagonal)
+        // Simula o trajeto exato passo a passo com a função única de navegação
         const pathSimulation = simulateNavigationPreview(
           { x: fromState.x, y: fromState.y },
           fromState.direction as Direction,
@@ -151,6 +155,7 @@ export function useMissionControl(
           .filter((st) => st.command === "M")
           .map((st) => ({ x: st.x, y: st.y }));
 
+        // Atualiza o estado atômico confirmado da API
         setProbes((current) =>
           current.map((probe) => (probe.id === updated.id ? updated : probe)),
         );
@@ -183,6 +188,9 @@ export function useMissionControl(
         return true;
       } catch (error) {
         setCommandError(humanizeApiError(error));
+        if (error instanceof ApiClientError && typeof error.details.index === "number") {
+          setCommandErrorIndex(error.details.index);
+        }
         return false;
       } finally {
         setIsExecuting(false);
@@ -194,6 +202,7 @@ export function useMissionControl(
   const selectProbe = useCallback((probeId: string) => {
     setSelectedProbeId(probeId);
     setCommandError(null);
+    setCommandErrorIndex(null);
     setPreviewCommands("");
   }, []);
 
@@ -220,6 +229,7 @@ export function useMissionControl(
     launchError,
     isExecuting,
     commandError,
+    commandErrorIndex,
     reloadProbes,
     selectProbe,
     launchProbe,

@@ -738,6 +738,40 @@ input:focus-visible {
   color: #0369a1;
 }
 
+/* Fichas de Comando com Destaque do Erro */
+.token-chips-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 24px;
+  align-items: center;
+}
+
+.token-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.65rem;
+  height: 1.65rem;
+  padding: 0 0.35rem;
+  border-radius: 6px;
+  background-color: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #c2410c;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 140ms ease;
+}
+
+.token-chip-offending {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #b91c1c !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.7) !important;
+  animation: inputShake 380ms ease-in-out;
+}
+
 .quick-command-buttons {
   display: flex;
   gap: 8px;
