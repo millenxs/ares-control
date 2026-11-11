@@ -23,6 +23,7 @@ class ErrorCode(StrEnum):
     INVALID_PROBE_PLACEMENT = "invalid_probe_placement"
     INVALID_COMMAND = "invalid_command"
     OUT_OF_BOUNDS = "out_of_bounds"
+    PROBE_NOT_FOUND = "probe_not_found"
 
 
 class DomainError(Exception):
@@ -115,6 +116,15 @@ class OutOfBoundsError(DomainError):
             f"Command at index {index} moves probe to ({x}, {y}), "
             f"outside plateau ({max_x}, {max_y}).",
             {"index": index, "x": x, "y": y, "max_x": max_x, "max_y": max_y},
+        )
+
+
+class ProbeNotFoundError(DomainError):
+    def __init__(self, probe_id: str) -> None:
+        super().__init__(
+            ErrorCode.PROBE_NOT_FOUND,
+            f"Probe '{probe_id}' was not found.",
+            {"id": probe_id},
         )
 
 
