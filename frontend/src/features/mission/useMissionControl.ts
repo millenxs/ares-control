@@ -9,6 +9,7 @@ import {
 import { formatHumanDomainError } from "./errorFormatter";
 import {
   type PreviewResult,
+  buildCommandsToTarget,
   simulateNavigationPreview,
 } from "./previewNavigation";
 
@@ -44,6 +45,7 @@ export interface MissionControlState {
   launchProbe: (input: LaunchProbeInput) => Promise<void>;
   executeCommands: (probeId: string, commands: string) => Promise<boolean>;
   setPreviewCommands: (commands: string) => void;
+  planRouteToCell: (targetX: number, targetY: number) => void;
 }
 
 /**
@@ -239,6 +241,23 @@ export function useMissionControl(
     setPreviewCommands("");
   }, []);
 
+  const planRouteToCell = useCallback(
+    (targetX: number, targetY: number) => {
+      if (!selectedProbe) {
+        return;
+      }
+      setCommandError(null);
+      setCommandErrorIndex(null);
+      const sequence = buildCommandsToTarget(
+        { x: selectedProbe.x, y: selectedProbe.y },
+        selectedProbe.direction,
+        { x: targetX, y: targetY },
+      );
+      setPreviewCommands(sequence);
+    },
+    [selectedProbe],
+  );
+
   const previewResult = selectedProbe && previewCommands
     ? simulateNavigationPreview(
         { x: selectedProbe.x, y: selectedProbe.y },
@@ -268,5 +287,6 @@ export function useMissionControl(
     launchProbe,
     executeCommands,
     setPreviewCommands,
+    planRouteToCell,
   };
 }

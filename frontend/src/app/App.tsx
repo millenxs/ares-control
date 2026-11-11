@@ -56,19 +56,21 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             trail={activeTrail}
             previewResult={mission.previewResult}
             onSelectProbe={mission.selectProbe}
+            onSelectCell={mission.planRouteToCell}
           />
         </div>
 
         <aside className="pod-column pod-right">
           <CommandDeck
             selectedProbe={mission.selectedProbe}
+            commands={mission.previewCommands}
             isExecuting={mission.isExecuting}
             errorMessage={mission.commandError}
             errorIndex={mission.commandErrorIndex}
             previewResult={mission.previewResult}
             commandHistory={mission.commandHistory}
             onExecuteCommands={mission.executeCommands}
-            onPreviewChange={mission.setPreviewCommands}
+            onCommandsChange={mission.setPreviewCommands}
           />
         </aside>
       </main>

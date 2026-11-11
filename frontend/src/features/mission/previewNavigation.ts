@@ -60,6 +60,59 @@ const DIRECTION_DELTAS: Record<Direction, [number, number]> = {
   WEST: [-1, 0],
 };
 
+const CARDINAL_ORDER: readonly Direction[] = ["NORTH", "EAST", "SOUTH", "WEST"];
+
+function buildTurnSequence(from: Direction, to: Direction): string {
+  const diff = (CARDINAL_ORDER.indexOf(to) - CARDINAL_ORDER.indexOf(from) + 4) % 4;
+  if (diff === 0) return "";
+  if (diff === 1) return "R";
+  if (diff === 3) return "L";
+  return "RR";
+}
+
+/**
+ * Gera a menor sequência de comandos (`L`, `R`, `M`) para levar a sonda de
+ * `startPos`/`startDir` até a célula clicada `targetPos`, preenchendo o buffer
+ * de instruções sem enviar requisição automática para a API.
+ */
+export function buildCommandsToTarget(
+  startPos: Position,
+  startDir: Direction,
+  targetPos: Position,
+): string {
+  const dx = targetPos.x - startPos.x;
+  const dy = targetPos.y - startPos.y;
+  if (dx === 0 && dy === 0) {
+    return "";
+  }
+
+  const horizontalDir: Direction | null =
+    dx > 0 ? "EAST" : dx < 0 ? "WEST" : null;
+  const verticalDir: Direction | null =
+    dy > 0 ? "NORTH" : dy < 0 ? "SOUTH" : null;
+
+  const moveHorizontalFirst =
+    horizontalDir !== null &&
+    (verticalDir === null || startDir === horizontalDir);
+
+  const legs: Array<{ dir: Direction; steps: number }> = [];
+  if (moveHorizontalFirst) {
+    if (horizontalDir) legs.push({ dir: horizontalDir, steps: Math.abs(dx) });
+    if (verticalDir) legs.push({ dir: verticalDir, steps: Math.abs(dy) });
+  } else {
+    if (verticalDir) legs.push({ dir: verticalDir, steps: Math.abs(dy) });
+    if (horizontalDir) legs.push({ dir: horizontalDir, steps: Math.abs(dx) });
+  }
+
+  let currentDir = startDir;
+  let sequence = "";
+  for (const leg of legs) {
+    sequence += buildTurnSequence(currentDir, leg.dir) + "M".repeat(leg.steps);
+    currentDir = leg.dir;
+  }
+  return sequence;
+}
+
 export function simulateNavigationPreview(
   startPos: Position,
   startDir: Direction,

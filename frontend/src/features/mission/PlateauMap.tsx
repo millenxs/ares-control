@@ -10,6 +10,7 @@ interface PlateauMapProps {
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
   onSelectProbe?: (probeId: string) => void;
+  onSelectCell?: (x: number, y: number) => void;
 }
 
 const DIRECTION_TARGET_ANGLE: Record<Direction, number> = {
@@ -58,6 +59,7 @@ export function PlateauMap({
   trail = [],
   previewResult,
   onSelectProbe,
+  onSelectCell,
 }: PlateauMapProps) {
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
@@ -301,8 +303,11 @@ export function PlateauMap({
                       key={`cell-${xCoord}-${yCoord}`}
                       onMouseEnter={() => setHoveredCell({ x: xCoord, y: yCoord })}
                       onMouseLeave={() => setHoveredCell(null)}
+                      onClick={() => onSelectCell?.(xCoord, yCoord)}
+                      data-testid={`grid-cell-${xCoord}-${yCoord}`}
                       className="cell-hover-group"
                     >
+                      <title>{`Célula (${xCoord}, ${yCoord}) — clique para preencher rota no buffer`}</title>
                       <rect
                         x={xPos}
                         y={yPos}

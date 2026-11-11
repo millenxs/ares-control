@@ -9,6 +9,7 @@ interface MissionOverviewProps {
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
   onSelectProbe?: (probeId: string) => void;
+  onSelectCell?: (x: number, y: number) => void;
 }
 
 const DIRECTION_LABELS: Record<Direction, string> = {
@@ -24,6 +25,7 @@ export function MissionOverview({
   trail,
   previewResult,
   onSelectProbe,
+  onSelectCell,
 }: MissionOverviewProps) {
   const shortId = selectedProbe ? selectedProbe.id.slice(0, 6).toLowerCase() : "";
 
@@ -108,6 +110,7 @@ export function MissionOverview({
             trail={trail}
             previewResult={previewResult}
             onSelectProbe={onSelectProbe}
+            onSelectCell={onSelectCell}
           />
         </div>
       )}
