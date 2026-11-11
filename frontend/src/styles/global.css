@@ -1026,8 +1026,9 @@ input:focus-visible {
 
 .mars-orbit-canvas-wrapper {
   position: relative;
-  width: 580px;
-  height: 580px;
+  width: 100%;
+  max-width: 680px;
+  height: 680px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1191,8 +1192,9 @@ input:focus-visible {
 
 .mars-arena-viewport {
   position: relative;
-  width: 580px;
-  height: 580px;
+  width: 100%;
+  max-width: 680px;
+  height: 680px;
   display: flex;
   align-items: center;
   justify-content: center;
