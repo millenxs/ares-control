@@ -13,6 +13,16 @@ export interface NavigationStep {
   index: number;
 }
 
+export interface FailedStep {
+  fromX: number;
+  fromY: number;
+  targetX: number;
+  targetY: number;
+  direction: Direction;
+  command: "M" | "L" | "R";
+  index: number;
+}
+
 export interface PreviewResult {
   steps: NavigationStep[];
   finalPosition: Position;
@@ -20,6 +30,7 @@ export interface PreviewResult {
   isValid: boolean;
   errorIndex: number | null;
   errorMessage: string | null;
+  failedStep: FailedStep | null;
 }
 
 const ROTATION_LEFT: Record<Direction, Direction> = {
@@ -63,6 +74,7 @@ export function simulateNavigationPreview(
       isValid: true,
       errorIndex: null,
       errorMessage: null,
+      failedStep: null,
     };
   }
 
@@ -86,7 +98,16 @@ export function simulateNavigationPreview(
           finalDirection: dir,
           isValid: false,
           errorIndex: i,
-          errorMessage: `O comando no índice ${i} levaria a sonda a (${nextX}, ${nextY}), fora do platô [0..${plateau.max_x}, 0..${plateau.max_y}].`,
+          errorMessage: `O comando '${char}' no índice ${i} levaria a sonda a (${nextX}, ${nextY}), fora da malha [0..${plateau.max_x}, 0..${plateau.max_y}].`,
+          failedStep: {
+            fromX: x,
+            fromY: y,
+            targetX: nextX,
+            targetY: nextY,
+            direction: dir,
+            command: "M",
+            index: i,
+          },
         };
       }
 
@@ -100,7 +121,8 @@ export function simulateNavigationPreview(
         finalDirection: dir,
         isValid: false,
         errorIndex: i,
-        errorMessage: `Caractere inválido '${char}' no índice ${i}. Comandos válidos: M, L, R.`,
+        errorMessage: `Caractere inválido '${char}' no índice ${i}. Comandos aceitos: M, L, R.`,
+        failedStep: null,
       };
     }
   }
@@ -112,5 +134,6 @@ export function simulateNavigationPreview(
     isValid: true,
     errorIndex: null,
     errorMessage: null,
+    failedStep: null,
   };
 }

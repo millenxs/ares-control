@@ -638,6 +638,17 @@ input:focus-visible {
   font-weight: 700;
 }
 
+.pos-notice-warning {
+  background-color: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
 .buffer-form {
   display: flex;
   flex-direction: column;
@@ -781,6 +792,24 @@ input:focus-visible {
   border-radius: 50%;
   background-color: #ea580c;
   box-shadow: 0 0 8px #ea580c;
+}
+
+.preview-danger-box {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.danger-icon {
+  font-size: 0.95rem;
 }
 
 /* Botão Laranja Transmitir Comandos estilo Image 1 */
@@ -1284,6 +1313,28 @@ input:focus-visible {
 
 .ghost-probe-arrow {
   fill: #f59e0b;
+}
+
+/* Alerta de Colisão no Preview */
+.preview-crash-line {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 2.5;
+  stroke-dasharray: 3 3;
+}
+
+.crash-pulse-circle {
+  fill: rgba(239, 68, 68, 0.25);
+  stroke: #ef4444;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
+}
+
+.crash-x-icon {
+  fill: #ef4444;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* Ticks Limpos dos Eixos */

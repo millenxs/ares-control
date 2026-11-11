@@ -33,7 +33,6 @@ export function LaunchProbeForm({
     if (selectedProbe) {
       setMaxX(String(selectedProbe.plateau.max_x));
       setMaxY(String(selectedProbe.plateau.max_y));
-      setDirection(selectedProbe.direction);
     }
   }, [selectedProbe]);
 
@@ -64,10 +63,6 @@ export function LaunchProbeForm({
   const numX = Number(maxX) || 0;
   const numY = Number(maxY) || 0;
 
-  const currentX = selectedProbe ? selectedProbe.x : 0;
-  const currentY = selectedProbe ? selectedProbe.y : 0;
-  const currentFace = selectedProbe ? selectedProbe.direction : direction;
-
   return (
     <div className="sci-card" aria-label="Telemetria & Matriz">
       {/* Top Header estilo Image 1 */}
@@ -92,12 +87,12 @@ export function LaunchProbeForm({
       <div className="compass-section">
         <div className="compass-header">
           <span className="compass-label">BÚSSOLA DIGITAL</span>
-          <span className="compass-active-tag">DIREÇÃO ATIVA</span>
+          <span className="compass-active-tag">POUSO: {direction}</span>
         </div>
 
         <div className="compass-tiles-row" role="radiogroup" aria-label="Direção inicial">
           {DIRECTIONS.map((dir) => {
-            const isSelected = currentFace === dir.value;
+            const isSelected = direction === dir.value;
             return (
               <button
                 key={dir.value}
@@ -215,23 +210,19 @@ export function LaunchProbeForm({
           </label>
         </div>
 
-        {/* Faixa Preta de Coordenadas em Tempo Real estilo Image 1 */}
+        {/* Faixa Preta de Coordenadas em Tempo Real */}
         <div className="coord-black-strip" aria-hidden="true">
           <div className="coord-item">
             <span className="coord-k">COORD X</span>
-            <span className="coord-v">
-              {String(currentX).padStart(2, "0")} / {String(numX).padStart(2, "0")}
-            </span>
+            <span className="coord-v">00 / {String(numX).padStart(2, "0")}</span>
           </div>
           <div className="coord-item">
             <span className="coord-k">COORD Y</span>
-            <span className="coord-v">
-              {String(currentY).padStart(2, "0")} / {String(numY).padStart(2, "0")}
-            </span>
+            <span className="coord-v">00 / {String(numY).padStart(2, "0")}</span>
           </div>
           <div className="coord-item">
-            <span className="coord-k">FACE</span>
-            <span className="coord-v green-face">{currentFace}</span>
+            <span className="coord-k">FACE POUSO</span>
+            <span className="coord-v green-face">{direction}</span>
           </div>
         </div>
 
@@ -241,7 +232,7 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        {/* Botão Sincronizar Coordenadas / Lançar estilo Image 1 */}
+        {/* Botão Sincronizar Coordenadas / Lançar */}
         <button
           type="submit"
           className="btn-sync-coords"

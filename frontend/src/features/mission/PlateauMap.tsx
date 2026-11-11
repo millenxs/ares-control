@@ -281,20 +281,25 @@ export function PlateauMap({
                 );
               })}
 
-              {/* Pré-visualização fantasma do comando antes de transmitir (Dry-run preview) */}
-              {previewResult && previewResult.isValid && previewResult.steps.length > 0 && (
+              {/* Pré-visualização fantasma do comando (Dry-run preview) */}
+              {previewResult && (
                 <g className="preview-ghost-layer">
-                  <polyline
-                    points={[
-                      `${activeCell.cx},${activeCell.cy}`,
-                      ...previewResult.steps.map((st) => {
-                        const c = cellCenter(st.x, st.y);
-                        return `${c.cx},${c.cy}`;
-                      }),
-                    ].join(" ")}
-                    className="preview-ghost-path"
-                  />
-                  {(() => {
+                  {/* Trajeto válido percorrido na previsão */}
+                  {previewResult.steps.length > 0 && (
+                    <polyline
+                      points={[
+                        `${activeCell.cx},${activeCell.cy}`,
+                        ...previewResult.steps.map((st) => {
+                          const c = cellCenter(st.x, st.y);
+                          return `${c.cx},${c.cy}`;
+                        }),
+                      ].join(" ")}
+                      className="preview-ghost-path"
+                    />
+                  )}
+
+                  {/* Sonda fantasma no destino previsto */}
+                  {previewResult.isValid && previewResult.steps.length > 0 && (() => {
                     const finalC = cellCenter(
                       previewResult.finalPosition.x,
                       previewResult.finalPosition.y,
@@ -308,6 +313,34 @@ export function PlateauMap({
                             points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
                             className="ghost-probe-arrow"
                           />
+                        </g>
+                      </g>
+                    );
+                  })()}
+
+                  {/* Alerta de colisão visual caso um comando saia da malha */}
+                  {previewResult.failedStep && (() => {
+                    const fromC = cellCenter(
+                      previewResult.failedStep.fromX,
+                      previewResult.failedStep.fromY,
+                    );
+                    const invRow = maxY - previewResult.failedStep.targetY;
+                    const targetCx = originX + (previewResult.failedStep.targetX + 0.5) * cellSize;
+                    const targetCy = originY + (invRow + 0.5) * cellSize;
+                    return (
+                      <g className="preview-crash-group">
+                        <line
+                          x1={fromC.cx}
+                          y1={fromC.cy}
+                          x2={targetCx}
+                          y2={targetCy}
+                          className="preview-crash-line"
+                        />
+                        <g transform={`translate(${targetCx}, ${targetCy})`}>
+                          <circle r={markerRadius * 0.85} className="crash-pulse-circle" />
+                          <text y={4} textAnchor="middle" className="crash-x-icon">
+                            ✖
+                          </text>
                         </g>
                       </g>
                     );

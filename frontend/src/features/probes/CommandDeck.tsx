@@ -86,9 +86,9 @@ export function CommandDeck({
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-probe-nav">
           <span className="dot-green" />
-          <span>PROBE NAV</span>
+          <span>PROBE NAV API</span>
           <span className="sep">•</span>
-          <span>ESTAÇÃO CENTRAL</span>
+          <span>REST ENDPOINT</span>
         </div>
         <div className="sci-icon-btn" aria-hidden="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -113,11 +113,23 @@ export function CommandDeck({
         <div className="pos-coords-display">
           ({probeX}, {probeY}, {probeDir})
         </div>
+
+        {probeX === 0 && probeDir === "WEST" && (
+          <div className="pos-notice-warning" role="note">
+            ⚠ Sonda voltada para Oeste em X=0. Avançar (M) bateria na borda. Gire com R (Norte) antes de mover!
+          </div>
+        )}
+        {probeY === 0 && probeDir === "SOUTH" && (
+          <div className="pos-notice-warning" role="note">
+            ⚠ Sonda voltada para Sul em Y=0. Avançar (M) bateria na borda. Gire com R ou L antes de mover!
+          </div>
+        )}
+
         <div className="pos-box-footer">
           <span className="bounds-info">
             LIMITES: {maxX}x{maxY} [0..{maxX}, 0..{maxY}]
           </span>
-          <span className="sensor-safe">SENSOR DE BORDA: ATIVO</span>
+          <span className="sensor-safe">SENSOR DE BORDA: SEGURO</span>
         </div>
       </div>
 
@@ -126,6 +138,9 @@ export function CommandDeck({
         <div className="buffer-section">
           <div className="buffer-header">
             <span className="buffer-title">BUFFER DE INSTRUÇÕES</span>
+            <span className="buffer-sub-legend">
+              L: -90° | R: +90° | M: +1 CASA
+            </span>
           </div>
 
           <div className={`buffer-input-wrapper ${hasInputShake ? "input-shake" : ""}`}>
@@ -146,7 +161,7 @@ export function CommandDeck({
             </span>
           </div>
 
-          {/* Legenda dos comandos movida para baixo do input como helper text */}
+          {/* Helper text com a legenda dos comandos logo abaixo do input */}
           <div className="buffer-helper-text">
             <span><strong>L:</strong> girar 90° esq</span>
             <span className="sep">•</span>
@@ -157,10 +172,20 @@ export function CommandDeck({
             <button
               type="button"
               className="quick-example-link"
-              onClick={() => handleInputChange("MRM")}
+              onClick={() => {
+                if (probeDir === "NORTH") {
+                  handleInputChange("MRM");
+                } else if (probeDir === "WEST") {
+                  handleInputChange("RMRM");
+                } else if (probeDir === "SOUTH") {
+                  handleInputChange("LLMRM");
+                } else {
+                  handleInputChange("LMRM");
+                }
+              }}
               disabled={disabled}
             >
-              Exemplo: MRM
+              Exemplo de percurso
             </button>
           </div>
 
@@ -208,7 +233,7 @@ export function CommandDeck({
           </div>
         </div>
 
-        {/* Alerta de erro com mensagem humanizada */}
+        {/* Alerta de erro da API com índice do comando */}
         {displayError ? (
           <div className="alert alert-danger" role="alert">
             <span>{displayError}</span>
@@ -220,13 +245,21 @@ export function CommandDeck({
           <div className="preview-indicator-box">
             <span className="preview-dot" />
             <span>
-              Previsão de destino: ({previewResult.finalPosition.x},{" "}
+              Destino previsto: ({previewResult.finalPosition.x},{" "}
               {previewResult.finalPosition.y}, {previewResult.finalDirection})
             </span>
           </div>
         ) : null}
 
-        {/* Botão de Transmissão sem textos redundantes da API */}
+        {/* Alerta prévio de comando que sairia da malha */}
+        {previewResult && !previewResult.isValid && previewResult.errorMessage ? (
+          <div className="preview-danger-box" role="status">
+            <span className="danger-icon">⚠</span>
+            <span>{previewResult.errorMessage}</span>
+          </div>
+        ) : null}
+
+        {/* Botão de Transmissão estilo Image 1 */}
         <button
           type="submit"
           className="btn-exec-api"
@@ -237,7 +270,7 @@ export function CommandDeck({
           <span className="btn-exec-title">
             {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
           </span>
-          <span className="btn-exec-arrow">➤</span>
+          <span className="btn-exec-arrow">DISPARAR ➤</span>
         </button>
       </form>
 
