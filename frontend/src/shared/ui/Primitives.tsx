@@ -4,12 +4,24 @@ interface PanelProps {
   title: string;
   subtitle?: string;
   badge?: ReactNode;
+  variant?: "card" | "transparent";
+  className?: string;
   children: ReactNode;
 }
 
-export function Panel({ title, subtitle, badge, children }: PanelProps) {
+export function Panel({
+  title,
+  subtitle,
+  badge,
+  variant = "card",
+  className = "",
+  children,
+}: PanelProps) {
   return (
-    <section className="panel" aria-label={title}>
+    <section
+      className={`panel panel-${variant} ${className}`.trim()}
+      aria-label={title}
+    >
       <header className="panel-header">
         <div>
           <h2 className="panel-title">{title}</h2>
@@ -23,7 +35,7 @@ export function Panel({ title, subtitle, badge, children }: PanelProps) {
 }
 
 interface BadgeProps {
-  tone?: "neutral" | "mars" | "amber";
+  tone?: "neutral" | "mars" | "amber" | "dark";
   children: ReactNode;
 }
 
@@ -32,7 +44,7 @@ export function Badge({ tone = "neutral", children }: BadgeProps) {
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "dark";
 }
 
 export function Button({

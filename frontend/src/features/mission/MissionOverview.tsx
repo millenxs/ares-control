@@ -23,27 +23,33 @@ export function MissionOverview({
     <Panel
       title="Observatório Cartográfico e Telemetria"
       subtitle="Superfície de Marte em 3D e estado confirmado pela API para a sonda ativa."
+      variant="transparent"
       badge={
         selectedProbe ? (
           <Badge tone="mars">
             Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
           </Badge>
         ) : (
-          <Badge tone="neutral">Órbita de Marte</Badge>
+          <Badge tone="dark">Órbita de Marte</Badge>
         )
       }
     >
       {!selectedProbe ? (
         <div className="empty-observatory">
           <div className="empty-mars-stage" aria-hidden="true">
+            <div className="orbit-pill-tag">• ARES ORBITER // 3.4 km/s</div>
             <MarsCanvas3D className="mars-canvas-empty" />
+            <div className="orbit-target-beacon">
+              <span className="beacon-ring" />
+              <span className="beacon-label">VALLES MARINERIS</span>
+            </div>
           </div>
           <h3 className="empty-observatory-title">
             Nenhum sinal de sonda na superfície
           </h3>
           <p className="empty-state">
             Aguardando lançamento de sonda. Configure os limites máximos (X, Y)
-            e a direção inicial no card à esquerda para iniciar o pouso em (0,
+            e a direção inicial no card à direita para iniciar o pouso em (0,
             0).
           </p>
         </div>

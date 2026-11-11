@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
-import { Button, Panel } from "../../shared/ui/Primitives";
+import { Badge, Button, Panel } from "../../shared/ui/Primitives";
 
 const DIRECTIONS: readonly { value: Direction; label: string }[] = [
   { value: "NORTH", label: "NORTH (Norte)" },
@@ -52,9 +52,30 @@ export function LaunchProbeForm({
 
   return (
     <Panel
-      title="Lançar Sonda"
-      subtitle="Define os limites máximos (X, Y) da malha da sonda e sua direção inicial em (0, 0)."
+      title="Lançamento de Sonda"
+      subtitle="Configure a malha disponível e insira uma nova sonda em (0, 0)."
+      badge={<Badge tone="amber">PAYLOAD • PRONTO</Badge>}
     >
+      <div className="card-instrument-box" aria-hidden="true">
+        <div className="instrument-row">
+          <span className="instrument-label">ARES EXPLORER V</span>
+          <span className="instrument-val-green">100% OK</span>
+        </div>
+        <div className="instrument-progress-bar">
+          <div className="instrument-progress-fill" style={{ width: "98.4%" }} />
+        </div>
+        <div className="instrument-grid">
+          <div className="instrument-pill">
+            <span className="pill-key">COORDENADA</span>
+            <span className="pill-val">(0, 0)</span>
+          </div>
+          <div className="instrument-pill">
+            <span className="pill-key">PROPULSÃO</span>
+            <span className="pill-val">ARMADO</span>
+          </div>
+        </div>
+      </div>
+
       <form className="stack-form" onSubmit={handleSubmit} noValidate>
         <div className="field-row">
           <label className="field">
@@ -105,7 +126,12 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="primary"
+          className="btn-launch"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Lançando sonda..." : "Lançar sonda em (0, 0)"}
         </Button>
       </form>

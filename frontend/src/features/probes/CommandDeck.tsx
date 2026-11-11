@@ -37,16 +37,32 @@ export function CommandDeck({
 
   return (
     <Panel
-      title="Console de Comandos"
-      subtitle="Comandos aceitos: L (girar à esquerda), R (girar à direita) e M (avançar 1 posição)."
+      title="Controle de Comando"
+      subtitle="Instruções de navegação em tempo real transmitidas via uplink orbital."
       badge={
         selectedProbe ? (
-          <Badge tone="amber">ID {selectedProbe.id.slice(0, 8)}</Badge>
+          <Badge tone="dark">MOD-01 • ATIVO</Badge>
         ) : (
-          <Badge tone="neutral">Sem seleção</Badge>
+          <Badge tone="neutral">STANDBY</Badge>
         )
       }
     >
+      <div className="card-instrument-box" aria-hidden="true">
+        <div className="instrument-readout-row">
+          <div className="readout-item">
+            <span className="readout-label">VELOCIDADE</span>
+            <span className="readout-value">24.150 <small>km/h</small></span>
+          </div>
+          <div className="readout-item text-right">
+            <span className="readout-label">ALINHAMENTO</span>
+            <span className="readout-value">99.8% <small>NOM</small></span>
+          </div>
+        </div>
+        <div className="instrument-progress-bar">
+          <div className="instrument-progress-fill" style={{ width: "84%" }} />
+        </div>
+      </div>
+
       <form className="stack-form" onSubmit={handleSubmit} noValidate>
         <label className="field">
           <span className="field-label">Sequência de comandos (M, L, R)</span>
@@ -104,7 +120,7 @@ export function CommandDeck({
           </span>
           {commandTokens.length === 0 ? (
             <span className="token-strip-empty">
-              Use as peças acima ou digite a sequência.
+              Use as teclas acima ou digite a sequência.
             </span>
           ) : (
             <div className="token-chip-list">
@@ -123,7 +139,12 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        <Button type="submit" variant="primary" disabled={disabled}>
+        <Button
+          type="submit"
+          variant="primary"
+          className="btn-transmit"
+          disabled={disabled}
+        >
           {isExecuting ? "Transmitindo..." : "Transmitir comandos"}
         </Button>
       </form>

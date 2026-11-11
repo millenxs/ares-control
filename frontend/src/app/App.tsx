@@ -25,13 +25,13 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
             <Badge tone="mars">Marte · Órbita</Badge>
           </div>
           <p className="app-subtitle">
-            Central de comando e cartografia espacial para controle de sondas na
+            Observatório cartográfico e uplink de comando para sondas na
             superfície de Marte.
           </p>
         </div>
 
         <div className="header-actions">
-          <Badge tone="neutral">{mission.probes.length} sonda(s) ativas</Badge>
+          <Badge tone="dark">{mission.probes.length} sonda(s) ativas</Badge>
           <Button
             variant="secondary"
             onClick={() => void mission.reloadProbes()}
@@ -57,11 +57,13 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
       ) : null}
 
       <main className="app-board-layout">
+        {/* Asa Esquerda: Controle de Comando e Frota */}
         <aside className="wing-column">
-          <LaunchProbeForm
-            isSubmitting={mission.isLaunching}
-            errorMessage={mission.launchError}
-            onLaunch={mission.launchProbe}
+          <CommandDeck
+            selectedProbe={mission.selectedProbe}
+            isExecuting={mission.isExecuting}
+            errorMessage={mission.commandError}
+            onExecuteCommands={mission.executeCommands}
           />
           <ProbeList
             probes={mission.probes}
@@ -70,10 +72,11 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           />
         </aside>
 
+        {/* Palco Central: Observatório Cartográfico e Globo 3D de Marte em Espaço Puro */}
         <div className="center-stage-column">
           {mission.isLoadingInitial ? (
-            <div className="panel loading-panel" role="status">
-              Sincronizando telemetria das sondas com a estação orbital...
+            <div className="loading-banner" role="status">
+              Sincronizando telemetria com o satélite orbital de Marte...
             </div>
           ) : (
             <MissionOverview
@@ -83,34 +86,34 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           )}
         </div>
 
+        {/* Asa Direita: Lançamento de Sonda e Protocolo */}
         <aside className="wing-column">
-          <CommandDeck
-            selectedProbe={mission.selectedProbe}
-            isExecuting={mission.isExecuting}
-            errorMessage={mission.commandError}
-            onExecuteCommands={mission.executeCommands}
+          <LaunchProbeForm
+            isSubmitting={mission.isLaunching}
+            errorMessage={mission.launchError}
+            onLaunch={mission.launchProbe}
           />
 
           <Panel
-            title="Protocolo de Navegação"
-            subtitle="Regras físicas de exploração da superfície marciana."
+            title="Protocolo de Missão"
+            subtitle="Parâmetros cinemáticos da missão espacial a Marte."
           >
             <dl className="protocol-list">
               <div className="protocol-row">
                 <dt>Pouso inicial</dt>
-                <dd>Sempre na coordenada (0, 0)</dd>
+                <dd>Sempre em (0, 0)</dd>
               </div>
               <div className="protocol-row">
-                <dt>Rotação L / R</dt>
-                <dd>Gira 90° sem sair da célula</dd>
+                <dt>Giro L / R</dt>
+                <dd>90° sem mudar de célula</dd>
               </div>
               <div className="protocol-row">
                 <dt>Avanço M</dt>
-                <dd>Avança 1 posição na direção atual</dd>
+                <dd>1 passo na direção atual</dd>
               </div>
               <div className="protocol-row">
-                <dt>Segurança de borda</dt>
-                <dd>Comando fora da malha rejeita a sequência</dd>
+                <dt>Segurança</dt>
+                <dd>Comando fora rejeita sequência</dd>
               </div>
             </dl>
           </Panel>

@@ -36,15 +36,16 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   const cols = maxX + 1;
   const rows = maxY + 1;
 
-  const boardSize = 540;
-  const padLeft = 60;
+  const boardSize = 560;
+  const center = boardSize / 2;
+  const padLeft = 64;
   const padRight = 44;
-  const padTop = 44;
-  const padBottom = 58;
+  const padTop = 48;
+  const padBottom = 60;
 
   const usableWidth = boardSize - padLeft - padRight;
   const usableHeight = boardSize - padTop - padBottom;
-  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 74);
+  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 76);
 
   const gridWidth = cellSize * cols;
   const gridHeight = cellSize * rows;
@@ -64,7 +65,7 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
 
   const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
   const rotationDeg = DIRECTION_ROTATION_DEG[selectedProbe.direction];
-  const markerRadius = Math.max(Math.min(cellSize * 0.34, 20), 8);
+  const markerRadius = Math.max(Math.min(cellSize * 0.35, 22), 9);
 
   const colocatedCount = probes.filter(
     (probe) => probe.x === selectedProbe.x && probe.y === selectedProbe.y,
@@ -94,6 +95,7 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
 
         <Button
           variant="secondary"
+          className="btn-perspective"
           aria-pressed={is3DView}
           onClick={() => setIs3DView((current) => !current)}
         >
@@ -115,6 +117,49 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
             role="img"
             aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
           >
+            {/* Anéis orbitais no estilo do observatório espacial da imagem de referência */}
+            <g className="orbital-backdrop" aria-hidden="true">
+              <ellipse
+                cx={center}
+                cy={center}
+                rx={270}
+                ry={135}
+                transform={`rotate(-24 ${center} ${center})`}
+                className="orbit-ellipse orbit-ellipse-teal"
+              />
+              <ellipse
+                cx={center}
+                cy={center}
+                rx={270}
+                ry={135}
+                transform={`rotate(24 ${center} ${center})`}
+                className="orbit-ellipse orbit-ellipse-mars"
+              />
+              <circle
+                cx={center}
+                cy={center}
+                r={220}
+                className="orbit-circle-dashed"
+              />
+              <line
+                x1={center}
+                y1={12}
+                x2={center}
+                y2={boardSize - 12}
+                className="orbit-axis"
+              />
+              <line
+                x1={12}
+                y1={center}
+                x2={boardSize - 12}
+                y2={center}
+                className="orbit-axis"
+              />
+              <circle cx={center} cy={22} r={3.5} className="orbit-node-teal" />
+              <circle cx={center} cy={boardSize - 22} r={3.5} className="orbit-node-teal" />
+            </g>
+
+            {/* Projeção da Malha Tática Cartográfica com visual HUD espacial */}
             <rect
               x={originX}
               y={originY}
@@ -154,6 +199,7 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
                 );
               })}
 
+            {/* Linhas cruzadas de mira sobre a coordenada ativa */}
             <line
               x1={activeCell.cx}
               y1={originY}
@@ -250,17 +296,18 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
               );
             })}
 
+            {/* Marcador de Sonda com anel de pulso, mira e feixe direcional */}
             <g
               transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
               data-testid="active-probe-marker"
             >
               <g transform={`rotate(${rotationDeg})`}>
                 <polygon
-                  points={`0,0 ${-markerRadius * 1.1},${-markerRadius * 2.1} ${markerRadius * 1.1},${-markerRadius * 2.1}`}
+                  points={`0,0 ${-markerRadius * 1.1},${-markerRadius * 2.2} ${markerRadius * 1.1},${-markerRadius * 2.2}`}
                   className="probe-sensor-cone"
                 />
               </g>
-              <circle r={markerRadius * 1.38} className="probe-pulse-ring" />
+              <circle r={markerRadius * 1.4} className="probe-pulse-ring" />
               <circle r={markerRadius} className="probe-core" />
               <g transform={`rotate(${rotationDeg})`}>
                 <polygon
