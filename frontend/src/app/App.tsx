@@ -31,9 +31,10 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
       ) : null}
 
       <main className="observatory-grid-layout">
-        {/* Lado Esquerdo: TELEMETRIA & MATRIZ (Lançamento / Configuração) */}
+        {/* Lado Esquerdo: TELEMETRIA & MATRIZ + SONDAS ATIVAS (Cards 1 e 2) */}
         <aside className="pod-column pod-left">
           <LaunchProbeForm
+            selectedProbe={mission.selectedProbe}
             isSubmitting={mission.isLaunching}
             errorMessage={mission.launchError}
             onLaunch={mission.launchProbe}
@@ -53,7 +54,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           />
         </div>
 
-        {/* Lado Direito: COMANDOS DA SONDA (Instruções e Execução na API) */}
+        {/* Lado Direito: COMANDOS DA SONDA (Instruções e Execução) */}
         <aside className="pod-column pod-right">
           <CommandDeck
             selectedProbe={mission.selectedProbe}

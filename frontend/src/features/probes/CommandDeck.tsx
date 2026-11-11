@@ -142,22 +142,13 @@ export function CommandDeck({
           </div>
         </div>
 
-        {/* Visor de chamada REST API estilo Image 1 */}
-        <div className="api-endpoint-strip" aria-hidden="true">
-          <div className="endpoint-tag">
-            <span className="endpoint-icon">❖</span>
-            <span>POST /api/v1/probes/commands</span>
-          </div>
-          <span className="http-status-pill">200 OK</span>
-        </div>
-
         {errorMessage ? (
           <div className="alert alert-danger" role="alert">
             {errorMessage}
           </div>
         ) : null}
 
-        {/* Botão Laranja Executar na API estilo Image 1 */}
+        {/* Botão Laranja Transmitir Comandos estilo Image 1 */}
         <button
           type="submit"
           className="btn-exec-api"
@@ -166,9 +157,9 @@ export function CommandDeck({
         >
           <span className="pulse-white-dot" />
           <span className="btn-exec-title">
-            {isExecuting ? "EXECUTANDO..." : "EXECUTAR NA API"}
+            {isExecuting ? "TRANSMITINDO..." : "TRANSMITIR COMANDOS"}
           </span>
-          <span className="btn-exec-arrow">➤ DISPARAR</span>
+          <span className="btn-exec-arrow">DISPARAR ➤</span>
         </button>
       </form>
     </div>

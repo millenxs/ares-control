@@ -39,7 +39,7 @@ body {
 }
 
 /* ==========================================================================
-   Layout Principal: 3 Colunas Perfeitas com Marte no Meio (Image 1)
+   Layout Principal: 3 Colunas Simétricas com Marte Central (Image 1)
    ========================================================================== */
 .observatory-stage-frame {
   min-height: 100vh;
@@ -64,7 +64,7 @@ body {
 .pod-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   min-width: 0;
   z-index: 5;
 }
@@ -94,38 +94,52 @@ body {
   position: relative;
   background-color: #ffffff;
   border-radius: 20px;
-  padding: 24px;
+  padding: 22px 20px;
   color: #0f172a;
   box-shadow:
     0 25px 60px -10px rgba(0, 0, 0, 0.95),
     0 12px 24px -5px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.sci-card-compact {
-  padding: 16px 20px;
+.sci-card-probes {
+  padding: 16px 18px;
+  gap: 10px;
 }
 
-.compact-header {
+.probes-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.compact-title {
+.probes-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.probes-card-title {
   font-family: "Chakra Petch", var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+  color: #090d16;
+}
+
+.grid-sync-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   color: #64748b;
+  font-weight: 600;
 }
 
 .empty-fleet {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #94a3b8;
 }
 
@@ -193,10 +207,10 @@ body {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .compass-header {
@@ -337,7 +351,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 4px;
+  padding: 5px 4px;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
@@ -400,7 +414,7 @@ input {
   color: #090d16;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  padding: 0.6rem 0.75rem;
+  padding: 0.58rem 0.75rem;
   font-size: 0.92rem;
   transition: border-color 150ms ease;
 }
@@ -477,6 +491,64 @@ input:focus-visible {
 .btn-sync-coords:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Lista de Sondas em Card Separado estilo Image 1 */
+.probe-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.probe-row-btn {
+  width: 100%;
+  text-align: left;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #0f172a;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 120ms ease;
+}
+
+.probe-row-btn:hover {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.probe-row-selected {
+  border-color: #0ea5e9;
+  background-color: #f0f9ff;
+  box-shadow: 0 0 0 1px #0ea5e9;
+}
+
+.probe-left-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.probe-bullet {
+  color: #0ea5e9;
+  font-weight: 700;
+}
+
+.probe-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.probe-right-info {
+  color: #64748b;
+  font-size: 0.74rem;
 }
 
 /* ==========================================================================
@@ -631,39 +703,6 @@ input:focus-visible {
   flex: 0 0 65px;
   color: #64748b;
   border-color: #e2e8f0;
-}
-
-.api-endpoint-strip {
-  background-color: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-
-.endpoint-tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #c2410c;
-  font-weight: 700;
-}
-
-.endpoint-icon {
-  font-size: 0.85rem;
-}
-
-.http-status-pill {
-  background-color: #dcfce7;
-  border: 1px solid #86efac;
-  color: #15803d;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
 }
 
 .btn-exec-api {
@@ -916,12 +955,40 @@ input:focus-visible {
   z-index: 1;
 }
 
+.mars-canvas-container {
+  width: 100%;
+  height: 100%;
+}
+
+.mars-canvas-fallback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mars-fallback-sphere {
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 35% 28%,
+      #f08b57 0%,
+      #c94f2c 38%,
+      #8c2c19 68%,
+      #050202 96%
+    );
+  box-shadow:
+    inset -32px -32px 52px #050202,
+    0 0 55px rgba(234, 88, 12, 0.35);
+}
+
 /* Caixa HUD estilo Image 1 */
 .planalto-hud-box {
   position: relative;
   z-index: 4;
   width: 480px;
-  background: rgba(3, 10, 18, 0.86);
+  background: rgba(3, 10, 18, 0.88);
   border: 1.5px solid #0891b2;
   border-radius: 14px;
   padding: 14px 16px;
@@ -963,7 +1030,7 @@ input:focus-visible {
   color: #10b981;
 }
 
-/* Abas Cardinais posicionadas nas bordas do HUD */
+/* Abas Cardinais nas bordas do HUD */
 .hud-cardinal-tag {
   position: absolute;
   font-family: var(--font-mono);
@@ -1114,7 +1181,7 @@ input:focus-visible {
   border-radius: 6px;
 }
 
-/* Telemetria HUD Flutuante */
+/* Telemetria HUD Flutuante no Topo */
 .observatory-telemetry-hud {
   display: flex;
   flex-wrap: wrap;

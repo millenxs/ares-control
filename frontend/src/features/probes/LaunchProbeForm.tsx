@@ -1,5 +1,5 @@
-import { type FormEvent, useState } from "react";
-import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
+import { type FormEvent, useEffect, useState } from "react";
+import type { Direction, LaunchProbeInput, Probe } from "../../shared/api/probesApi";
 
 const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = [
   { value: "NORTH", key: "N", label: "NORTH" },
@@ -9,12 +9,14 @@ const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = 
 ];
 
 interface LaunchProbeFormProps {
+  selectedProbe: Probe | null;
   isSubmitting: boolean;
   errorMessage: string | null;
   onLaunch: (input: LaunchProbeInput) => Promise<void>;
 }
 
 export function LaunchProbeForm({
+  selectedProbe,
   isSubmitting,
   errorMessage,
   onLaunch,
@@ -26,6 +28,14 @@ export function LaunchProbeForm({
   const [fixedOrigin, setFixedOrigin] = useState(true);
   const [boundsRule, setBoundsRule] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedProbe) {
+      setMaxX(String(selectedProbe.plateau.max_x));
+      setMaxY(String(selectedProbe.plateau.max_y));
+      setDirection(selectedProbe.direction);
+    }
+  }, [selectedProbe]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,6 +64,10 @@ export function LaunchProbeForm({
   const numX = Number(maxX) || 0;
   const numY = Number(maxY) || 0;
 
+  const currentX = selectedProbe ? selectedProbe.x : 0;
+  const currentY = selectedProbe ? selectedProbe.y : 0;
+  const currentFace = selectedProbe ? selectedProbe.direction : direction;
+
   return (
     <div className="sci-card" aria-label="Telemetria & Matriz">
       {/* Top Header estilo Image 1 */}
@@ -74,7 +88,7 @@ export function LaunchProbeForm({
 
       <h2 className="sci-card-title">TELEMETRIA & MATRIZ</h2>
 
-      {/* Bússola Digital com Seletores N, E, S, W estilo Image 1 */}
+      {/* Bússola Digital estilo Image 1 */}
       <div className="compass-section">
         <div className="compass-header">
           <span className="compass-label">BÚSSOLA DIGITAL</span>
@@ -83,7 +97,7 @@ export function LaunchProbeForm({
 
         <div className="compass-tiles-row" role="radiogroup" aria-label="Direção inicial">
           {DIRECTIONS.map((dir) => {
-            const isSelected = direction === dir.value;
+            const isSelected = currentFace === dir.value;
             return (
               <button
                 key={dir.value}
@@ -171,10 +185,10 @@ export function LaunchProbeForm({
           </div>
         </div>
 
-        {/* Inputs de Configuração da Malha */}
+        {/* Inputs de Configuração dos Limites da Malha */}
         <div className="field-row">
           <label className="field-mini">
-            <span className="field-mini-label">Limite X máximo</span>
+            <span className="field-mini-label">LIMITE X MÁXIMO</span>
             <input
               type="number"
               min={0}
@@ -182,11 +196,12 @@ export function LaunchProbeForm({
               value={maxX}
               onChange={(e) => setMaxX(e.target.value)}
               disabled={isSubmitting}
+              aria-label="Limite X máximo"
               required
             />
           </label>
           <label className="field-mini">
-            <span className="field-mini-label">Limite Y máximo</span>
+            <span className="field-mini-label">LIMITE Y MÁXIMO</span>
             <input
               type="number"
               min={0}
@@ -194,24 +209,29 @@ export function LaunchProbeForm({
               value={maxY}
               onChange={(e) => setMaxY(e.target.value)}
               disabled={isSubmitting}
+              aria-label="Limite Y máximo"
               required
             />
           </label>
         </div>
 
-        {/* Faixa Preta de Coordenadas Atuais estilo Image 1 */}
+        {/* Faixa Preta de Coordenadas em Tempo Real estilo Image 1 */}
         <div className="coord-black-strip" aria-hidden="true">
           <div className="coord-item">
             <span className="coord-k">COORD X</span>
-            <span className="coord-v">00 / {String(numX).padStart(2, "0")}</span>
+            <span className="coord-v">
+              {String(currentX).padStart(2, "0")} / {String(numX).padStart(2, "0")}
+            </span>
           </div>
           <div className="coord-item">
             <span className="coord-k">COORD Y</span>
-            <span className="coord-v">00 / {String(numY).padStart(2, "0")}</span>
+            <span className="coord-v">
+              {String(currentY).padStart(2, "0")} / {String(numY).padStart(2, "0")}
+            </span>
           </div>
           <div className="coord-item">
             <span className="coord-k">FACE</span>
-            <span className="coord-v green-face">{direction}</span>
+            <span className="coord-v green-face">{currentFace}</span>
           </div>
         </div>
 
@@ -221,7 +241,7 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        {/* Botão Escuro estilo SINCRONIZAR COORDENADAS da Image 1 */}
+        {/* Botão Sincronizar Coordenadas / Lançar estilo Image 1 */}
         <button
           type="submit"
           className="btn-sync-coords"
