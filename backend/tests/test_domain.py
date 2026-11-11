@@ -3,15 +3,21 @@
 import pytest
 
 from ares_control.domain import (
+    Command,
     Direction,
+    ErrorCode,
     InvalidCommandError,
     InvalidDirectionError,
     InvalidPlateauError,
+    InvalidPositionError,
+    InvalidProbeIdError,
+    InvalidProbePlacementError,
     OutOfBoundsError,
     Plateau,
     Position,
     Probe,
     execute_commands,
+    parse_commands,
 )
 
 
@@ -131,14 +137,60 @@ def test_zero_sized_plateau_allows_rotation_and_rejects_movement() -> None:
 def test_plateau_and_position_reject_non_strict_or_negative_integers(
     invalid_value: object,
 ) -> None:
-    with pytest.raises(InvalidPlateauError):
+    with pytest.raises(InvalidPlateauError) as plateau_exc:
         Plateau(max_x=invalid_value, max_y=5)  # type: ignore[arg-type]
+    assert plateau_exc.value.code == ErrorCode.INVALID_PLATEAU
 
     with pytest.raises(InvalidPlateauError):
         Plateau(max_x=5, max_y=invalid_value)  # type: ignore[arg-type]
 
-    with pytest.raises(InvalidPlateauError):
+    with pytest.raises(InvalidPositionError) as position_exc:
         Position(x=invalid_value, y=0)  # type: ignore[arg-type]
+    assert position_exc.value.code == ErrorCode.INVALID_POSITION
+
+    with pytest.raises(InvalidPositionError):
+        Position(x=0, y=invalid_value)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("invalid_id", ["", "   ", None, 123])
+def test_probe_rejects_invalid_id(invalid_id: object) -> None:
+    with pytest.raises(InvalidProbeIdError) as exc_info:
+        Probe(
+            id=invalid_id,  # type: ignore[arg-type]
+            position=Position(0, 0),
+            direction=Direction.NORTH,
+            plateau=Plateau(5, 5),
+        )
+
+    assert exc_info.value.code == ErrorCode.INVALID_PROBE_ID
+    assert exc_info.value.details == {"id": invalid_id}
+
+
+def test_probe_rejects_initial_position_outside_plateau_without_command_index() -> None:
+    with pytest.raises(InvalidProbePlacementError) as exc_info:
+        Probe(
+            id="probe-1",
+            position=Position(6, 2),
+            direction=Direction.NORTH,
+            plateau=Plateau(5, 5),
+        )
+
+    assert exc_info.value.code == ErrorCode.INVALID_PROBE_PLACEMENT
+    assert exc_info.value.details == {"x": 6, "y": 2, "max_x": 5, "max_y": 5}
+    assert "index" not in exc_info.value.details
+
+
+def test_parse_commands_returns_typed_command_sequence() -> None:
+    assert parse_commands("MLR") == (Command.MOVE, Command.LEFT, Command.RIGHT)
+
+
+@pytest.mark.parametrize("direction", list(Direction))
+def test_full_rotations_and_round_trip_preserve_probe_state(direction: Direction) -> None:
+    probe = make_probe(x=2, y=2, direction=direction, max_x=5, max_y=5)
+
+    assert execute_commands(probe, "LLLL") == probe
+    assert execute_commands(probe, "RRRR") == probe
+    assert execute_commands(probe, "MLLMLL") == probe
 
 
 @pytest.mark.parametrize("raw_direction", ["north", "N", "", None, 123])
