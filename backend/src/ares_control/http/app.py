@@ -6,7 +6,7 @@ from threading import Lock
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from ares_control.application import ExecuteCommands, LaunchProbe, ListProbes
 from ares_control.domain import DomainError, ErrorCode
@@ -59,10 +59,15 @@ def create_app(
     application.add_middleware(
         CORSMiddleware,
         allow_origins=_parse_cors_origins(),
+        allow_origin_regex=r"^https://.*\.vercel\.app$",
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type"],
     )
+
+    @application.get("/", include_in_schema=False)
+    def redirect_root_to_docs() -> RedirectResponse:
+        return RedirectResponse(url="/docs")
 
     @application.exception_handler(DomainError)
     def handle_domain_error(_request: Request, exc: DomainError) -> JSONResponse:
