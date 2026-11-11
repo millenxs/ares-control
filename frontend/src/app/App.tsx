@@ -17,7 +17,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
   const mission = useMissionControl(apiClient);
 
   return (
-    <div className="observatory-viewport">
+    <div className="observatory-stage-frame">
       {mission.initialError ? (
         <div className="alert alert-danger global-alert" role="alert">
           <span>{mission.initialError}</span>
@@ -30,14 +30,13 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
         </div>
       ) : null}
 
-      <main className="observatory-stage-grid">
-        {/* Asa Esquerda: CONTROLE DE COMANDO */}
-        <aside className="wing-column wing-left">
-          <CommandDeck
-            selectedProbe={mission.selectedProbe}
-            isExecuting={mission.isExecuting}
-            errorMessage={mission.commandError}
-            onExecuteCommands={mission.executeCommands}
+      <main className="observatory-grid-layout">
+        {/* Lado Esquerdo: TELEMETRIA & MATRIZ (Lançamento / Configuração) */}
+        <aside className="pod-column pod-left">
+          <LaunchProbeForm
+            isSubmitting={mission.isLaunching}
+            errorMessage={mission.launchError}
+            onLaunch={mission.launchProbe}
           />
           <ProbeList
             probes={mission.probes}
@@ -46,20 +45,21 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           />
         </aside>
 
-        {/* Centro: MARTE EM 3D NO ESPAÇO TOTAL COM ÓRBITAS E HUD CARTOGRÁFICO */}
-        <div className="center-stage-column">
+        {/* Centro: MARTE 3D NO ESPAÇO + HUD DO PLANALTO MARCIANO */}
+        <div className="pod-center-column">
           <MissionOverview
             selectedProbe={mission.selectedProbe}
             probes={mission.probes}
           />
         </div>
 
-        {/* Asa Direita: LANÇAMENTO DE SONDA */}
-        <aside className="wing-column wing-right">
-          <LaunchProbeForm
-            isSubmitting={mission.isLaunching}
-            errorMessage={mission.launchError}
-            onLaunch={mission.launchProbe}
+        {/* Lado Direito: COMANDOS DA SONDA (Instruções e Execução na API) */}
+        <aside className="pod-column pod-right">
+          <CommandDeck
+            selectedProbe={mission.selectedProbe}
+            isExecuting={mission.isExecuting}
+            errorMessage={mission.commandError}
+            onExecuteCommands={mission.executeCommands}
           />
         </aside>
       </main>

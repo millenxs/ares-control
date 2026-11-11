@@ -8,26 +8,12 @@ interface PlateauMapProps {
   probes: Probe[];
 }
 
-const DIRECTION_ROTATION_DEG: Record<Direction, number> = {
-  NORTH: 0,
-  EAST: 90,
-  SOUTH: 180,
-  WEST: 270,
+const DIRECTION_ARROWS: Record<Direction, string> = {
+  NORTH: "▲",
+  EAST: "►",
+  SOUTH: "▼",
+  WEST: "◄",
 };
-
-function buildAxisTicks(maxCoordinate: number): number[] {
-  const totalPositions = maxCoordinate + 1;
-  if (totalPositions <= 12) {
-    return Array.from({ length: totalPositions }, (_, index) => index);
-  }
-  const step = Math.ceil(maxCoordinate / 10);
-  const ticks: number[] = [];
-  for (let value = 0; value < maxCoordinate; value += step) {
-    ticks.push(value);
-  }
-  ticks.push(maxCoordinate);
-  return ticks;
-}
 
 export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   const [is3DView, setIs3DView] = useState(true);
@@ -36,303 +22,226 @@ export function PlateauMap({ selectedProbe, probes }: PlateauMapProps) {
   const cols = maxX + 1;
   const rows = maxY + 1;
 
-  const boardSize = 560;
-  const center = boardSize / 2;
-  const padLeft = 64;
-  const padRight = 44;
-  const padTop = 48;
-  const padBottom = 60;
-
-  const usableWidth = boardSize - padLeft - padRight;
-  const usableHeight = boardSize - padTop - padBottom;
-  const cellSize = Math.min(usableWidth / cols, usableHeight / rows, 76);
-
+  const boardSize = 480;
+  const cellSize = Math.min(boardSize / Math.max(cols, rows), 72);
   const gridWidth = cellSize * cols;
   const gridHeight = cellSize * rows;
-  const originX = padLeft + (usableWidth - gridWidth) / 2;
-  const originY = padTop + (usableHeight - gridHeight) / 2;
-
-  const xTicks = buildAxisTicks(maxX);
-  const yTicks = buildAxisTicks(maxY);
-
-  function cellCenter(x: number, y: number): { cx: number; cy: number } {
-    const invertedRow = maxY - y;
-    return {
-      cx: originX + (x + 0.5) * cellSize,
-      cy: originY + (invertedRow + 0.5) * cellSize,
-    };
-  }
-
-  const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
-  const rotationDeg = DIRECTION_ROTATION_DEG[selectedProbe.direction];
-  const markerRadius = Math.max(Math.min(cellSize * 0.35, 22), 9);
-
-  const colocatedCount = probes.filter(
-    (probe) => probe.x === selectedProbe.x && probe.y === selectedProbe.y,
-  ).length;
 
   const otherVisibleProbes = probes.filter(
-    (probe) =>
-      probe.id !== selectedProbe.id &&
-      probe.x <= maxX &&
-      probe.y <= maxY &&
-      !(probe.x === selectedProbe.x && probe.y === selectedProbe.y),
+    (p) =>
+      p.id !== selectedProbe.id &&
+      p.x <= maxX &&
+      p.y <= maxY &&
+      !(p.x === selectedProbe.x && p.y === selectedProbe.y),
   );
 
-  return (
-    <div className="plateau-stage">
-      <div className="plateau-stage-bar">
-        <div className="plateau-stage-meta">
-          <span className="plateau-stage-caption">
-            Malha Cartográfica · Origem (0, 0) no canto inferior esquerdo ·
-            Norte (↑) no topo
-          </span>
-          <span className="plateau-stage-bounds">
-            Posição ({selectedProbe.x}, {selectedProbe.y}, {selectedProbe.direction}) ·
-            Limites [0..{maxX}, 0..{maxY}]
-          </span>
-        </div>
+  const colocatedCount = probes.filter(
+    (p) => p.x === selectedProbe.x && p.y === selectedProbe.y,
+  ).length;
 
-        <Button
-          variant="secondary"
-          className="btn-perspective"
-          aria-pressed={is3DView}
-          onClick={() => setIs3DView((current) => !current)}
-        >
-          {is3DView ? "Perspectiva: 3D" : "Perspectiva: 2D"}
-        </Button>
+  return (
+    <div className="planalto-hud-container">
+      {/* Top Orbit Tag estilo Image 1 */}
+      <div className="explorer-orbit-pill" aria-label="Status orbital da sonda">
+        <span className="dot-cyan" />
+        <span>
+          EXPLORER SONDA // PLANALTO ({selectedProbe.x}, {selectedProbe.y},{" "}
+          {selectedProbe.direction})
+        </span>
+        <span className="sep-line">|</span>
+        <span className="malha-highlight">
+          MALHA {maxX}x{maxY}
+        </span>
       </div>
 
       <div
-        className={`mars-arena ${is3DView ? "mars-arena-3d" : "mars-arena-2d"}`}
+        className={`mars-arena-viewport ${is3DView ? "view-perspective-3d" : "view-perspective-2d"}`}
       >
-        <div className="mars-backdrop-orbit" aria-hidden="true">
+        {/* Globo 3D de Marte e anéis orbitais no fundo */}
+        <div className="mars-space-backdrop" aria-hidden="true">
           <MarsCanvas3D />
-        </div>
-
-        <div className="plateau-board-deck">
-          <svg
-            className="plateau-svg"
-            viewBox={`0 0 ${boardSize} ${boardSize}`}
-            role="img"
-            aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
-          >
-            {/* Anéis orbitais no estilo do observatório espacial da imagem de referência */}
-            <g className="orbital-backdrop" aria-hidden="true">
-              <ellipse
-                cx={center}
-                cy={center}
-                rx={270}
-                ry={135}
-                transform={`rotate(-24 ${center} ${center})`}
-                className="orbit-ellipse orbit-ellipse-teal"
-              />
-              <ellipse
-                cx={center}
-                cy={center}
-                rx={270}
-                ry={135}
-                transform={`rotate(24 ${center} ${center})`}
-                className="orbit-ellipse orbit-ellipse-mars"
-              />
-              <circle
-                cx={center}
-                cy={center}
-                r={220}
-                className="orbit-circle-dashed"
-              />
-              <line
-                x1={center}
-                y1={12}
-                x2={center}
-                y2={boardSize - 12}
-                className="orbit-axis"
-              />
-              <line
-                x1={12}
-                y1={center}
-                x2={boardSize - 12}
-                y2={center}
-                className="orbit-axis"
-              />
-              <circle cx={center} cy={22} r={3.5} className="orbit-node-teal" />
-              <circle cx={center} cy={boardSize - 22} r={3.5} className="orbit-node-teal" />
-            </g>
-
-            {/* Projeção da Malha Tática Cartográfica com visual HUD espacial */}
-            <rect
-              x={originX}
-              y={originY}
-              width={gridWidth}
-              height={gridHeight}
-              className="plateau-surface"
-              rx={6}
+          <svg className="space-orbits-svg" viewBox="0 0 600 600">
+            <ellipse
+              cx="300"
+              cy="300"
+              rx="285"
+              ry="140"
+              transform="rotate(-26 300 300)"
+              className="orbit-dashed-teal"
             />
-
-            {cols <= 20 &&
-              Array.from({ length: cols + 1 }, (_, colIndex) => {
-                const xPos = originX + colIndex * cellSize;
-                return (
-                  <line
-                    key={`v-${colIndex}`}
-                    x1={xPos}
-                    y1={originY}
-                    x2={xPos}
-                    y2={originY + gridHeight}
-                    className="grid-line"
-                  />
-                );
-              })}
-
-            {rows <= 20 &&
-              Array.from({ length: rows + 1 }, (_, rowIndex) => {
-                const yPos = originY + rowIndex * cellSize;
-                return (
-                  <line
-                    key={`h-${rowIndex}`}
-                    x1={originX}
-                    y1={yPos}
-                    x2={originX + gridWidth}
-                    y2={yPos}
-                    className="grid-line"
-                  />
-                );
-              })}
-
-            {/* Linhas cruzadas de mira sobre a coordenada ativa */}
-            <line
-              x1={activeCell.cx}
-              y1={originY}
-              x2={activeCell.cx}
-              y2={originY + gridHeight}
-              className="target-crosshair"
-              aria-hidden="true"
+            <ellipse
+              cx="300"
+              cy="300"
+              rx="285"
+              ry="140"
+              transform="rotate(26 300 300)"
+              className="orbit-dashed-orange"
             />
-            <line
-              x1={originX}
-              y1={activeCell.cy}
-              x2={originX + gridWidth}
-              y2={activeCell.cy}
-              className="target-crosshair"
-              aria-hidden="true"
-            />
-
-            <rect
-              x={activeCell.cx - cellSize / 2}
-              y={activeCell.cy - cellSize / 2}
-              width={cellSize}
-              height={cellSize}
-              className="active-cell"
-            />
-
-            {xTicks.map((xValue) => {
-              const { cx } = cellCenter(xValue, 0);
-              return (
-                <text
-                  key={`xlabel-${xValue}`}
-                  x={cx}
-                  y={originY + gridHeight + 22}
-                  textAnchor="middle"
-                  className="axis-tick"
-                >
-                  {xValue}
-                </text>
-              );
-            })}
-
-            {yTicks.map((yValue) => {
-              const { cy } = cellCenter(0, yValue);
-              return (
-                <text
-                  key={`ylabel-${yValue}`}
-                  x={originX - 12}
-                  y={cy + 4}
-                  textAnchor="end"
-                  className="axis-tick"
-                >
-                  {yValue}
-                </text>
-              );
-            })}
-
-            <text
-              x={originX + gridWidth / 2}
-              y={boardSize - 12}
-              textAnchor="middle"
-              className="axis-title"
-            >
-              Eixo X (0 → {maxX})
-            </text>
-
-            <text
-              x={18}
-              y={originY + gridHeight / 2}
-              textAnchor="middle"
-              transform={`rotate(-90 18 ${originY + gridHeight / 2})`}
-              className="axis-title"
-            >
-              Eixo Y (0 → {maxY})
-            </text>
-
-            <text
-              x={originX + gridWidth}
-              y={originY - 12}
-              textAnchor="end"
-              className="corner-coordinate"
-            >
-              ({maxX}, {maxY})
-            </text>
-
-            {otherVisibleProbes.map((other) => {
-              const pos = cellCenter(other.x, other.y);
-              return (
-                <g
-                  key={other.id}
-                  transform={`translate(${pos.cx}, ${pos.cy})`}
-                  className="secondary-probe-marker"
-                >
-                  <circle r={Math.max(markerRadius * 0.45, 4)} />
-                </g>
-              );
-            })}
-
-            {/* Marcador de Sonda com anel de pulso, mira e feixe direcional */}
-            <g
-              transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
-              data-testid="active-probe-marker"
-            >
-              <g transform={`rotate(${rotationDeg})`}>
-                <polygon
-                  points={`0,0 ${-markerRadius * 1.1},${-markerRadius * 2.2} ${markerRadius * 1.1},${-markerRadius * 2.2}`}
-                  className="probe-sensor-cone"
-                />
-              </g>
-              <circle r={markerRadius * 1.4} className="probe-pulse-ring" />
-              <circle r={markerRadius} className="probe-core" />
-              <g transform={`rotate(${rotationDeg})`}>
-                <polygon
-                  points={`0,${-markerRadius * 0.78} ${markerRadius * 0.56},${markerRadius * 0.58} 0,${markerRadius * 0.25} ${-markerRadius * 0.56},${markerRadius * 0.58}`}
-                  className="probe-heading-arrow"
-                />
-              </g>
-            </g>
-
-            {colocatedCount > 1 ? (
-              <g
-                transform={`translate(${activeCell.cx + markerRadius * 0.95}, ${activeCell.cy - markerRadius * 0.95})`}
-              >
-                <circle r={9} className="colocated-badge-bg" />
-                <text
-                  y={3.5}
-                  textAnchor="middle"
-                  className="colocated-badge-text"
-                >
-                  {colocatedCount}
-                </text>
-              </g>
-            ) : null}
+            <circle cx="300" cy="18" r="4.5" className="orbit-cyan-node" />
+            <circle cx="300" cy="582" r="4.5" className="orbit-cyan-node" />
           </svg>
         </div>
+
+        {/* HUD Box Central estilo Image 1 */}
+        <div className="planalto-hud-box">
+          {/* Header do HUD */}
+          <div className="hud-box-header">
+            <span className="hud-title-grid">
+              PLANALTO MARCIANO // GRID {maxX}x{maxY}
+            </span>
+            <div className="hud-safe-tag">
+              <span className="dot-green" />
+              <span>LIMITE SEGURO [0..{maxX}]</span>
+            </div>
+          </div>
+
+          {/* Abas Cardinais nas Bordas */}
+          <div className="hud-cardinal-tag tag-north">
+            ▲ NORTH (Y max: {maxY})
+          </div>
+          <div className="hud-cardinal-tag tag-west">
+            ◄ WEST (X: 0)
+          </div>
+          <div className="hud-cardinal-tag tag-east">
+            EAST (X: {maxX}) ►
+          </div>
+          <div className="hud-cardinal-tag tag-south">
+            ▼ SOUTH (Y: 0)
+          </div>
+
+          {/* SVG com as células numeradas e o marcador ativo estilo Image 1 */}
+          <div className="hud-grid-wrapper">
+            <svg
+              className="planalto-svg"
+              viewBox={`0 0 ${gridWidth} ${gridHeight}`}
+              role="img"
+              aria-label={`Malha da sonda ${selectedProbe.id} com limites (${maxX}, ${maxY}), posição (${selectedProbe.x}, ${selectedProbe.y}) e direção ${selectedProbe.direction}`}
+            >
+              {/* Células da malha (da linha maxY até 0) */}
+              {Array.from({ length: rows }, (_, rIdx) => {
+                const yCoord = maxY - rIdx;
+                return Array.from({ length: cols }, (_, cIdx) => {
+                  const xCoord = cIdx;
+                  const xPos = cIdx * cellSize;
+                  const yPos = rIdx * cellSize;
+                  const isActive =
+                    xCoord === selectedProbe.x && yCoord === selectedProbe.y;
+
+                  if (isActive) {
+                    return null;
+                  }
+
+                  return (
+                    <g key={`cell-${xCoord}-${yCoord}`}>
+                      <rect
+                        x={xPos + 2}
+                        y={yPos + 2}
+                        width={cellSize - 4}
+                        height={cellSize - 4}
+                        className="hud-cell-bg"
+                        rx={3}
+                      />
+                      <text
+                        x={xPos + cellSize / 2}
+                        y={yPos + cellSize / 2 + 4}
+                        textAnchor="middle"
+                        className="hud-cell-coords"
+                      >
+                        {xCoord},{yCoord}
+                      </text>
+                    </g>
+                  );
+                });
+              })}
+
+              {/* Sondas secundárias */}
+              {otherVisibleProbes.map((p) => {
+                const xPos = p.x * cellSize + cellSize / 2;
+                const yPos = (maxY - p.y) * cellSize + cellSize / 2;
+                return (
+                  <circle
+                    key={p.id}
+                    cx={xPos}
+                    cy={yPos}
+                    r={Math.max(cellSize * 0.22, 6)}
+                    className="secondary-probe-dot"
+                  />
+                );
+              })}
+
+              {/* Célula Ativa da Sonda em Destaque Neon estilo Image 1 */}
+              {(() => {
+                const activeXPos = selectedProbe.x * cellSize;
+                const activeYPos = (maxY - selectedProbe.y) * cellSize;
+                const arrow = DIRECTION_ARROWS[selectedProbe.direction];
+                const dirCode = selectedProbe.direction[0];
+
+                return (
+                  <g
+                    transform={`translate(${activeXPos}, ${activeYPos})`}
+                    data-testid="active-probe-marker"
+                  >
+                    <rect
+                      x={2}
+                      y={2}
+                      width={cellSize - 4}
+                      height={cellSize - 4}
+                      className="hud-cell-active"
+                      rx={4}
+                    />
+                    <circle cx={4} cy={4} r={2} className="corner-pip" />
+                    <text
+                      x={cellSize / 2}
+                      y={cellSize / 2 - 3}
+                      textAnchor="middle"
+                      className="active-arrow-text"
+                    >
+                      {arrow}
+                    </text>
+                    <text
+                      x={cellSize / 2}
+                      y={cellSize / 2 + 13}
+                      textAnchor="middle"
+                      className="active-coord-text"
+                    >
+                      {selectedProbe.x},{selectedProbe.y}-{dirCode}
+                    </text>
+
+                    {colocatedCount > 1 ? (
+                      <g transform={`translate(${cellSize - 12}, 6)`}>
+                        <circle r={7} className="colocated-pip" />
+                        <text y={3} textAnchor="middle" className="colocated-txt">
+                          {colocatedCount}
+                        </text>
+                      </g>
+                    ) : null}
+                  </g>
+                );
+              })()}
+            </svg>
+          </div>
+
+          {/* Footer do HUD */}
+          <div className="hud-box-footer">
+            <span className="hud-origin-tag">
+              ORIGEM: POUSO CONCLUÍDO (0, 0)
+            </span>
+            <span className="hud-probe-id">
+              PROBE: {selectedProbe.id.slice(0, 6).toUpperCase()} ACTIVE
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="hud-view-toggle">
+        <Button
+          variant="secondary"
+          className="btn-hud-toggle"
+          aria-pressed={is3DView}
+          onClick={() => setIs3DView((v) => !v)}
+        >
+          {is3DView ? "Perspectiva: 3D" : "Perspectiva: 2D"}
+        </Button>
       </div>
     </div>
   );

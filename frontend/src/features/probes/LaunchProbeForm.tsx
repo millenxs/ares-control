@@ -1,11 +1,11 @@
 import { type FormEvent, useState } from "react";
 import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
 
-const DIRECTIONS: readonly { value: Direction; label: string }[] = [
-  { value: "NORTH", label: "NORTH (Norte)" },
-  { value: "EAST", label: "EAST (Leste)" },
-  { value: "SOUTH", label: "SOUTH (Sul)" },
-  { value: "WEST", label: "WEST (Oeste)" },
+const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = [
+  { value: "NORTH", key: "N", label: "NORTH" },
+  { value: "EAST", key: "E", label: "EAST" },
+  { value: "SOUTH", key: "S", label: "SOUTH" },
+  { value: "WEST", key: "W", label: "WEST" },
 ];
 
 interface LaunchProbeFormProps {
@@ -22,7 +22,9 @@ export function LaunchProbeForm({
   const [maxX, setMaxX] = useState("5");
   const [maxY, setMaxY] = useState("5");
   const [direction, setDirection] = useState<Direction>("NORTH");
-  const [safetyLock, setSafetyLock] = useState(true);
+  const [fallLock, setFallLock] = useState(true);
+  const [fixedOrigin, setFixedOrigin] = useState(true);
+  const [boundsRule, setBoundsRule] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -49,91 +51,127 @@ export function LaunchProbeForm({
   }
 
   const displayedError = validationError ?? errorMessage;
+  const numX = Number(maxX) || 0;
+  const numY = Number(maxY) || 0;
 
   return (
-    <div className="sci-card" aria-label="Lançamento de Sonda">
+    <div className="sci-card" aria-label="Telemetria & Matriz">
       {/* Top Header estilo Image 1 */}
       <div className="sci-card-header">
-        <div className="sci-pill-badge badge-amber-payload">
-          <span className="dot-teal" />
-          <span>PAYLOAD</span>
+        <div className="sci-pill-badge badge-dark-mod">
+          <span className="dot-green" />
+          <span>SONDA // ROVER</span>
           <span className="sep">•</span>
-          <span>PRONTO</span>
+          <span>POUSO EM (0,0)</span>
         </div>
         <div className="sci-icon-btn" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
           </svg>
         </div>
       </div>
 
-      <h2 className="sci-card-title">LANÇAMENTO DE SONDA</h2>
+      <h2 className="sci-card-title">TELEMETRIA & MATRIZ</h2>
 
-      {/* Visor de Telemetria de Carga e Propulsão estilo Image 1 */}
-      <div className="telemetry-box" aria-hidden="true">
-        <div className="telemetry-box-header">
-          <span>ARES EXPLORER V</span>
-          <span className="green-val">100% OK</span>
-        </div>
-        <div className="telemetry-progress-line">
-          <div className="progress-label-row">
-            <span>CARGA RTG</span>
-            <span className="bold-val">98.4%</span>
-          </div>
-          <div className="progress-track">
-            <div className="progress-bar-fill progress-blue" style={{ width: "98.4%" }} />
-          </div>
+      {/* Bússola Digital com Seletores N, E, S, W estilo Image 1 */}
+      <div className="compass-section">
+        <div className="compass-header">
+          <span className="compass-label">BÚSSOLA DIGITAL</span>
+          <span className="compass-active-tag">DIREÇÃO ATIVA</span>
         </div>
 
-        <div className="status-duo-grid">
-          <div className="status-chip">
-            <span className="chip-label">DESACOPLAMENTO</span>
-            <span className="chip-value-green">ARMADO</span>
+        <div className="compass-tiles-row" role="radiogroup" aria-label="Direção inicial">
+          {DIRECTIONS.map((dir) => {
+            const isSelected = direction === dir.value;
+            return (
+              <button
+                key={dir.value}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                className={`compass-tile ${isSelected ? "tile-selected" : ""}`}
+                onClick={() => setDirection(dir.value)}
+              >
+                <span className="tile-letter">{dir.key}</span>
+                <span className="tile-sub">{dir.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="compass-stats-row">
+          <div className="stat-col">
+            <span className="stat-micro-lbl">ALTITUDE SOLO</span>
+            <span className="stat-micro-val">
+              0.0 m <span className="green-txt">POUSADO</span>
+            </span>
           </div>
-          <div className="status-chip">
-            <span className="chip-label">RETROFOGUETES</span>
-            <span className="chip-value-green">PRESSURIZ.</span>
+          <div className="stat-col text-right">
+            <span className="stat-micro-lbl">VETOR TRAÇÃO</span>
+            <span className="stat-micro-val">
+              {numX + 1}x{numY + 1} <span className="nom-txt">NOMINAL</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Janela de Ejeção e Delta-V estilo Image 1 */}
-      <div className="ejection-window-box" aria-hidden="true">
-        <div className="ejection-stat">
-          <span className="ejection-label">JANELA DE EJEÇÃO</span>
-          <span className="ejection-timer">00:04:35</span>
-        </div>
-        <div className="ejection-stat text-right">
-          <span className="ejection-label">DELTA-V</span>
-          <span className="delta-val">1.420 <small>m/s</small></span>
-        </div>
-      </div>
+      {/* Matriz de Regras e Segurança estilo Image 1 */}
+      <form onSubmit={handleSubmit} noValidate className="matrix-form">
+        <div className="rules-section">
+          <span className="section-mini-heading">MATRIZ DE REGRAS E SEGURANÇA</span>
+          <div className="rules-list">
+            <label className="rule-row">
+              <span className="rule-info">
+                <svg className="rule-icon check-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span>TRAVA CONTRA QUEDA</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={fallLock}
+                onChange={(e) => setFallLock(e.target.checked)}
+                className="system-checkbox"
+              />
+            </label>
 
-      {/* Trava de Segurança Toggle estilo Image 1 */}
-      <div className="safety-lock-bar">
-        <div className="lock-label-group">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          <span>TRAVA DE SEGURANÇA</span>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={safetyLock}
-          onClick={() => setSafetyLock((v) => !v)}
-          className={`toggle-switch ${safetyLock ? "toggle-on" : "toggle-off"}`}
-        >
-          <span className="toggle-thumb" />
-        </button>
-      </div>
+            <label className="rule-row">
+              <span className="rule-info">
+                <svg className="rule-icon pin-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>ORIGEM FIXA (0,0)</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={fixedOrigin}
+                onChange={(e) => setFixedOrigin(e.target.checked)}
+                className="system-checkbox"
+              />
+            </label>
 
-      {/* Formulário Operacional de Lançamento */}
-      <form className="launch-operational-form" onSubmit={handleSubmit} noValidate>
+            <label className="rule-row">
+              <span className="rule-info">
+                <svg className="rule-icon gear-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="4" />
+                </svg>
+                <span>LIMITE X&lt;={maxX} / Y&lt;={maxY}</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={boundsRule}
+                onChange={(e) => setBoundsRule(e.target.checked)}
+                className="system-checkbox"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Inputs de Configuração da Malha */}
         <div className="field-row">
           <label className="field-mini">
             <span className="field-mini-label">Limite X máximo</span>
@@ -142,12 +180,11 @@ export function LaunchProbeForm({
               min={0}
               step={1}
               value={maxX}
-              onChange={(event) => setMaxX(event.target.value)}
+              onChange={(e) => setMaxX(e.target.value)}
               disabled={isSubmitting}
               required
             />
           </label>
-
           <label className="field-mini">
             <span className="field-mini-label">Limite Y máximo</span>
             <input
@@ -155,27 +192,28 @@ export function LaunchProbeForm({
               min={0}
               step={1}
               value={maxY}
-              onChange={(event) => setMaxY(event.target.value)}
+              onChange={(e) => setMaxY(e.target.value)}
               disabled={isSubmitting}
               required
             />
           </label>
         </div>
 
-        <label className="field-mini">
-          <span className="field-mini-label">Direção inicial</span>
-          <select
-            value={direction}
-            onChange={(event) => setDirection(event.target.value as Direction)}
-            disabled={isSubmitting}
-          >
-            {DIRECTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* Faixa Preta de Coordenadas Atuais estilo Image 1 */}
+        <div className="coord-black-strip" aria-hidden="true">
+          <div className="coord-item">
+            <span className="coord-k">COORD X</span>
+            <span className="coord-v">00 / {String(numX).padStart(2, "0")}</span>
+          </div>
+          <div className="coord-item">
+            <span className="coord-k">COORD Y</span>
+            <span className="coord-v">00 / {String(numY).padStart(2, "0")}</span>
+          </div>
+          <div className="coord-item">
+            <span className="coord-k">FACE</span>
+            <span className="coord-v green-face">{direction}</span>
+          </div>
+        </div>
 
         {displayedError ? (
           <div className="alert alert-danger" role="alert">
@@ -183,17 +221,19 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        {/* Botão de Lançamento estilo botão claro com ícone de foguete */}
+        {/* Botão Escuro estilo SINCRONIZAR COORDENADAS da Image 1 */}
         <button
           type="submit"
-          className="btn-launch-rocket"
+          className="btn-sync-coords"
           disabled={isSubmitting}
+          aria-label="Lançar sonda em (0, 0)"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
-          <span>{isSubmitting ? "LANÇANDO..." : "Lançar sonda em (0, 0)"}</span>
+          <span>{isSubmitting ? "Lançando sonda..." : "SINCRONIZAR COORDENADAS"}</span>
         </button>
       </form>
     </div>

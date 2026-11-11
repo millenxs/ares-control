@@ -39,11 +39,11 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
     let isDisposed = false;
 
     try {
-      const width = container.clientWidth || 600;
-      const height = container.clientHeight || 600;
+      const width = container.clientWidth || 640;
+      const height = container.clientHeight || 640;
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
       camera.position.z = 5.2;
 
       renderer = new THREE.WebGLRenderer({
@@ -54,25 +54,25 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.toneMappingExposure = 1.1;
       container.appendChild(renderer.domElement);
 
       const textureLoader = new THREE.TextureLoader();
       const marsTexture = textureLoader.load("/mars_texture.jpg");
       marsTexture.colorSpace = THREE.SRGBColorSpace;
 
-      const sphereGeo = new THREE.SphereGeometry(1.85, 64, 64);
+      const sphereGeo = new THREE.SphereGeometry(1.95, 64, 64);
       const marsMaterial = new THREE.MeshStandardMaterial({
         map: marsTexture,
-        roughness: 0.88,
-        metalness: 0.05,
+        roughness: 0.9,
+        metalness: 0.04,
       });
       const marsMesh = new THREE.Mesh(sphereGeo, marsMaterial);
-      marsMesh.rotation.y = 0.6;
-      marsMesh.rotation.x = 0.15;
+      marsMesh.rotation.y = 0.8;
+      marsMesh.rotation.x = 0.12;
       scene.add(marsMesh);
 
-      const atmosphereGeo = new THREE.SphereGeometry(1.92, 48, 48);
+      const atmosphereGeo = new THREE.SphereGeometry(2.02, 48, 48);
       const atmosphereMat = new THREE.ShaderMaterial({
         vertexShader: `
           varying vec3 vNormal;
@@ -84,8 +84,8 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
         fragmentShader: `
           varying vec3 vNormal;
           void main() {
-            float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
-            gl_FragColor = vec4(0.92, 0.36, 0.18, 1.0) * intensity * 0.75;
+            float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+            gl_FragColor = vec4(0.9, 0.35, 0.16, 1.0) * intensity * 0.85;
           }
         `,
         blending: THREE.AdditiveBlending,
@@ -95,14 +95,14 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
       const atmosphereMesh = new THREE.Mesh(atmosphereGeo, atmosphereMat);
       scene.add(atmosphereMesh);
 
-      const sunLight = new THREE.DirectionalLight(0xfff3e0, 2.8);
-      sunLight.position.set(5, 2.5, 4.5);
+      const sunLight = new THREE.DirectionalLight(0xfff5ea, 3.0);
+      sunLight.position.set(5.5, 2.5, 4.5);
       scene.add(sunLight);
 
-      const ambientLight = new THREE.AmbientLight(0x2a0d06, 0.45);
+      const ambientLight = new THREE.AmbientLight(0x240c06, 0.5);
       scene.add(ambientLight);
 
-      const rimLight = new THREE.DirectionalLight(0xd95327, 0.8);
+      const rimLight = new THREE.DirectionalLight(0xd95327, 0.7);
       rimLight.position.set(-5, -2, -3);
       scene.add(rimLight);
 
@@ -115,7 +115,7 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
           return;
         }
         if (!prefersReducedMotion) {
-          marsMesh.rotation.y += 0.0012;
+          marsMesh.rotation.y += 0.001;
         }
         if (renderer) {
           renderer.render(scene, camera);

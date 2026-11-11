@@ -34,6 +34,26 @@ export function MissionOverview({
 
           <div className="mars-orbit-canvas-wrapper" aria-hidden="true">
             <MarsCanvas3D />
+            <svg className="space-orbits-svg" viewBox="0 0 600 600">
+              <ellipse
+                cx="300"
+                cy="300"
+                rx="285"
+                ry="140"
+                transform="rotate(-26 300 300)"
+                className="orbit-dashed-teal"
+              />
+              <ellipse
+                cx="300"
+                cy="300"
+                rx="285"
+                ry="140"
+                transform="rotate(26 300 300)"
+                className="orbit-dashed-orange"
+              />
+              <circle cx="300" cy="18" r="4.5" className="orbit-cyan-node" />
+              <circle cx="300" cy="582" r="4.5" className="orbit-cyan-node" />
+            </svg>
           </div>
 
           <div className="orbit-target-beacon">
@@ -44,7 +64,7 @@ export function MissionOverview({
           <div className="orbit-idle-caption">
             <h3 className="orbit-idle-title">Nenhum sinal de sonda na superfície</h3>
             <p className="orbit-idle-desc">
-              Utilize o painel à direita para configurar a malha e efetuar o
+              Utilize o painel à esquerda para configurar a malha e efetuar o
               pouso nas coordenadas (0, 0).
             </p>
           </div>
