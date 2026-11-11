@@ -92,11 +92,10 @@ export function CommandDeck({
 
   return (
     <div className="sci-card" aria-label="Comandos da Sonda">
-      {/* Header do Card com Alvo Explícito */}
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-probe-nav">
           <span className="dot-green" />
-          <span>ALVO: {selectedProbe ? `${shortId}` : "NENHUMA"}</span>
+          <span>ALVO: {selectedProbe ? shortId : "NENHUMA"}</span>
           <span className="sep">•</span>
           <span>ESTAÇÃO CENTRAL</span>
         </div>
@@ -110,7 +109,6 @@ export function CommandDeck({
 
       <h2 className="sci-card-title">COMANDOS DA SONDA</h2>
 
-      {/* Caixa de Posição em Tempo Real (Fonte Principal de Posição) */}
       <div
         className="realtime-pos-box"
         aria-label="Posição atual em tempo real"
@@ -139,13 +137,12 @@ export function CommandDeck({
 
         <div className="pos-box-footer">
           <span className="bounds-info">
-            LIMITES: {maxX} × {maxY} ({maxX + 1}×{maxY + 1} casas)
+            Limites: X 0–{maxX} · Y 0–{maxY}
           </span>
-          <span className="sensor-safe">SENSOR DE BORDA: SEGURO</span>
+          <span className="sensor-safe">BORDA PROTEGIDA</span>
         </div>
       </div>
 
-      {/* Buffer de Instruções */}
       <form onSubmit={handleSubmit} noValidate className="buffer-form">
         <div className="buffer-section">
           <div className="buffer-header">
@@ -170,7 +167,6 @@ export function CommandDeck({
             </span>
           </div>
 
-          {/* Helper text único com a legenda dos comandos logo abaixo do input */}
           <div className="buffer-helper-text">
             <span><strong>L:</strong> girar 90° esq</span>
             <span className="sep">•</span>
@@ -198,7 +194,6 @@ export function CommandDeck({
             </button>
           </div>
 
-          {/* Fichas visuais com destaque do comando culpado em caso de erro */}
           <div className="token-chips-tray" aria-hidden="true">
             {commandTokens.map((token, idx) => {
               const activeErrorIdx =
@@ -223,7 +218,6 @@ export function CommandDeck({
             })}
           </div>
 
-          {/* Teclas rápidas táteis */}
           <div
             className="quick-command-buttons"
             role="group"
@@ -267,14 +261,12 @@ export function CommandDeck({
           </div>
         </div>
 
-        {/* Alerta de erro da API com mensagem detalhada e atômica */}
         {displayError ? (
           <div className="alert alert-danger" role="alert">
             <span>{displayError}</span>
           </div>
         ) : null}
 
-        {/* Preview da previsão do percurso em Ciano / Neutro (Dry-run preview) */}
         {previewResult && previewResult.isValid && previewResult.steps.length > 0 ? (
           <div className="preview-indicator-box-cyan">
             <span className="preview-dot-cyan" />
@@ -285,7 +277,6 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Alerta prévio de comando que sairia da malha com sugestão de correção automática */}
         {previewResult && !previewResult.isValid && previewResult.errorMessage ? (
           <div className="preview-danger-box" role="status">
             <div className="danger-row">
@@ -319,7 +310,6 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Botão de Transmissão sempre limpo sem textos artificiais */}
         <button
           type="submit"
           className="btn-exec-api"
@@ -334,7 +324,6 @@ export function CommandDeck({
         </button>
       </form>
 
-      {/* Histórico de Comandos filtrado para a Sonda Ativa */}
       {filteredHistory.length > 0 && (
         <div className="history-accordion">
           <button

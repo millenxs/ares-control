@@ -1,13 +1,11 @@
 :root {
   color-scheme: dark;
 
-  /* Fundo do Espaço Profundo (Preto e Vácuo Cósmico) */
   --space-black: #030305;
   --space-black-deep: #000000;
   --space-surface: #0a0a0d;
   --space-stars: rgba(255, 255, 255, 0.08);
 
-  /* Paleta Real de Marte (Terracota, Óxido de Ferro, Laranja e Vermelho Brasa) */
   --mars-rust: #c8431e;
   --mars-crimson: #9e2a14;
   --mars-amber: #e65c00;
@@ -15,7 +13,6 @@
   --mars-glow: rgba(217, 72, 30, 0.28);
   --mars-glow-soft: rgba(230, 92, 0, 0.12);
 
-  /* Cards Claras em Alto Contraste (Branco e Cinza Nobre - Refactoring UI) */
   --card-bg: #ffffff;
   --card-bg-subtle: #f8f9fa;
   --card-bg-inset: #f1f3f5;
@@ -25,34 +22,28 @@
   --card-border-strong: #cbd5e1;
   --card-border-mars: #f97316;
 
-  /* Tipografia de Alto Contraste para Leitura Dentro dos Cards */
   --text-dark-primary: #0f172a;
   --text-dark-secondary: #475569;
   --text-dark-muted: #64748b;
   --text-on-mars: #ffffff;
 
-  /* Tipografia do Espaço (Header e Títulos Externos) */
   --text-space-primary: #f8fafc;
   --text-space-secondary: #cbd5e1;
   --text-space-muted: #94a3b8;
 
-  /* Estados de Validação e Erro */
   --danger-surface: #fff1f2;
   --danger-border: #fecdd3;
   --danger-text: #be123c;
 
-  /* Tipografia */
   --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
 
-  /* Bordas e Raios */
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
   --radius-pill: 999px;
 
-  /* Espaçamento */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

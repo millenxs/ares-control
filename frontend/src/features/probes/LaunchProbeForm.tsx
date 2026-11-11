@@ -62,7 +62,6 @@ export function LaunchProbeForm({
 
   return (
     <div className="sci-card" aria-label="Telemetria & Matriz">
-      {/* Top Header estilo Image 1 */}
       <div className="sci-card-header">
         <div className="sci-pill-badge badge-dark-mod">
           <span className="dot-green" />
@@ -80,7 +79,6 @@ export function LaunchProbeForm({
 
       <h2 className="sci-card-title">TELEMETRIA & MATRIZ</h2>
 
-      {/* Bússola Digital estilo Image 1 */}
       <div className="compass-section">
         <div className="compass-header">
           <span className="compass-label">BÚSSOLA DIGITAL</span>
@@ -108,21 +106,18 @@ export function LaunchProbeForm({
 
         <div className="compass-stats-row">
           <div className="stat-col">
-            <span className="stat-micro-lbl">ALTITUDE SOLO</span>
-            <span className="stat-micro-val">
-              0.0 m <span className="green-txt">POUSADO</span>
-            </span>
+            <span className="stat-micro-lbl">ORIGEM DE POUSO</span>
+            <span className="stat-micro-val">(0, 0)</span>
           </div>
           <div className="stat-col text-right">
-            <span className="stat-micro-lbl">DIMENSÃO DA MALHA</span>
+            <span className="stat-micro-lbl">LIMITES CONFIGURADOS</span>
             <span className="stat-micro-val">
-              {numX} × {numY} <span className="nom-txt">({numX + 1}×{numY + 1} casas)</span>
+              X 0–{numX} · Y 0–{numY}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Matriz de Regras e Segurança - Badges informativos somente leitura */}
       <form onSubmit={handleSubmit} noValidate className="matrix-form">
         <div className="rules-section">
           <span className="section-mini-heading">INVARIANTES DO DOMÍNIO</span>
@@ -137,12 +132,11 @@ export function LaunchProbeForm({
             </div>
             <div className="rule-badge-item">
               <span className="rule-icon gear-orange">✔</span>
-              <span className="rule-badge-text">Malha limitada ao platô [0..{maxX}, 0..{maxY}]</span>
+              <span className="rule-badge-text">Limites: X 0–{numX} · Y 0–{numY}</span>
             </div>
           </div>
         </div>
 
-        {/* Inputs de Configuração dos Limites da Malha */}
         <div className="field-row">
           <label className="field-mini">
             <span className="field-mini-label">LIMITE X MÁXIMO</span>
@@ -172,18 +166,17 @@ export function LaunchProbeForm({
           </label>
         </div>
 
-        {/* Faixa Preta de Coordenadas */}
         <div className="coord-black-strip" aria-hidden="true">
           <div className="coord-item">
-            <span className="coord-k">COORD X</span>
+            <span className="coord-k">LANÇAMENTO X</span>
             <span className="coord-v">00 / {String(numX).padStart(2, "0")}</span>
           </div>
           <div className="coord-item">
-            <span className="coord-k">COORD Y</span>
+            <span className="coord-k">LANÇAMENTO Y</span>
             <span className="coord-v">00 / {String(numY).padStart(2, "0")}</span>
           </div>
           <div className="coord-item">
-            <span className="coord-k">FACE POUSO</span>
+            <span className="coord-k">DIREÇÃO</span>
             <span className="coord-v green-face">{direction}</span>
           </div>
         </div>
@@ -194,7 +187,6 @@ export function LaunchProbeForm({
           </div>
         ) : null}
 
-        {/* Botão Sincronizar Coordenadas / Lançar */}
         <button
           type="submit"
           className="btn-sync-coords"
@@ -206,7 +198,7 @@ export function LaunchProbeForm({
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
-          <span>{isSubmitting ? "Lançando sonda..." : "LANÇAR SONDA EM (0, 0)"}</span>
+          <span>{isSubmitting ? "Lançando sonda..." : `LANÇAR SONDA EM (0, 0) · ${numX}×${numY}`}</span>
         </button>
       </form>
     </div>

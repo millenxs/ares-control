@@ -62,7 +62,7 @@ export function ProbeList({
                     </span>
                   </div>
                   <div className="probe-row-bottom">
-                    Limites: {probe.plateau.max_x} × {probe.plateau.max_y} ({probe.plateau.max_x + 1}×{probe.plateau.max_y + 1} casas)
+                    Limites: X 0–{probe.plateau.max_x} · Y 0–{probe.plateau.max_y}
                   </div>
                 </button>
               </li>

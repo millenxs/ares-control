@@ -77,15 +77,15 @@ export function useMissionControl(
         }
         return loaded[0]?.id ?? null;
       });
-      setProbeTrails((prev) => {
-        const next = { ...prev };
-        for (const p of loaded) {
-          if (!next[p.id]) {
-            next[p.id] = [{ x: p.x, y: p.y }];
+        setProbeTrails((prev) => {
+          const next = { ...prev };
+          for (const p of loaded) {
+            if (!next[p.id]) {
+              next[p.id] = [{ x: p.x, y: p.y }];
+            }
           }
-        }
-        return next;
-      });
+          return next;
+        });
     } catch (error) {
       if (error instanceof ApiClientError) {
         setInitialError(formatHumanDomainError(error.code, error.details, null, error.message));
@@ -145,7 +145,6 @@ export function useMissionControl(
       try {
         const updated = await apiClient.executeCommands(probeId, commands);
 
-        // Trajeto exato percorrido (sem cortes diagonais)
         const pathSimulation = simulateNavigationPreview(
           { x: fromState.x, y: fromState.y },
           fromState.direction as Direction,
@@ -156,7 +155,6 @@ export function useMissionControl(
           .filter((st) => st.command === "M")
           .map((st) => ({ x: st.x, y: st.y }));
 
-        // Atualização atômica após resposta 200 OK da API
         setProbes((current) =>
           current.map((probe) => (probe.id === updated.id ? updated : probe)),
         );
@@ -201,7 +199,6 @@ export function useMissionControl(
             typeof error.details.index === "number" ? error.details.index : null;
           setCommandErrorIndex(errIndex);
 
-          // Registra a tentativa recusada no histórico sem alterar a posição da sonda
           setCommandHistory((prev) => [
             {
               id: String(Date.now()),

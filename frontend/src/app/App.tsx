@@ -35,7 +35,6 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
       ) : null}
 
       <main className="observatory-grid-layout">
-        {/* Lado Esquerdo: TELEMETRIA & MATRIZ + SONDAS ATIVAS (Cards 1 e 2) */}
         <aside className="pod-column pod-left">
           <LaunchProbeForm
             selectedProbe={mission.selectedProbe}
@@ -50,7 +49,6 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           />
         </aside>
 
-        {/* Centro: MARTE 3D NO ESPAÇO + HUD DO PLANALTO MARCIANO */}
         <div className="pod-center-column">
           <MissionOverview
             selectedProbe={mission.selectedProbe}
@@ -61,7 +59,6 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
           />
         </div>
 
-        {/* Lado Direito: COMANDOS DA SONDA (Instruções, Preview e Disparo) */}
         <aside className="pod-column pod-right">
           <CommandDeck
             selectedProbe={mission.selectedProbe}

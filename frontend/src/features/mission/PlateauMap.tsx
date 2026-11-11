@@ -57,7 +57,6 @@ export function PlateauMap({
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
-  // Ângulo acumulado contínuo para rotação suave sem giro reverso de 270°
   const [accumulatedAngle, setAccumulatedAngle] = useState(
     DIRECTION_TARGET_ANGLE[selectedProbe.direction],
   );
