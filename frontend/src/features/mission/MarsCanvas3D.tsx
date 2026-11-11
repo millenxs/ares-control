@@ -44,7 +44,7 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-      camera.position.z = 5.2;
+      camera.position.z = 6.3;
 
       renderer = new THREE.WebGLRenderer({
         antialias: true,

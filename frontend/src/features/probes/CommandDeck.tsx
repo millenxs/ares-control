@@ -158,10 +158,7 @@ export function CommandDeck({
               aria-label="Sequência de comandos"
               maxLength={64}
             />
-            <span className="ops-counter-pill">
-              <span className="sr-only">Fila de instruções ({commandTokens.length})</span>
-              {commandTokens.length}_OPS
-            </span>
+            <span className="sr-only">Fila de instruções ({commandTokens.length})</span>
           </div>
 
           <div className="buffer-helper-text">
