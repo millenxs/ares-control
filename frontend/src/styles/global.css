@@ -797,12 +797,45 @@ input:focus-visible {
   border-radius: 8px;
   padding: 8px 12px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   color: #b91c1c;
-  font-weight: 600;
+}
+
+.danger-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.danger-fix-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px dashed #fca5a5;
+  color: #7f1d1d;
+}
+
+.btn-fix-suggestion {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.btn-fix-suggestion:hover {
+  background: #b91c1c;
 }
 
 .danger-icon {

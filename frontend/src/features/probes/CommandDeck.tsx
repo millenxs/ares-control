@@ -251,11 +251,37 @@ export function CommandDeck({
           </div>
         ) : null}
 
-        {/* Alerta prévio de comando que sairia da malha */}
+        {/* Alerta prévio de comando que sairia da malha com sugestão de correção automática */}
         {previewResult && !previewResult.isValid && previewResult.errorMessage ? (
           <div className="preview-danger-box" role="status">
-            <span className="danger-icon">⚠</span>
-            <span>{previewResult.errorMessage}</span>
+            <div className="danger-row">
+              <span className="danger-icon">⚠</span>
+              <span>{previewResult.errorMessage}</span>
+            </div>
+            {probeX === 0 && probeDir === "WEST" && (
+              <div className="danger-fix-row">
+                <span>Dica: a sonda está em X=0 virada para Oeste (← parede).</span>
+                <button
+                  type="button"
+                  className="btn-fix-suggestion"
+                  onClick={() => handleInputChange("RMRM")}
+                >
+                  Usar sequência segura: RMRM ➔
+                </button>
+              </div>
+            )}
+            {probeY === 0 && probeDir === "SOUTH" && (
+              <div className="danger-fix-row">
+                <span>Dica: a sonda está em Y=0 virada para Sul (↓ parede).</span>
+                <button
+                  type="button"
+                  className="btn-fix-suggestion"
+                  onClick={() => handleInputChange("LMRM")}
+                >
+                  Usar sequência segura: LMRM ➔
+                </button>
+              </div>
+            )}
           </div>
         ) : null}
 
