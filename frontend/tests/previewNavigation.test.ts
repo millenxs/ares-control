@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { simulateNavigationPreview } from "../src/features/mission/previewNavigation";
+import {
+  buildCommandsToTarget,
+  simulateNavigationPreview,
+} from "../src/features/mission/previewNavigation";
 
 describe("simulateNavigationPreview (single navigation source of truth)", () => {
   it("computes MRM from (0, 0, NORTH) reaching (1, 1, EAST) matching challenge specification", () => {
@@ -99,5 +102,20 @@ describe("simulateNavigationPreview (single navigation source of truth)", () => 
       command: "M",
       index: 2,
     });
+  });
+
+  it("builds shortest command sequence to a clicked target cell", () => {
+    expect(buildCommandsToTarget({ x: 0, y: 0 }, "NORTH", { x: 1, y: 1 })).toBe(
+      "MRM",
+    );
+    expect(buildCommandsToTarget({ x: 0, y: 0 }, "WEST", { x: 1, y: 1 })).toBe(
+      "RMRM",
+    );
+    expect(buildCommandsToTarget({ x: 0, y: 0 }, "EAST", { x: 2, y: 1 })).toBe(
+      "MMLM",
+    );
+    expect(buildCommandsToTarget({ x: 2, y: 2 }, "SOUTH", { x: 2, y: 2 })).toBe(
+      "",
+    );
   });
 });

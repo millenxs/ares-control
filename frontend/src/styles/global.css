@@ -693,7 +693,7 @@ input:focus-visible {
 
 .buffer-input {
   width: 100%;
-  padding-right: 65px;
+  padding: 0.62rem 0.85rem;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -702,19 +702,6 @@ input:focus-visible {
 .buffer-input.input-has-error {
   border-color: #dc2626;
   background-color: #fff1f2;
-}
-
-.ops-counter-pill {
-  position: absolute;
-  right: 8px;
-  background-color: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 2px 6px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #0284c7;
 }
 
 /* Helper text com a legenda dos comandos logo abaixo do input */
@@ -1039,8 +1026,9 @@ input:focus-visible {
 
 .mars-orbit-canvas-wrapper {
   position: relative;
-  width: 580px;
-  height: 580px;
+  width: 100%;
+  max-width: 680px;
+  height: 680px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1204,8 +1192,9 @@ input:focus-visible {
 
 .mars-arena-viewport {
   position: relative;
-  width: 580px;
-  height: 580px;
+  width: 100%;
+  max-width: 680px;
+  height: 680px;
   display: flex;
   align-items: center;
   justify-content: center;

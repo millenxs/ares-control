@@ -9,6 +9,7 @@ interface MissionOverviewProps {
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
   onSelectProbe?: (probeId: string) => void;
+  onSelectCell?: (x: number, y: number) => void;
 }
 
 const DIRECTION_LABELS: Record<Direction, string> = {
@@ -24,6 +25,7 @@ export function MissionOverview({
   trail,
   previewResult,
   onSelectProbe,
+  onSelectCell,
 }: MissionOverviewProps) {
   const shortId = selectedProbe ? selectedProbe.id.slice(0, 6).toLowerCase() : "";
 
@@ -39,25 +41,25 @@ export function MissionOverview({
 
           <div className="mars-orbit-canvas-wrapper" aria-hidden="true">
             <MarsCanvas3D />
-            <svg className="space-orbits-svg" viewBox="0 0 600 600">
+            <svg className="space-orbits-svg" viewBox="0 0 680 680">
               <ellipse
-                cx="300"
-                cy="300"
-                rx="285"
-                ry="140"
-                transform="rotate(-26 300 300)"
+                cx="340"
+                cy="340"
+                rx="325"
+                ry="160"
+                transform="rotate(-26 340 340)"
                 className="orbit-dashed-teal"
               />
               <ellipse
-                cx="300"
-                cy="300"
-                rx="285"
-                ry="140"
-                transform="rotate(26 300 300)"
+                cx="340"
+                cy="340"
+                rx="325"
+                ry="160"
+                transform="rotate(26 340 340)"
                 className="orbit-dashed-orange"
               />
-              <circle cx="300" cy="18" r="4.5" className="orbit-cyan-node" />
-              <circle cx="300" cy="582" r="4.5" className="orbit-cyan-node" />
+              <circle cx="340" cy="20" r="4.5" className="orbit-cyan-node" />
+              <circle cx="340" cy="660" r="4.5" className="orbit-cyan-node" />
             </svg>
           </div>
 
@@ -108,6 +110,7 @@ export function MissionOverview({
             trail={trail}
             previewResult={previewResult}
             onSelectProbe={onSelectProbe}
+            onSelectCell={onSelectCell}
           />
         </div>
       )}

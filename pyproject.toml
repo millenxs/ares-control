@@ -37,3 +37,6 @@ src = ["backend/src", "backend/tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.vercel]
+entrypoint = "backend.src.ares_control.http.app:app"

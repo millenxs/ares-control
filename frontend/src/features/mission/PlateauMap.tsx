@@ -10,6 +10,7 @@ interface PlateauMapProps {
   trail?: Array<{ x: number; y: number }>;
   previewResult?: PreviewResult | null;
   onSelectProbe?: (probeId: string) => void;
+  onSelectCell?: (x: number, y: number) => void;
 }
 
 const DIRECTION_TARGET_ANGLE: Record<Direction, number> = {
@@ -58,6 +59,7 @@ export function PlateauMap({
   trail = [],
   previewResult,
   onSelectProbe,
+  onSelectCell,
 }: PlateauMapProps) {
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
@@ -167,25 +169,25 @@ export function PlateauMap({
         {/* Globo 3D de Marte e anéis orbitais no fundo */}
         <div className="mars-space-backdrop" aria-hidden="true">
           <MarsCanvas3D />
-          <svg className="space-orbits-svg" viewBox="0 0 600 600">
+          <svg className="space-orbits-svg" viewBox="0 0 680 680">
             <ellipse
-              cx="300"
-              cy="300"
-              rx="285"
-              ry="140"
-              transform="rotate(-26 300 300)"
+              cx="340"
+              cy="340"
+              rx="325"
+              ry="160"
+              transform="rotate(-26 340 340)"
               className="orbit-dashed-teal"
             />
             <ellipse
-              cx="300"
-              cy="300"
-              rx="285"
-              ry="140"
-              transform="rotate(26 300 300)"
+              cx="340"
+              cy="340"
+              rx="325"
+              ry="160"
+              transform="rotate(26 340 340)"
               className="orbit-dashed-orange"
             />
-            <circle cx="300" cy="18" r="4.5" className="orbit-cyan-node" />
-            <circle cx="300" cy="582" r="4.5" className="orbit-cyan-node" />
+            <circle cx="340" cy="20" r="4.5" className="orbit-cyan-node" />
+            <circle cx="340" cy="660" r="4.5" className="orbit-cyan-node" />
           </svg>
         </div>
 
@@ -301,8 +303,11 @@ export function PlateauMap({
                       key={`cell-${xCoord}-${yCoord}`}
                       onMouseEnter={() => setHoveredCell({ x: xCoord, y: yCoord })}
                       onMouseLeave={() => setHoveredCell(null)}
+                      onClick={() => onSelectCell?.(xCoord, yCoord)}
+                      data-testid={`grid-cell-${xCoord}-${yCoord}`}
                       className="cell-hover-group"
                     >
+                      <title>{`Célula (${xCoord}, ${yCoord}) — clique para preencher rota no buffer`}</title>
                       <rect
                         x={xPos}
                         y={yPos}
@@ -424,7 +429,7 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 7. Sondas secundárias com número da sonda (#X), seta direcional e ID no hover */}
+              {/* 7. Sondas secundárias na mesma malha (somente referência visual; clique passa para a célula) */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
                 const pDeg = DIRECTION_TARGET_ANGLE[p.direction];
@@ -437,10 +442,9 @@ export function PlateauMap({
                     key={p.id}
                     transform={`translate(${c.cx}, ${c.cy})`}
                     className="secondary-probe-group"
-                    onClick={() => onSelectProbe?.(p.id)}
-                    style={{ cursor: "pointer" }}
+                    style={{ pointerEvents: "none" }}
                   >
-                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction} (Clique para selecionar)`}</title>
+                    <title>{`Sonda #${pIndex} · ${pShortId} · Pos: (${p.x}, ${p.y}) · Dir: ${p.direction}`}</title>
                     <circle r={pRadius} className="secondary-probe-core" />
                     <g transform={`rotate(${pDeg})`}>
                       <polygon

@@ -1,5 +1,5 @@
-import { type FormEvent, useEffect, useState } from "react";
-import type { Direction, LaunchProbeInput, Probe } from "../../shared/api/probesApi";
+import { type FormEvent, useState } from "react";
+import type { Direction, LaunchProbeInput } from "../../shared/api/probesApi";
 
 const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = [
   { value: "NORTH", key: "N", label: "NORTH" },
@@ -9,14 +9,12 @@ const DIRECTIONS: readonly { value: Direction; key: string; label: string }[] = 
 ];
 
 interface LaunchProbeFormProps {
-  selectedProbe: Probe | null;
   isSubmitting: boolean;
   errorMessage: string | null;
   onLaunch: (input: LaunchProbeInput) => Promise<void>;
 }
 
 export function LaunchProbeForm({
-  selectedProbe,
   isSubmitting,
   errorMessage,
   onLaunch,
@@ -25,13 +23,6 @@ export function LaunchProbeForm({
   const [maxY, setMaxY] = useState("5");
   const [direction, setDirection] = useState<Direction>("NORTH");
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (selectedProbe) {
-      setMaxX(String(selectedProbe.plateau.max_x));
-      setMaxY(String(selectedProbe.plateau.max_y));
-    }
-  }, [selectedProbe]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -119,24 +110,6 @@ export function LaunchProbeForm({
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="matrix-form">
-        <div className="rules-section">
-          <span className="section-mini-heading">INVARIANTES DO DOMÍNIO</span>
-          <div className="rules-badges-list">
-            <div className="rule-badge-item">
-              <span className="rule-icon check-green">✔</span>
-              <span className="rule-badge-text">Trava de borda ativa (queda impossível)</span>
-            </div>
-            <div className="rule-badge-item">
-              <span className="rule-icon pin-teal">✔</span>
-              <span className="rule-badge-text">Origem obrigatória fixa em (0, 0)</span>
-            </div>
-            <div className="rule-badge-item">
-              <span className="rule-icon gear-orange">✔</span>
-              <span className="rule-badge-text">Limites: X 0–{numX} · Y 0–{numY}</span>
-            </div>
-          </div>
-        </div>
-
         <div className="field-row">
           <label className="field-mini">
             <span className="field-mini-label">LIMITE X MÁXIMO</span>

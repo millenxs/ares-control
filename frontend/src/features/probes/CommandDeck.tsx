@@ -5,26 +5,27 @@ import type { PreviewResult } from "../mission/previewNavigation";
 
 interface CommandDeckProps {
   selectedProbe: Probe | null;
+  commands: string;
   isExecuting: boolean;
   errorMessage: string | null;
   errorIndex?: number | null;
   previewResult?: PreviewResult | null;
   commandHistory?: CommandHistoryEntry[];
   onExecuteCommands: (probeId: string, commands: string) => Promise<boolean>;
-  onPreviewChange?: (commands: string) => void;
+  onCommandsChange: (commands: string) => void;
 }
 
 export function CommandDeck({
   selectedProbe,
+  commands,
   isExecuting,
   errorMessage,
   errorIndex = null,
   previewResult,
   commandHistory = [],
   onExecuteCommands,
-  onPreviewChange,
+  onCommandsChange,
 }: CommandDeckProps) {
-  const [commands, setCommands] = useState("");
   const [hasInputShake, setHasInputShake] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -35,19 +36,15 @@ export function CommandDeck({
 
   function handleInputChange(value: string) {
     const sanitized = value.toUpperCase().replace(/[^LMR]/g, "");
-    setCommands(sanitized);
-    onPreviewChange?.(sanitized);
+    onCommandsChange(sanitized);
   }
 
   function appendCommand(symbol: "L" | "R" | "M") {
-    const next = `${commands}${symbol}`;
-    setCommands(next);
-    onPreviewChange?.(next);
+    onCommandsChange(`${commands}${symbol}`);
   }
 
   function clearCommands() {
-    setCommands("");
-    onPreviewChange?.("");
+    onCommandsChange("");
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -161,10 +158,7 @@ export function CommandDeck({
               aria-label="Sequência de comandos"
               maxLength={64}
             />
-            <span className="ops-counter-pill">
-              <span className="sr-only">Fila de instruções ({commandTokens.length})</span>
-              {commandTokens.length}_OPS
-            </span>
+            <span className="sr-only">Fila de instruções ({commandTokens.length})</span>
           </div>
 
           <div className="buffer-helper-text">

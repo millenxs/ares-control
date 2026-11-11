@@ -39,12 +39,14 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
     let isDisposed = false;
 
     try {
-      const width = container.clientWidth || 640;
-      const height = container.clientHeight || 640;
+      const width = container.clientWidth || 700;
+      const height = container.clientHeight || 700;
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-      camera.position.z = 5.2;
+      // FOV 44 com câmera a z=5.6 enquadra perfeitamente a esfera grande (raio 2.08)
+      // preenchendo quase 92% da arena central sem cortar absolutamente nada nas laterais
+      const camera = new THREE.PerspectiveCamera(44, width / height, 0.1, 100);
+      camera.position.z = 5.6;
 
       renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -61,7 +63,7 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
       const marsTexture = textureLoader.load("/mars_texture.jpg");
       marsTexture.colorSpace = THREE.SRGBColorSpace;
 
-      const sphereGeo = new THREE.SphereGeometry(1.95, 64, 64);
+      const sphereGeo = new THREE.SphereGeometry(2.08, 64, 64);
       const marsMaterial = new THREE.MeshStandardMaterial({
         map: marsTexture,
         roughness: 0.9,
@@ -72,7 +74,7 @@ export function MarsCanvas3D({ className = "" }: MarsCanvas3DProps) {
       marsMesh.rotation.x = 0.12;
       scene.add(marsMesh);
 
-      const atmosphereGeo = new THREE.SphereGeometry(2.02, 48, 48);
+      const atmosphereGeo = new THREE.SphereGeometry(2.15, 48, 48);
       const atmosphereMat = new THREE.ShaderMaterial({
         vertexShader: `
           varying vec3 vNormal;

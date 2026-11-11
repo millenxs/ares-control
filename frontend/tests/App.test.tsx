@@ -319,4 +319,31 @@ describe("Ares Control App", () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it("populates the command buffer and preview when clicking a cell on the plateau grid", async () => {
+    const user = userEvent.setup();
+    const initialProbe = makeProbe({
+      id: "probe-click-1",
+      x: 0,
+      y: 0,
+      direction: "NORTH",
+      plateau: { max_x: 5, max_y: 5 },
+    });
+
+    const apiClient = makeMockApiClient({
+      listProbes: vi
+        .fn<() => Promise<Probe[]>>()
+        .mockResolvedValue([initialProbe]),
+    });
+
+    render(<App apiClient={apiClient} />);
+
+    await screen.findByTestId("grid-cell-1-1");
+    await user.click(screen.getByTestId("grid-cell-1-1"));
+
+    expect(screen.getByLabelText("Sequência de comandos")).toHaveValue("MRM");
+    expect(
+      screen.getByText("Destino previsto: (1, 1, EAST)"),
+    ).toBeInTheDocument();
+  });
 });
