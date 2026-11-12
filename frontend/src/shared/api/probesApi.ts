@@ -126,4 +126,3 @@ export function createProbesApiClient(
 }
 
 export const defaultProbesApiClient = createProbesApiClient();
-export const { listProbes, launchProbe, executeCommands } = defaultProbesApiClient;

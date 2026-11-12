@@ -5,7 +5,11 @@ WORKDIR /app
 COPY pyproject.toml uv.lock README.md .python-version ./
 COPY backend/src ./backend/src
 
-RUN uv sync --locked --no-dev --no-editable
+RUN uv sync --locked --no-dev --no-editable \
+    && useradd --system --create-home appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 8000
 
@@ -16,10 +20,12 @@ FROM node:26-alpine AS frontend
 
 WORKDIR /app/frontend
 
-COPY frontend/package.json frontend/package-lock.json ./
+COPY --chown=node:node frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
-COPY frontend/ ./
+COPY --chown=node:node frontend/ ./
+
+USER node
 
 EXPOSE 5173
 

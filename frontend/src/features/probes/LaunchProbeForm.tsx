@@ -37,10 +37,12 @@ export function LaunchProbeForm({
       !Number.isInteger(parsedX) ||
       !Number.isInteger(parsedY) ||
       parsedX < 0 ||
-      parsedY < 0
+      parsedY < 0 ||
+      parsedX > 1000 ||
+      parsedY > 1000
     ) {
       setValidationError(
-        "Informe limites inteiros não negativos para X máximo e Y máximo.",
+        "Informe limites inteiros não negativos (entre 0 e 1000) para X máximo e Y máximo.",
       );
       return;
     }
@@ -118,6 +120,7 @@ export function LaunchProbeForm({
             <input
               type="number"
               min={0}
+              max={1000}
               step={1}
               value={maxX}
               onChange={(e) => setMaxX(e.target.value)}
@@ -131,6 +134,7 @@ export function LaunchProbeForm({
             <input
               type="number"
               min={0}
+              max={1000}
               step={1}
               value={maxY}
               onChange={(e) => setMaxY(e.target.value)}

@@ -1,6 +1,6 @@
 """Pydantic request and response schemas for the HTTP API."""
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 
 from ares_control.domain import Direction, Probe
 
@@ -8,15 +8,15 @@ from ares_control.domain import Direction, Probe
 class LaunchProbeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    x: StrictInt
-    y: StrictInt
+    x: StrictInt = Field(le=1000)
+    y: StrictInt = Field(le=1000)
     direction: StrictStr
 
 
 class ExecuteCommandsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    commands: StrictStr
+    commands: StrictStr = Field(max_length=1000)
 
 
 class PlateauResponse(BaseModel):

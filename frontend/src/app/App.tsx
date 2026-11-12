@@ -25,10 +25,7 @@ export function App({ apiClient = defaultProbesApiClient }: AppProps) {
       {mission.initialError ? (
         <div className="alert alert-danger global-alert" role="alert">
           <span>{mission.initialError}</span>
-          <Button
-            variant="secondary"
-            onClick={() => void mission.reloadProbes()}
-          >
+          <Button onClick={() => void mission.reloadProbes()}>
             Tentar novamente
           </Button>
         </div>

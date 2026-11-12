@@ -1,9 +1,10 @@
 """FastAPI application composition root and error handlers."""
 
 import os
+from collections.abc import Awaitable, Callable
 from threading import Lock
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -59,11 +60,21 @@ def create_app(
     application.add_middleware(
         CORSMiddleware,
         allow_origins=_parse_cors_origins(),
-        allow_origin_regex=r"^https://.*\.vercel\.app$",
+        allow_origin_regex=r"^https://(ares-control(-[a-z0-9-]+)?|frontend-theta-sand-20)\.vercel\.app$",
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type"],
     )
+
+    @application.middleware("http")
+    async def add_security_headers(
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        return response
 
     @application.get("/", include_in_schema=False)
     def redirect_root_to_docs() -> RedirectResponse:
