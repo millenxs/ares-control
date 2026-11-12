@@ -6,7 +6,7 @@ Aplicação full stack (API REST em **Python/FastAPI** e interface em **React/Ty
 
 | Serviço | URL de Produção | Descrição |
 |---|---|---|
-| **Frontend (React + TypeScript)** | [https://frontend-theta-sand-20.vercel.app](https://frontend-theta-sand-20.vercel.app) | Console interativo do observatório, lançamento, comandos e malha SVG sobre Marte 3D |
+| **Frontend (React + TypeScript)** | [https://ares-control-test.vercel.app](https://ares-control-test.vercel.app) | Console interativo do observatório, lançamento, comandos e malha SVG sobre Marte 3D |
 | **Backend — Swagger UI (FastAPI)** | [https://ares-control.vercel.app/docs](https://ares-control.vercel.app/docs) | Documentação OpenAPI interativa dos 3 endpoints REST |
 | **Backend — API Base URL** | [https://ares-control.vercel.app/api/v1/probes](https://ares-control.vercel.app/api/v1/probes) | Endpoint REST de listagem e lançamento de sondas |
 
