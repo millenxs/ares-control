@@ -65,15 +65,13 @@ export function PlateauMap({
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
-  const effectivePosition =
-    previewResult && previewResult.isValid && previewResult.steps.length > 0
-      ? previewResult.finalPosition
-      : { x: selectedProbe.x, y: selectedProbe.y };
+  const effectivePosition = previewResult
+    ? previewResult.finalPosition
+    : { x: selectedProbe.x, y: selectedProbe.y };
 
-  const effectiveDirection =
-    previewResult && previewResult.isValid && previewResult.steps.length > 0
-      ? previewResult.finalDirection
-      : selectedProbe.direction;
+  const effectiveDirection = previewResult
+    ? previewResult.finalDirection
+    : selectedProbe.direction;
 
   const [accumulatedAngle, setAccumulatedAngle] = useState(
     DIRECTION_TARGET_ANGLE[effectiveDirection],
@@ -410,21 +408,22 @@ export function PlateauMap({
                       previewResult.failedStep.fromX,
                       previewResult.failedStep.fromY,
                     );
-                    const targetXClamped = Math.max(0, Math.min(maxX, previewResult.failedStep.targetX));
-                    const targetYClamped = Math.max(0, Math.min(maxY, previewResult.failedStep.targetY));
-                    const targetC = cellCenter(targetXClamped, targetYClamped);
+                    const dx = previewResult.failedStep.targetX - previewResult.failedStep.fromX;
+                    const dy = previewResult.failedStep.targetY - previewResult.failedStep.fromY;
+                    const borderX = fromC.cx + dx * (cellSize * 0.5);
+                    const borderY = fromC.cy - dy * (cellSize * 0.5);
 
                     return (
                       <g className="preview-crash-group">
                         <line
                           x1={fromC.cx}
                           y1={fromC.cy}
-                          x2={targetC.cx}
-                          y2={targetC.cy}
+                          x2={borderX}
+                          y2={borderY}
                           className="preview-crash-line"
                         />
-                        <g transform={`translate(${targetC.cx}, ${targetC.cy})`}>
-                          <circle r={markerRadius * 0.85} className="crash-pulse-circle" />
+                        <g transform={`translate(${borderX}, ${borderY})`}>
+                          <circle r={Math.min(markerRadius * 0.65, 11)} className="crash-pulse-circle" />
                           <text y={4} textAnchor="middle" className="crash-x-icon">
                             ✖
                           </text>

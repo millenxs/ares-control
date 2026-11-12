@@ -36,11 +36,31 @@ export function CommandDeck({
 
   function handleInputChange(value: string) {
     const sanitized = value.toUpperCase().replace(/[^LMR]/g, "");
+    if (
+      previewResult &&
+      !previewResult.isValid &&
+      previewResult.errorIndex !== null &&
+      sanitized.length > commands.length &&
+      sanitized.startsWith(commands)
+    ) {
+      const added = sanitized.slice(commands.length);
+      const validPrefix = commands.slice(0, previewResult.errorIndex);
+      onCommandsChange(`${validPrefix}${added}`);
+      return;
+    }
     onCommandsChange(sanitized);
   }
 
   function appendCommand(symbol: "L" | "R" | "M") {
-    onCommandsChange(`${commands}${symbol}`);
+    const validPrefix =
+      previewResult && !previewResult.isValid && previewResult.errorIndex !== null
+        ? commands.slice(0, previewResult.errorIndex)
+        : commands;
+    const nextCommands = `${validPrefix}${symbol}`;
+    if (nextCommands === commands) {
+      triggerShake();
+    }
+    onCommandsChange(nextCommands);
   }
 
   function clearCommands() {
@@ -283,7 +303,7 @@ export function CommandDeck({
                 <button
                   type="button"
                   className="btn-fix-suggestion"
-                  onClick={() => handleInputChange("RMRM")}
+                  onClick={() => onCommandsChange("RMRM")}
                 >
                   Usar rota segura: RMRM ➔
                 </button>
@@ -295,7 +315,7 @@ export function CommandDeck({
                 <button
                   type="button"
                   className="btn-fix-suggestion"
-                  onClick={() => handleInputChange("LMRM")}
+                  onClick={() => onCommandsChange("LMRM")}
                 >
                   Usar rota segura: LMRM ➔
                 </button>
