@@ -58,7 +58,7 @@ O **Ares Control** resolve o desafio técnico da Sonda em Marte expondo três op
 | **Gerenciador Python** | `uv` | Lockfile reproduzível em `uv.lock` |
 | **Framework HTTP / Validação** | FastAPI + Pydantic v2 + Uvicorn | FastAPI `>=0.115`, Pydantic `>=2.10` |
 | **Testes e Qualidade Backend** | Pytest + HTTPX + Ruff | 75 testes automatizados (domínio, aplicação e HTTP) |
-| **Runtime Frontend** | Node.js | `24.22.2` LTS (`.nvmrc`, faixa `>=24.22.2 <25` em `package.json`) |
+| **Runtime Frontend** | Node.js | `26.x` (`.nvmrc`, faixa `>=26.0.0 <27` em `package.json`) |
 | **Interface Gráfica** | React 19 + TypeScript + Vite + Three.js | Lockfile reproduzível em `frontend/package-lock.json` |
 | **Testes Frontend** | Vitest + Testing Library + jsdom | 13 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
 
@@ -90,7 +90,7 @@ ares-control/
 ├── pyproject.toml                 # Dependências, empacotamento Setuptools e ferramentas Python
 ├── uv.lock                        # Lockfile reproduzível do Python
 ├── .python-version                # Pin da versão Python (3.14.10)
-├── .nvmrc                         # Pin da versão Node.js (24.22.2)
+├── .nvmrc                         # Pin da versão Node.js (26)
 ├── .env.example                   # Exemplo de variáveis de ambiente
 ├── Dockerfile                     # Build multi-target (backend e frontend)
 ├── compose.yaml                   # Execução integrada via Docker Compose
@@ -126,7 +126,7 @@ ares-control/
 ## 5. Pré-requisitos
 
 - **Python `3.14.10`** e **[`uv`](https://docs.astral.sh/uv/)** instalados (o próprio `uv sync` baixa automaticamente o interpretador `3.14.10` caso ainda não esteja presente na máquina).
-- **Node.js `24.22.2` LTS** (ou compatível) e **`npm`**.
+- **Node.js `26.x`** (ou compatível) e **`npm`**.
 - **Docker** e **Docker Compose** *(opcional, caso prefira rodar em containers)*.
 
 ---
