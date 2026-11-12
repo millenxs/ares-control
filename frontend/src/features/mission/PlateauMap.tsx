@@ -65,18 +65,28 @@ export function PlateauMap({
   const [is3DView, setIs3DView] = useState(true);
   const [hoveredCell, setHoveredCell] = useState<{ x: number; y: number } | null>(null);
 
+  const effectivePosition =
+    previewResult && previewResult.isValid && previewResult.steps.length > 0
+      ? previewResult.finalPosition
+      : { x: selectedProbe.x, y: selectedProbe.y };
+
+  const effectiveDirection =
+    previewResult && previewResult.isValid && previewResult.steps.length > 0
+      ? previewResult.finalDirection
+      : selectedProbe.direction;
+
   const [accumulatedAngle, setAccumulatedAngle] = useState(
-    DIRECTION_TARGET_ANGLE[selectedProbe.direction],
+    DIRECTION_TARGET_ANGLE[effectiveDirection],
   );
-  const [lastDirection, setLastDirection] = useState(selectedProbe.direction);
+  const [lastDirection, setLastDirection] = useState(effectiveDirection);
 
   useEffect(() => {
-    if (selectedProbe.direction !== lastDirection) {
-      const delta = getShortestAngleDelta(accumulatedAngle, selectedProbe.direction);
+    if (effectiveDirection !== lastDirection) {
+      const delta = getShortestAngleDelta(accumulatedAngle, effectiveDirection);
       setAccumulatedAngle((prev) => prev + delta);
-      setLastDirection(selectedProbe.direction);
+      setLastDirection(effectiveDirection);
     }
-  }, [selectedProbe.direction, lastDirection, accumulatedAngle]);
+  }, [effectiveDirection, lastDirection, accumulatedAngle]);
 
   const { max_x: maxX, max_y: maxY } = selectedProbe.plateau;
   const cols = maxX + 1;
@@ -113,7 +123,8 @@ export function PlateauMap({
     };
   }
 
-  const activeCell = cellCenter(selectedProbe.x, selectedProbe.y);
+  const originCell = cellCenter(selectedProbe.x, selectedProbe.y);
+  const activeCell = cellCenter(effectivePosition.x, effectivePosition.y);
   const markerRadius = Math.max(Math.min(cellSize * 0.44, 26), 13);
 
   const otherVisibleProbes = probes.filter(
@@ -395,42 +406,13 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 7. Célula Ativa e Ícone da Sonda com Seta Visível de Alto Contraste e Rotação Contínua */}
-              <g
-                transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
-                data-testid="active-probe-marker"
-                style={{ pointerEvents: "none" }}
-              >
-                <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
-                <circle r={markerRadius} className="probe-body-core" />
-                <g
-                  transform={`rotate(${accumulatedAngle})`}
-                  style={{
-                    transform: `rotate(${accumulatedAngle}deg)`,
-                    transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                >
-                  <polygon
-                    points={`0,${-markerRadius * 0.78} ${markerRadius * 0.52},${markerRadius * 0.5} 0,${markerRadius * 0.22} ${-markerRadius * 0.52},${markerRadius * 0.5}`}
-                    className="probe-heading-pointer-bright"
-                  />
-                </g>
-                <text
-                  y={markerRadius + 11}
-                  textAnchor="middle"
-                  className="active-probe-index-tag"
-                >
-                  #{selectedIndex}
-                </text>
-              </g>
-
-              {/* 8. Pré-visualização fantasma do comando renderizada acima da sonda para exibir giros em (0, 0) */}
+              {/* 7. Trajeto previsto e alerta de colisão (por baixo da sonda ativa, sem segunda seta duplicada) */}
               {previewResult && (
                 <g className="preview-ghost-layer" style={{ pointerEvents: "none" }}>
                   {previewResult.steps.length > 0 && (
                     <polyline
                       points={[
-                        `${activeCell.cx},${activeCell.cy}`,
+                        `${originCell.cx},${originCell.cy}`,
                         ...previewResult.steps.map((st) => {
                           const c = cellCenter(st.x, st.y);
                           return `${c.cx},${c.cy}`;
@@ -439,25 +421,6 @@ export function PlateauMap({
                       className="preview-ghost-path-cyan"
                     />
                   )}
-
-                  {previewResult.isValid && previewResult.steps.length > 0 && (() => {
-                    const finalC = cellCenter(
-                      previewResult.finalPosition.x,
-                      previewResult.finalPosition.y,
-                    );
-                    const finalDeg = DIRECTION_TARGET_ANGLE[previewResult.finalDirection];
-                    return (
-                      <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
-                        <circle r={markerRadius * 0.9} className="ghost-probe-ring-cyan" />
-                        <g transform={`rotate(${finalDeg})`}>
-                          <polygon
-                            points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
-                            className="ghost-probe-arrow-cyan"
-                          />
-                        </g>
-                      </g>
-                    );
-                  })()}
 
                   {previewResult.failedStep && (() => {
                     const fromC = cellCenter(
@@ -488,6 +451,35 @@ export function PlateauMap({
                   })()}
                 </g>
               )}
+
+              {/* 8. Sonda Ativa Única (gira e se move diretamente ao alterar esquerda, direita e mover) */}
+              <g
+                transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
+                data-testid="active-probe-marker"
+                style={{ pointerEvents: "none" }}
+              >
+                <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
+                <circle r={markerRadius} className="probe-body-core" />
+                <g
+                  transform={`rotate(${accumulatedAngle})`}
+                  style={{
+                    transform: `rotate(${accumulatedAngle}deg)`,
+                    transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                >
+                  <polygon
+                    points={`0,${-markerRadius * 0.78} ${markerRadius * 0.52},${markerRadius * 0.5} 0,${markerRadius * 0.22} ${-markerRadius * 0.52},${markerRadius * 0.5}`}
+                    className="probe-heading-pointer-bright"
+                  />
+                </g>
+                <text
+                  y={markerRadius + 11}
+                  textAnchor="middle"
+                  className="active-probe-index-tag"
+                >
+                  #{selectedIndex}
+                </text>
+              </g>
 
               {/* Badge de Sondas Empilhadas com Tooltip e Clique para Alternar */}
               {colocatedCount > 1 ? (

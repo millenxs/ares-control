@@ -1420,23 +1420,11 @@ input:focus-visible {
   filter: drop-shadow(0 0 4px #0ea5e9);
 }
 
-/* Preview Fantasma de Comandos em Ciano (Dry-run) */
 .preview-ghost-path-cyan {
   fill: none;
   stroke: #06b6d4;
   stroke-width: 2;
   stroke-dasharray: 4 4;
-}
-
-.ghost-probe-ring-cyan {
-  fill: rgba(6, 182, 212, 0.2);
-  stroke: #06b6d4;
-  stroke-width: 1.5;
-  stroke-dasharray: 3 3;
-}
-
-.ghost-probe-arrow-cyan {
-  fill: #06b6d4;
 }
 
 /* Sondas Secundárias com Seta e Tooltip */
