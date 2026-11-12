@@ -241,6 +241,12 @@ export function useMissionControl(
     setPreviewCommands("");
   }, []);
 
+  const handleSetPreviewCommands = useCallback((nextCommands: string) => {
+    setCommandError(null);
+    setCommandErrorIndex(null);
+    setPreviewCommands(nextCommands);
+  }, []);
+
   const planRouteToCell = useCallback(
     (targetX: number, targetY: number) => {
       if (!selectedProbe) {
@@ -286,7 +292,7 @@ export function useMissionControl(
     selectProbe,
     launchProbe,
     executeCommands,
-    setPreviewCommands,
+    setPreviewCommands: handleSetPreviewCommands,
     planRouteToCell,
   };
 }

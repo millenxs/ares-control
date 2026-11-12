@@ -346,4 +346,44 @@ describe("Ares Control App", () => {
       screen.getByText("Destino previsto: (1, 1, EAST)"),
     ).toBeInTheDocument();
   });
+
+  it("allows rotating and moving directly after an out-of-bounds preview error without manually clearing the buffer", async () => {
+    const user = userEvent.setup();
+    const initialProbe = makeProbe({
+      id: "probe-recover-1",
+      x: 0,
+      y: 0,
+      direction: "NORTH",
+      plateau: { max_x: 5, max_y: 5 },
+    });
+
+    const apiClient = makeMockApiClient({
+      listProbes: vi
+        .fn<() => Promise<Probe[]>>()
+        .mockResolvedValue([initialProbe]),
+    });
+
+    render(<App apiClient={apiClient} />);
+
+    await findTelemetryPanel();
+
+    await user.click(screen.getByRole("button", { name: "+ L (Esquerda)" }));
+    await user.click(screen.getByRole("button", { name: "+ M (Mover)" }));
+
+    const commandInput = screen.getByLabelText("Sequência de comandos");
+    expect(commandInput).toHaveValue("LM");
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "O comando 'M' no índice 1 levaria a sonda a (-1, 0), fora da malha [0..5, 0..5].",
+    );
+
+    await user.click(screen.getByRole("button", { name: "+ R (Direita)" }));
+    expect(commandInput).toHaveValue("LR");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "+ M (Mover)" }));
+    expect(commandInput).toHaveValue("LRM");
+    expect(
+      screen.getByText("Destino previsto: (0, 1, NORTH)"),
+    ).toBeInTheDocument();
+  });
 });

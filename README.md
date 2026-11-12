@@ -60,7 +60,7 @@ O **Ares Control** resolve o desafio técnico da Sonda em Marte expondo três op
 | **Testes e Qualidade Backend** | Pytest + HTTPX + Ruff | 77 testes automatizados (domínio, aplicação e HTTP) |
 | **Runtime Frontend** | Node.js | `26.x` (`.nvmrc`, faixa `>=26.0.0 <27` em `package.json`) |
 | **Interface Gráfica** | React 19 + TypeScript + Vite + Three.js | Lockfile reproduzível em `frontend/package-lock.json` |
-| **Testes Frontend** | Vitest + Testing Library + jsdom | 13 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
+| **Testes Frontend** | Vitest + Testing Library + jsdom | 14 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
 
 ---
 
@@ -202,7 +202,7 @@ Dentro da pasta `frontend`:
 ```bash
 cd frontend
 
-# Executar os 13 testes automatizados
+# Executar os 14 testes automatizados
 npm test
 
 # Validar tipagem TypeScript e gerar build de produção
@@ -213,7 +213,7 @@ npm run build
 
 - **GitHub Actions (`.github/workflows/ci.yml`):** configurado com dois jobs independentes em `push` e `pull_request` para a branch `main`:
   - **`Backend (Ruff & Pytest)`:** instala o `uv`, sincroniza dependências travadas (`uv sync --locked`), valida lint/formatação (`ruff check` e `ruff format --check`) e executa a suíte de 77 testes (`pytest -v`).
-  - **`Frontend (Vitest & Build)`:** configura o Node.js via `.nvmrc`, instala dependências (`npm ci`), executa os 13 testes automatizados (`npm test`) e valida o bundle de produção (`npm run build`).
+  - **`Frontend (Vitest & Build)`:** configura o Node.js via `.nvmrc`, instala dependências (`npm ci`), executa os 14 testes automatizados (`npm test`) e valida o bundle de produção (`npm run build`).
 - **Fluxo Git e Proteção de Branch:** desenvolvimento organizado em branches temáticas e Pull Requests, com verificação de status obrigatória (`Backend (Ruff & Pytest)`) antes do merge na `main`.
 - **Deploy Contínuo (Vercel):**
   - **API Python/FastAPI:** publicada na Vercel utilizando o runtime Python `3.14` (`.python-version`) e entrypoint declarado em `[tool.vercel]` no `pyproject.toml`.
