@@ -2,6 +2,14 @@
 
 Aplicação full stack (API REST em **Python/FastAPI** e interface em **React/TypeScript**) para controlar o lançamento e a movimentação de sondas enviadas em missão a um planalto retangular em Marte, com interface de observatório espacial e telemetria em tempo real.
 
+## Demonstração Online (Deploy na Vercel)
+
+| Serviço | URL de Produção | Descrição |
+|---|---|---|
+| **Frontend (React + TypeScript)** | [https://frontend-theta-sand-20.vercel.app](https://frontend-theta-sand-20.vercel.app) | Console interativo do observatório, lançamento, comandos e malha SVG sobre Marte 3D |
+| **Backend — Swagger UI (FastAPI)** | [https://ares-control.vercel.app/docs](https://ares-control.vercel.app/docs) | Documentação OpenAPI interativa dos 3 endpoints REST |
+| **Backend — API Base URL** | [https://ares-control.vercel.app/api/v1/probes](https://ares-control.vercel.app/api/v1/probes) | Endpoint REST de listagem e lançamento de sondas |
+
 ---
 
 ## Sumário
@@ -200,6 +208,16 @@ npm test
 # Validar tipagem TypeScript e gerar build de produção
 npm run build
 ```
+
+### Pipeline de CI/CD e Fluxo de Entrega
+
+- **GitHub Actions (`.github/workflows/ci.yml`):** configurado com dois jobs independentes em `push` e `pull_request` para a branch `main`:
+  - **`Backend (Ruff & Pytest)`:** instala o `uv`, sincroniza dependências travadas (`uv sync --locked`), valida lint/formatação (`ruff check` e `ruff format --check`) e executa a suíte de 75 testes (`pytest -v`).
+  - **`Frontend (Vitest & Build)`:** configura o Node.js via `.nvmrc`, instala dependências (`npm ci`), executa os 13 testes automatizados (`npm test`) e valida o bundle de produção (`npm run build`).
+- **Fluxo Git e Proteção de Branch:** desenvolvimento organizado em branches temáticas e Pull Requests, com verificação de status obrigatória (`Backend (Ruff & Pytest)`) antes do merge na `main`.
+- **Deploy Contínuo (Vercel):**
+  - **API Python/FastAPI:** publicada na Vercel utilizando o runtime Python `3.14` (`.python-version`) e entrypoint declarado em `[tool.vercel]` no `pyproject.toml`.
+  - **Interface React/Vite:** publicada na Vercel a partir do diretório `frontend/` e integrada diretamente à API de produção.
 
 ---
 
