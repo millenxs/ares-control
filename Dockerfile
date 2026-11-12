@@ -12,7 +12,7 @@ EXPOSE 8000
 CMD ["uv", "run", "--no-dev", "uvicorn", "ares_control.http.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
 
 
-FROM node:24-alpine AS frontend
+FROM node:26-alpine AS frontend
 
 WORKDIR /app/frontend
 
