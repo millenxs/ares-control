@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Direction, Probe } from "../../shared/api/probesApi";
 import { Button } from "../../shared/ui/Primitives";
-import { MarsCanvas3D } from "./MarsCanvas3D";
+import { MarsCanvas3D, SpaceOrbitsSvg } from "./MarsCanvas3D";
 import type { PreviewResult } from "./previewNavigation";
 
 interface PlateauMapProps {
@@ -181,26 +181,7 @@ export function PlateauMap({
         {/* Globo 3D de Marte e anéis orbitais no fundo */}
         <div className="mars-space-backdrop" aria-hidden="true">
           <MarsCanvas3D />
-          <svg className="space-orbits-svg" viewBox="0 0 680 680">
-            <ellipse
-              cx="340"
-              cy="340"
-              rx="325"
-              ry="160"
-              transform="rotate(-26 340 340)"
-              className="orbit-dashed-teal"
-            />
-            <ellipse
-              cx="340"
-              cy="340"
-              rx="325"
-              ry="160"
-              transform="rotate(26 340 340)"
-              className="orbit-dashed-orange"
-            />
-            <circle cx="340" cy="20" r="4.5" className="orbit-cyan-node" />
-            <circle cx="340" cy="660" r="4.5" className="orbit-cyan-node" />
-          </svg>
+          <SpaceOrbitsSvg />
         </div>
 
         {/* HUD Box Central estilo Image 1 */}
@@ -299,8 +280,10 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 4. Coordenadas e áreas de hover em cada célula */}
-              {Array.from({ length: rows }, (_, rIdx) => {
+              {/* 4. Coordenadas e áreas de hover em cada célula (limitadas a malhas até 25x25 para evitar exaustão de DOM) */}
+              {cols <= 25 &&
+                rows <= 25 &&
+                Array.from({ length: rows }, (_, rIdx) => {
                 const yCoord = maxY - rIdx;
                 return Array.from({ length: cols }, (_, cIdx) => {
                   const xCoord = cIdx;
@@ -461,7 +444,6 @@ export function PlateauMap({
                 <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
                 <circle r={markerRadius} className="probe-body-core" />
                 <g
-                  transform={`rotate(${accumulatedAngle})`}
                   style={{
                     transform: `rotate(${accumulatedAngle}deg)`,
                     transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -512,7 +494,6 @@ export function PlateauMap({
 
       <div className="hud-view-toggle">
         <Button
-          variant="secondary"
           className="btn-hud-toggle"
           aria-pressed={is3DView}
           onClick={() => setIs3DView((v) => !v)}

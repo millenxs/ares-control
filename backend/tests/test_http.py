@@ -259,3 +259,50 @@ def test_concurrent_http_movements_share_composition_root_lock() -> None:
         "direction": "NORTH",
         "plateau": {"max_x": 5, "max_y": 5},
     }
+
+
+def test_security_headers_and_cors_origin_restrictions(client: TestClient) -> None:
+    response = client.get("/api/v1/probes")
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["X-Frame-Options"] == "DENY"
+
+    allowed_preflight = client.options(
+        "/api/v1/probes",
+        headers={
+            "Origin": "https://ares-control-test.vercel.app",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert (
+        allowed_preflight.headers.get("access-control-allow-origin")
+        == "https://ares-control-test.vercel.app"
+    )
+
+    blocked_preflight = client.options(
+        "/api/v1/probes",
+        headers={
+            "Origin": "https://evil-attacker.vercel.app",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert "access-control-allow-origin" not in blocked_preflight.headers
+
+
+def test_payload_upper_bounds_prevent_dos_exhaustion(client: TestClient) -> None:
+    huge_grid = client.post(
+        "/api/v1/probes",
+        json={"x": 1001, "y": 5, "direction": "NORTH"},
+    )
+    assert huge_grid.status_code == 422
+    assert huge_grid.json()["error"]["code"] == "validation_error"
+
+    launched = client.post(
+        "/api/v1/probes",
+        json={"x": 5, "y": 5, "direction": "NORTH"},
+    ).json()
+    huge_commands = client.post(
+        f"/api/v1/probes/{launched['id']}/commands",
+        json={"commands": "L" * 1001},
+    )
+    assert huge_commands.status_code == 422
+    assert huge_commands.json()["error"]["code"] == "validation_error"

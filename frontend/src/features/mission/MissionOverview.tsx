@@ -1,5 +1,5 @@
 import type { Direction, Probe } from "../../shared/api/probesApi";
-import { MarsCanvas3D } from "./MarsCanvas3D";
+import { MarsCanvas3D, SpaceOrbitsSvg } from "./MarsCanvas3D";
 import { PlateauMap } from "./PlateauMap";
 import type { PreviewResult } from "./previewNavigation";
 
@@ -41,26 +41,7 @@ export function MissionOverview({
 
           <div className="mars-orbit-canvas-wrapper" aria-hidden="true">
             <MarsCanvas3D />
-            <svg className="space-orbits-svg" viewBox="0 0 680 680">
-              <ellipse
-                cx="340"
-                cy="340"
-                rx="325"
-                ry="160"
-                transform="rotate(-26 340 340)"
-                className="orbit-dashed-teal"
-              />
-              <ellipse
-                cx="340"
-                cy="340"
-                rx="325"
-                ry="160"
-                transform="rotate(26 340 340)"
-                className="orbit-dashed-orange"
-              />
-              <circle cx="340" cy="20" r="4.5" className="orbit-cyan-node" />
-              <circle cx="340" cy="660" r="4.5" className="orbit-cyan-node" />
-            </svg>
+            <SpaceOrbitsSvg />
           </div>
 
           <div className="orbit-target-beacon">

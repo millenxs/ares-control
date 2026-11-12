@@ -57,7 +57,7 @@ O **Ares Control** resolve o desafio técnico da Sonda em Marte expondo três op
 | **Linguagem Backend** | Python | `3.14.10` (`.python-version`, faixa `>=3.14,<3.15` em `pyproject.toml`) |
 | **Gerenciador Python** | `uv` | Lockfile reproduzível em `uv.lock` |
 | **Framework HTTP / Validação** | FastAPI + Pydantic v2 + Uvicorn | FastAPI `>=0.115`, Pydantic `>=2.10` |
-| **Testes e Qualidade Backend** | Pytest + HTTPX + Ruff | 75 testes automatizados (domínio, aplicação e HTTP) |
+| **Testes e Qualidade Backend** | Pytest + HTTPX + Ruff | 77 testes automatizados (domínio, aplicação e HTTP) |
 | **Runtime Frontend** | Node.js | `26.x` (`.nvmrc`, faixa `>=26.0.0 <27` em `package.json`) |
 | **Interface Gráfica** | React 19 + TypeScript + Vite + Three.js | Lockfile reproduzível em `frontend/package-lock.json` |
 | **Testes Frontend** | Vitest + Testing Library + jsdom | 13 testes automatizados (cliente HTTP, simulação e fluxos integrados) |
@@ -187,7 +187,7 @@ docker compose up --build
 Na raiz do repositório:
 
 ```bash
-# Executar todos os 75 testes (domínio, aplicação e integração HTTP)
+# Executar todos os 77 testes (domínio, aplicação e integração HTTP)
 uv run pytest -v
 
 # Verificar lint e formatação
@@ -212,7 +212,7 @@ npm run build
 ### Pipeline de CI/CD e Fluxo de Entrega
 
 - **GitHub Actions (`.github/workflows/ci.yml`):** configurado com dois jobs independentes em `push` e `pull_request` para a branch `main`:
-  - **`Backend (Ruff & Pytest)`:** instala o `uv`, sincroniza dependências travadas (`uv sync --locked`), valida lint/formatação (`ruff check` e `ruff format --check`) e executa a suíte de 75 testes (`pytest -v`).
+  - **`Backend (Ruff & Pytest)`:** instala o `uv`, sincroniza dependências travadas (`uv sync --locked`), valida lint/formatação (`ruff check` e `ruff format --check`) e executa a suíte de 77 testes (`pytest -v`).
   - **`Frontend (Vitest & Build)`:** configura o Node.js via `.nvmrc`, instala dependências (`npm ci`), executa os 13 testes automatizados (`npm test`) e valida o bundle de produção (`npm run build`).
 - **Fluxo Git e Proteção de Branch:** desenvolvimento organizado em branches temáticas e Pull Requests, com verificação de status obrigatória (`Backend (Ruff & Pytest)`) antes do merge na `main`.
 - **Deploy Contínuo (Vercel):**

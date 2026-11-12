@@ -380,70 +380,10 @@ body {
   color: #0f172a;
 }
 
-.green-txt {
-  color: #16a34a;
-}
-
-.nom-txt {
-  color: #0284c7;
-}
-
 .matrix-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.rules-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.section-mini-heading {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #475569;
-  letter-spacing: 0.05em;
-}
-
-.rules-badges-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.rule-badge-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 5px 8px;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #334155;
-}
-
-.rule-icon {
-  width: 16px;
-  height: 16px;
-  font-weight: 700;
-}
-
-.check-green {
-  color: #16a34a;
-}
-
-.pin-teal {
-  color: #0284c7;
-}
-
-.gear-orange {
-  color: #ea580c;
 }
 
 .field-row {
@@ -1428,29 +1368,14 @@ input:focus-visible {
 }
 
 /* Sondas Secundárias com Seta e Tooltip */
-.secondary-probe-group {
-  cursor: pointer;
-}
-
 .secondary-probe-core {
   fill: #090d16;
   stroke: #64748b;
   stroke-width: 1.5;
-  transition: stroke 150ms ease;
-}
-
-.secondary-probe-group:hover .secondary-probe-core {
-  stroke: #0ea5e9;
-  filter: drop-shadow(0 0 6px #0ea5e9);
 }
 
 .secondary-probe-arrow {
   fill: #94a3b8;
-  transition: fill 150ms ease;
-}
-
-.secondary-probe-group:hover .secondary-probe-arrow {
-  fill: #38bdf8;
 }
 
 /* Alerta de Colisão no Preview */
