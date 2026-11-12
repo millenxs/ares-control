@@ -1,6 +1,6 @@
 # Ares Control — Controle de Sondas em Marte
 
-Aplicação full stack (API REST em **Python/FastAPI** e interface em **React/TypeScript**) para controlar o lançamento e a movimentação de sondas enviadas em missão a um planalto retangular em Marte, com identidade visual de observatório espacial inspirada no jogo de tabuleiro **SETI**.
+Aplicação full stack (API REST em **Python/FastAPI** e interface em **React/TypeScript**) para controlar o lançamento e a movimentação de sondas enviadas em missão a um planalto retangular em Marte, com interface de observatório espacial e telemetria em tempo real.
 
 ---
 
