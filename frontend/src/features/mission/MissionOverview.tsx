@@ -92,9 +92,9 @@ export function MissionOverview({
                 {DIRECTION_LABELS[selectedProbe.direction]}
               </span>
             </div>
-            <div className="hud-pill">
+            <div className="hud-pill hud-pill-dimensao">
               <span className="hud-key">DIMENSÃO</span>
-              <span className="hud-val hud-mono">
+              <span className="hud-val hud-mono malha-highlight">
                 Malha {selectedProbe.plateau.max_x} × {selectedProbe.plateau.max_y}
               </span>
             </div>
