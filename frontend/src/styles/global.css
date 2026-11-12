@@ -113,25 +113,28 @@ body {
 .launch-btn-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 4px;
 }
 
 .launch-popup-bubble {
-  position: relative;
-  margin-bottom: 10px;
+  position: absolute;
+  left: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 240px;
+  z-index: 20;
   background-color: #ea580c;
   color: #ffffff;
   border-radius: 10px;
   padding: 10px 12px;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.35;
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 8px 20px rgba(234, 88, 12, 0.35);
-  animation: onboardingBlink 1.6s infinite ease-in-out;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  animation: onboardingBlinkRight 1.6s infinite ease-in-out;
 }
 
 .launch-popup-dot {
@@ -145,23 +148,23 @@ body {
 
 .launch-popup-arrow {
   position: absolute;
-  bottom: -6px;
-  left: 50%;
-  width: 12px;
-  height: 12px;
+  left: -5px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
   background-color: #ea580c;
-  transform: translateX(-50%) rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
 }
 
-@keyframes onboardingBlink {
+@keyframes onboardingBlinkRight {
   0%,
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-50%) translateX(0);
   }
   50% {
     opacity: 0.88;
-    transform: translateY(-2px);
+    transform: translateY(-50%) translateX(4px);
   }
 }
 
