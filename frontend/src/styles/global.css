@@ -110,75 +110,61 @@ body {
   width: 100%;
 }
 
-.sci-card-onboarding {
-  border: 2px solid #ea580c;
-  box-shadow:
-    0 0 0 4px rgba(234, 88, 12, 0.28),
-    0 25px 60px -10px rgba(0, 0, 0, 0.95);
+.launch-btn-wrapper {
+  position: relative;
+  width: 100%;
 }
 
-.onboarding-step-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+.launch-popup-bubble {
+  position: absolute;
+  left: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 240px;
+  z-index: 20;
   background-color: #ea580c;
   color: #ffffff;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  animation: onboardingBlink 1.6s infinite ease-in-out;
-}
-
-.onboarding-callout {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background-color: #fff7ed;
-  border: 1px solid #fdba74;
   border-radius: 10px;
-  padding: 9px 11px;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
   font-size: 0.78rem;
-  line-height: 1.4;
-  color: #9a3412;
+  font-weight: 600;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  animation: onboardingBlinkRight 1.6s infinite ease-in-out;
 }
 
-.onboarding-pulse-dot {
+.launch-popup-dot {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
-  margin-top: 4px;
   border-radius: 50%;
-  background-color: #ea580c;
-  box-shadow: 0 0 8px #ea580c;
-  animation: onboardingBlink 1.2s infinite ease-in-out;
-}
-
-.onboarding-step-pill .onboarding-pulse-dot {
-  margin-top: 0;
   background-color: #ffffff;
   box-shadow: 0 0 8px #ffffff;
 }
 
-.btn-sync-onboarding-pulse {
-  background: linear-gradient(90deg, #ea580c 0%, #f97316 100%);
-  box-shadow:
-    0 0 0 3px rgba(234, 88, 12, 0.35),
-    0 8px 24px rgba(234, 88, 12, 0.45);
-  animation: onboardingBlink 1.8s infinite ease-in-out;
+.launch-popup-arrow {
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  background-color: #ea580c;
+  transform: translateY(-50%) rotate(45deg);
 }
 
-@keyframes onboardingBlink {
+@keyframes onboardingBlinkRight {
   0%,
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(-50%) translateX(0);
   }
   50% {
-    opacity: 0.82;
-    transform: scale(0.99);
+    opacity: 0.88;
+    transform: translateY(-50%) translateX(4px);
   }
 }
 
@@ -1434,23 +1420,11 @@ input:focus-visible {
   filter: drop-shadow(0 0 4px #0ea5e9);
 }
 
-/* Preview Fantasma de Comandos em Ciano (Dry-run) */
 .preview-ghost-path-cyan {
   fill: none;
   stroke: #06b6d4;
   stroke-width: 2;
   stroke-dasharray: 4 4;
-}
-
-.ghost-probe-ring-cyan {
-  fill: rgba(6, 182, 212, 0.2);
-  stroke: #06b6d4;
-  stroke-width: 1.5;
-  stroke-dasharray: 3 3;
-}
-
-.ghost-probe-arrow-cyan {
-  fill: #06b6d4;
 }
 
 /* Sondas Secundárias com Seta e Tooltip */
