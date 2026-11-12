@@ -27,7 +27,8 @@ const DIRECTION_TARGET_ANGLE: Record<Direction, number> = {
  */
 function getShortestAngleDelta(currentAngle: number, targetDirection: Direction): number {
   const targetAngle = DIRECTION_TARGET_ANGLE[targetDirection];
-  return (((targetAngle - (currentAngle % 360) + 540) % 360) - 180);
+  const normalizedCurrent = ((currentAngle % 360) + 360) % 360;
+  return (((targetAngle - normalizedCurrent + 540) % 360) - 180);
 }
 
 function buildAxisTicks(maxCoordinate: number): number[] {
@@ -330,76 +331,7 @@ export function PlateauMap({
                 });
               })}
 
-              {/* 5. Pré-visualização fantasma do comando em Ciano / Neutro (Dry-run preview) */}
-              {previewResult && (
-                <g className="preview-ghost-layer">
-                  {/* Trajeto previsto em ciano */}
-                  {previewResult.steps.length > 0 && (
-                    <polyline
-                      points={[
-                        `${activeCell.cx},${activeCell.cy}`,
-                        ...previewResult.steps.map((st) => {
-                          const c = cellCenter(st.x, st.y);
-                          return `${c.cx},${c.cy}`;
-                        }),
-                      ].join(" ")}
-                      className="preview-ghost-path-cyan"
-                    />
-                  )}
-
-                  {/* Sonda fantasma no destino previsto em ciano */}
-                  {previewResult.isValid && previewResult.steps.length > 0 && (() => {
-                    const finalC = cellCenter(
-                      previewResult.finalPosition.x,
-                      previewResult.finalPosition.y,
-                    );
-                    const finalDeg = DIRECTION_TARGET_ANGLE[previewResult.finalDirection];
-                    return (
-                      <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
-                        <circle r={markerRadius * 0.9} className="ghost-probe-ring-cyan" />
-                        <g transform={`rotate(${finalDeg})`}>
-                          <polygon
-                            points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
-                            className="ghost-probe-arrow-cyan"
-                          />
-                        </g>
-                      </g>
-                    );
-                  })()}
-
-                  {/* Alerta de colisão visual preso na borda (sem cortar no viewBox) */}
-                  {previewResult.failedStep && (() => {
-                    const fromC = cellCenter(
-                      previewResult.failedStep.fromX,
-                      previewResult.failedStep.fromY,
-                    );
-                    // Prende o marcador de colisão na borda interna da malha
-                    const targetXClamped = Math.max(0, Math.min(maxX, previewResult.failedStep.targetX));
-                    const targetYClamped = Math.max(0, Math.min(maxY, previewResult.failedStep.targetY));
-                    const targetC = cellCenter(targetXClamped, targetYClamped);
-
-                    return (
-                      <g className="preview-crash-group">
-                        <line
-                          x1={fromC.cx}
-                          y1={fromC.cy}
-                          x2={targetC.cx}
-                          y2={targetC.cy}
-                          className="preview-crash-line"
-                        />
-                        <g transform={`translate(${targetC.cx}, ${targetC.cy})`}>
-                          <circle r={markerRadius * 0.85} className="crash-pulse-circle" />
-                          <text y={4} textAnchor="middle" className="crash-x-icon">
-                            ✖
-                          </text>
-                        </g>
-                      </g>
-                    );
-                  })()}
-                </g>
-              )}
-
-              {/* 6. Ticks dos eixos numéricos nas bordas externas */}
+              {/* 5. Ticks dos eixos numéricos nas bordas externas */}
               {xTicks.map((xVal) => {
                 const c = cellCenter(xVal, 0);
                 return (
@@ -429,7 +361,7 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 7. Sondas secundárias na mesma malha (somente referência visual; clique passa para a célula) */}
+              {/* 6. Sondas secundárias na mesma malha (somente referência visual; clique passa para a célula) */}
               {otherVisibleProbes.map((p) => {
                 const c = cellCenter(p.x, p.y);
                 const pDeg = DIRECTION_TARGET_ANGLE[p.direction];
@@ -463,16 +395,18 @@ export function PlateauMap({
                 );
               })}
 
-              {/* 8. Célula Ativa e Ícone da Sonda com Seta Visível de Alto Contraste e Rotação Contínua */}
+              {/* 7. Célula Ativa e Ícone da Sonda com Seta Visível de Alto Contraste e Rotação Contínua */}
               <g
                 transform={`translate(${activeCell.cx}, ${activeCell.cy})`}
                 data-testid="active-probe-marker"
+                style={{ pointerEvents: "none" }}
               >
                 <circle r={markerRadius * 1.5} className="probe-pulse-wave" />
                 <circle r={markerRadius} className="probe-body-core" />
                 <g
                   transform={`rotate(${accumulatedAngle})`}
                   style={{
+                    transform: `rotate(${accumulatedAngle}deg)`,
                     transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                 >
@@ -489,6 +423,71 @@ export function PlateauMap({
                   #{selectedIndex}
                 </text>
               </g>
+
+              {/* 8. Pré-visualização fantasma do comando renderizada acima da sonda para exibir giros em (0, 0) */}
+              {previewResult && (
+                <g className="preview-ghost-layer" style={{ pointerEvents: "none" }}>
+                  {previewResult.steps.length > 0 && (
+                    <polyline
+                      points={[
+                        `${activeCell.cx},${activeCell.cy}`,
+                        ...previewResult.steps.map((st) => {
+                          const c = cellCenter(st.x, st.y);
+                          return `${c.cx},${c.cy}`;
+                        }),
+                      ].join(" ")}
+                      className="preview-ghost-path-cyan"
+                    />
+                  )}
+
+                  {previewResult.isValid && previewResult.steps.length > 0 && (() => {
+                    const finalC = cellCenter(
+                      previewResult.finalPosition.x,
+                      previewResult.finalPosition.y,
+                    );
+                    const finalDeg = DIRECTION_TARGET_ANGLE[previewResult.finalDirection];
+                    return (
+                      <g transform={`translate(${finalC.cx}, ${finalC.cy})`}>
+                        <circle r={markerRadius * 0.9} className="ghost-probe-ring-cyan" />
+                        <g transform={`rotate(${finalDeg})`}>
+                          <polygon
+                            points={`0,${-markerRadius * 0.7} ${markerRadius * 0.45},${markerRadius * 0.5} 0,${markerRadius * 0.2} ${-markerRadius * 0.45},${markerRadius * 0.5}`}
+                            className="ghost-probe-arrow-cyan"
+                          />
+                        </g>
+                      </g>
+                    );
+                  })()}
+
+                  {previewResult.failedStep && (() => {
+                    const fromC = cellCenter(
+                      previewResult.failedStep.fromX,
+                      previewResult.failedStep.fromY,
+                    );
+                    const targetXClamped = Math.max(0, Math.min(maxX, previewResult.failedStep.targetX));
+                    const targetYClamped = Math.max(0, Math.min(maxY, previewResult.failedStep.targetY));
+                    const targetC = cellCenter(targetXClamped, targetYClamped);
+
+                    return (
+                      <g className="preview-crash-group">
+                        <line
+                          x1={fromC.cx}
+                          y1={fromC.cy}
+                          x2={targetC.cx}
+                          y2={targetC.cy}
+                          className="preview-crash-line"
+                        />
+                        <g transform={`translate(${targetC.cx}, ${targetC.cy})`}>
+                          <circle r={markerRadius * 0.85} className="crash-pulse-circle" />
+                          <text y={4} textAnchor="middle" className="crash-x-icon">
+                            ✖
+                          </text>
+                        </g>
+                      </g>
+                    );
+                  })()}
+                </g>
+              )}
 
               {/* Badge de Sondas Empilhadas com Tooltip e Clique para Alternar */}
               {colocatedCount > 1 ? (
