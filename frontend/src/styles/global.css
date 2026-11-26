@@ -113,15 +113,15 @@ body {
 .launch-btn-wrapper {
   position: relative;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .launch-popup-bubble {
-  position: absolute;
-  left: calc(100% + 16px);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 240px;
-  z-index: 20;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
   background-color: #ea580c;
   color: #ffffff;
   border-radius: 10px;
@@ -133,8 +133,8 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-  animation: onboardingBlinkRight 1.6s infinite ease-in-out;
+  box-shadow: 0 8px 20px rgba(234, 88, 12, 0.35);
+  animation: onboardingPulse 2s infinite ease-in-out;
 }
 
 .launch-popup-dot {
@@ -148,23 +148,21 @@ body {
 
 .launch-popup-arrow {
   position: absolute;
-  left: -5px;
-  top: 50%;
+  left: 50%;
+  bottom: -5px;
   width: 11px;
   height: 11px;
   background-color: #ea580c;
-  transform: translateY(-50%) rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
 }
 
-@keyframes onboardingBlinkRight {
+@keyframes onboardingPulse {
   0%,
   100% {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.35);
   }
   50% {
-    opacity: 0.88;
-    transform: translateY(-50%) translateX(4px);
+    box-shadow: 0 8px 26px rgba(234, 88, 12, 0.65);
   }
 }
 
@@ -1026,7 +1024,8 @@ input:focus-visible {
   position: relative;
   width: 100%;
   max-width: 680px;
-  height: 680px;
+  aspect-ratio: 1 / 1;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1159,8 +1158,12 @@ input:focus-visible {
   letter-spacing: 0.05em;
   margin-bottom: 12px;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  text-align: center;
   backdrop-filter: blur(8px);
 }
 
@@ -1192,7 +1195,8 @@ input:focus-visible {
   position: relative;
   width: 100%;
   max-width: 680px;
-  height: 680px;
+  aspect-ratio: 1 / 1;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1220,8 +1224,8 @@ input:focus-visible {
 }
 
 .mars-fallback-sphere {
-  width: 360px;
-  height: 360px;
+  width: min(360px, 75vw);
+  height: min(360px, 75vw);
   border-radius: 50%;
   background:
     radial-gradient(
@@ -1240,7 +1244,9 @@ input:focus-visible {
 .planalto-hud-box {
   position: relative;
   z-index: 4;
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
   background: rgba(3, 10, 18, 0.88);
   border: 1.5px solid #0891b2;
   border-radius: 14px;
@@ -1595,22 +1601,89 @@ input:focus-visible {
   margin-bottom: 1.5rem;
 }
 
-/* Responsividade */
-@media (max-width: 1240px) {
-  .observatory-grid-layout {
-    grid-template-columns: minmax(0, 1fr);
+/* Responsividade Completa (Notebooks 13", Tablets e Mobile) */
+@media (max-width: 1400px) {
+  .observatory-stage-frame {
+    padding: 24px 20px 32px;
   }
 
-  .pod-left {
-    order: 2;
+  .observatory-grid-layout {
+    grid-template-columns: 310px minmax(0, 1fr) 320px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .observatory-grid-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
   }
 
   .pod-center-column {
+    grid-column: 1 / -1;
     order: 1;
   }
 
+  .pod-left {
+    grid-column: 1;
+    order: 2;
+  }
+
   .pod-right {
+    grid-column: 2;
     order: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .observatory-stage-frame {
+    padding: 16px 12px 28px;
+  }
+
+  .observatory-grid-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .pod-center-column,
+  .pod-left,
+  .pod-right {
+    grid-column: 1;
+  }
+
+  .observatory-telemetry-hud {
+    justify-content: center;
+  }
+
+  .hud-box-header,
+  .hud-cardinal-bar-top,
+  .hud-box-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sci-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .planalto-hud-box {
+    padding: 10px 10px;
+  }
+
+  .orbit-pill-tag {
+    position: static;
+    margin-bottom: 8px;
+  }
+
+  .quick-command-buttons {
+    flex-wrap: wrap;
+  }
+
+  .quick-btn.clear-btn {
+    flex: 1 1 100%;
   }
 }
 

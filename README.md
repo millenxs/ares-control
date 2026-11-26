@@ -172,6 +172,10 @@ Acesse **`http://localhost:5173`** no navegador.
 
 ## 7. Como Executar com Docker
 
+O `Dockerfile` utiliza build multi-stage pronto para produção (ambos os containers rodam com usuários não-root):
+- **`backend` (`python3.14-bookworm-slim`):** sincroniza dependências travadas sem pacotes de desenvolvimento (`uv sync --locked --no-dev`) e executa o Uvicorn como `appuser`.
+- **`frontend` (`node:26-alpine` ➔ `nginx:1.27-alpine`):** compila o bundle estático de produção (`npm run build`) e serve os arquivos otimizados via Nginx com compressão `gzip`, cache de ativos e headers de segurança como usuário `nginx`.
+
 Para subir o backend (`http://localhost:8000`) e o frontend (`http://localhost:5173`) juntos com um único comando:
 
 ```bash

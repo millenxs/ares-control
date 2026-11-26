@@ -12,9 +12,9 @@ services:
     build:
       context: .
       target: frontend
+      args:
+        VITE_API_BASE_URL: "http://localhost:8000"
     ports:
       - "5173:5173"
-    environment:
-      VITE_API_BASE_URL: "http://localhost:8000"
     depends_on:
       - backend
